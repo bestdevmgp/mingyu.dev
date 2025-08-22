@@ -30,23 +30,6 @@ const itemWidths: Record<Size, number> = {
   md: 48,
 };
 
-const generateSizeSet = (size: Size) => {
-  const viewWidths = Object.entries(mediaQueries).map<[Size, number]>(([key, { min }]) => [
-    key as Size,
-    Math.ceil((itemWidths[size] / min) * 100),
-  ]);
-
-  return viewWidths
-    .map(([key, value], index) => {
-      if (index === viewWidths.length - 1) {
-        return `${value}vw`;
-      }
-      const max = mediaQueries[key].max;
-      return `(max-width: ${max}px) ${value}vw`;
-    })
-    .join(", ");
-};
-
 const SkillItem = ({ size = "md", label, imageUrl, isActive = true }: SkillItemProps) => {
   const isRawImage = imageUrl.includes("raw");
 

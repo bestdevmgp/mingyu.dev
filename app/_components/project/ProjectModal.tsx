@@ -1,4 +1,3 @@
-import { ratio } from "@prisma/client";
 import cn from "classnames";
 import parse from "html-react-parser";
 import Image from "next/image";

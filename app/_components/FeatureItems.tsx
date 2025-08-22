@@ -21,7 +21,7 @@ const FeatureItems = ({ features }: FeatureItemsProps) => {
     if (isInView) {
       animate("li", { opacity: 1, y: 0 }, { duration: 0.6, delay: staggerMenuItems, ease: "easeOut" });
     }
-  }, [isInView]);
+  }, [isInView, animate]);
 
   return (
     <ul className="flex flex-col md:flex-row gap-16 md:gap-8 p-0 items-center md:items-start" ref={scope}>
