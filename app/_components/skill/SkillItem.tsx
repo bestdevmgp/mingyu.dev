@@ -9,27 +9,6 @@ interface SkillItemProps {
   isActive?: boolean;
 }
 
-const mediaQueries: Record<Size, { min: number; max: number }> = {
-  xs: {
-    min: 375,
-    max: 640,
-  },
-  sm: {
-    min: 640,
-    max: 768,
-  },
-  md: {
-    min: 768,
-    max: 9999,
-  },
-};
-
-const itemWidths: Record<Size, number> = {
-  xs: 24,
-  sm: 32,
-  md: 48,
-};
-
 const SkillItem = ({ size = "md", label, imageUrl, isActive = true }: SkillItemProps) => {
   const isRawImage = imageUrl.includes("raw");
 
