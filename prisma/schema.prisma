@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model ProjectItem {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(150)
+  content     String[] @db.VarChar(255)
+  projectId   Int?
+  image_ratio ratio?
+  row_number  Int?
+  blobUrls    String[] @db.VarChar(255)
+  project     project? @relation(fields: [projectId], references: [id])
+}
+
+model blog {
+  id          Int    @id @default(autoincrement())
+  title       String @db.VarChar(150)
+  date        String @db.VarChar(50)
+  forwardLink String @db.VarChar(255)
+  bgImageUrl  String @db.VarChar(255)
+}
+
+model education {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(100)
+  sub_title String   @db.VarChar(150)
+  period    String   @db.VarChar(50)
+  items     String[] @db.VarChar(255)
+  category  String?  @db.VarChar(50)
+}
+
+model experience {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(100)
+  period    String   @db.VarChar(30)
+  items     String[] @db.VarChar(255)
+  links     Json[]   @db.Json
+  is_active Boolean? @default(false)
+  sub_title String?  @db.VarChar(100)
+  index     Int      @default(0)
+  category  String?  @db.VarChar(100)
+  skill_ids Int[]
+}
+
+model intro {
+  id      Int     @id @default(autoincrement())
+  title   String  @db.VarChar(100)
+  detail  String
+  blobUrl String? @db.VarChar(255)
+}
+
+model project {
+  id          Int           @id @default(autoincrement())
+  title       String        @db.VarChar(100)
+  sub_title   String        @db.VarChar(150)
+  period      String        @db.VarChar(30)
+  member      String        @db.VarChar(100)
+  skills      String[]      @db.VarChar(50)
+  links       Json[]        @db.Json
+  row_number  Int?
+  skill_ids   Int[]         @default([])
+  ProjectItem ProjectItem[]
+}
+
+model skill {
+  id       Int      @id @default(autoincrement())
+  category Category
+  items    String[] @db.VarChar(255)
+  blobUrl  String   @default("") @db.VarChar(255)
+  item     String   @default("") @db.VarChar(255)
+  order    Int      @default(0)
+}
+
+enum Category {
+  BACKEND
+  DEVOPS
+  FRONTEND
+  AI
+  ETC
+}
+
+enum ratio {
+  PORTRAIT
+  LANDSCAPE
+  SQUARE
+}
