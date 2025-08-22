@@ -103,13 +103,13 @@ export default async function ProjectModal({ id }: ProjectModalProps) {
                 <div className="flex flex-col gap-4 mt-4">
                   {item.blobUrls.map((imageUrl, imgIndex) => (
                     <div key={`project-image-${index}-${imgIndex}`} className="w-full">
-                      <Image 
-                        className="w-full h-auto object-contain" 
-                        src={imageUrl} 
+                      <Image
+                        className="w-full h-auto object-contain"
+                        src={imageUrl}
                         alt={`${item.title} ${imgIndex + 1}`}
                         width={800}
                         height={600}
-                        style={{ maxWidth: '100%', height: 'auto' }}
+                        style={{ maxWidth: "100%", height: "auto" }}
                       />
                     </div>
                   ))}

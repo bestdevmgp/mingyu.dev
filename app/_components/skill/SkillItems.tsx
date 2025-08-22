@@ -5,7 +5,6 @@ import { Category, skill } from "@prisma/client";
 import cn from "classnames";
 import { motion, useMotionValue } from "framer-motion";
 
-
 import SkillItem from "./SkillItem";
 
 interface SkillItemsProps {

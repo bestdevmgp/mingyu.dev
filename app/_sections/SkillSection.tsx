@@ -4,11 +4,8 @@ import SkillItems from "@/_components/skill/SkillItems";
 import prisma from "@/lib/prisma";
 
 async function getAllSkills() {
-  return await prisma.skill.findMany({ 
-    orderBy: [
-      { category: "asc" },
-      { order: "asc" }
-    ]
+  return await prisma.skill.findMany({
+    orderBy: [{ category: "asc" }, { order: "asc" }],
   });
 }
 

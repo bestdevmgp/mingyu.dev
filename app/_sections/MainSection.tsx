@@ -2,8 +2,8 @@
 
 import { ExternalLink } from "react-feather";
 
-import ProfileImage from "@/_components/profile/ProfileImage";
 import CTAButton from "@/_components/buttons/CTAButton";
+import ProfileImage from "@/_components/profile/ProfileImage";
 
 const MainSection = () => {
   return (

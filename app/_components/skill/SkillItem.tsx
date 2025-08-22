@@ -48,15 +48,15 @@ const generateSizeSet = (size: Size) => {
 };
 
 const SkillItem = ({ size = "md", label, imageUrl, isActive = true }: SkillItemProps) => {
-  const isRawImage = imageUrl.includes('raw');
-  
+  const isRawImage = imageUrl.includes("raw");
+
   return (
     <div
       className={cn(
         "relative group/skill transition-all rounded-lg shadow-xl hover:shadow-2xl flex items-center justify-center",
         isRawImage ? "p-0" : "bg-white border border-gray-100 p-1",
         size === "md" && "w-12 h-12",
-        size === "sm" && "w-9 h-9", 
+        size === "sm" && "w-9 h-9",
         size === "xs" && "w-7 h-7",
         !isActive && "opacity-15 blur-md",
       )}
