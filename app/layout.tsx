@@ -21,7 +21,14 @@ export const metadata: Metadata = {
     description: "백엔드 개발자 박민규입니다. Java 및 Kotlin으로 Spring Boot 웹 애플리케이션 서버를 개발합니다.",
     url: "https://mingyu.dev",
     siteName: "박민규 | 백엔드 개발자",
-    images: ["/opengraph-image.jpg"],
+    images: [
+      {
+        url: "/opengraph-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "박민규 | 백엔드 개발자",
+      },
+    ],
     locale: "ko_KR",
     type: "website",
   },
