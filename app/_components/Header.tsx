@@ -46,7 +46,7 @@ const Header = ({ className, ...props }: HeaderProps) => {
         { duration: 0.2, delay: isExpanded ? staggerMenuItems : 0, at: "-0.2" },
       ],
     ]);
-  }, [isExpanded]);
+  }, [isExpanded, animate]);
 
   useOnClickOutside(scope, () => setIsExpanded(false));
 
