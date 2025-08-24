@@ -9,6 +9,7 @@ async function getEducations() {
   });
   return response;
 }
+
 export default async function EducationSection() {
   const data = await getEducations();
 
