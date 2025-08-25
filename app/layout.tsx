@@ -11,8 +11,6 @@ const inter = Gothic_A1({
   subsets: ["latin"],
 });
 
-export const revalidate = 300;
-
 export const metadata: Metadata = {
   metadataBase: new URL("https://mingyu.dev"),
   title: "박민규 | 백엔드 개발자",
