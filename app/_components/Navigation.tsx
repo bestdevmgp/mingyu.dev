@@ -5,8 +5,6 @@ import { forwardRef } from "react";
 import cn from "classnames";
 import Link from "next/link";
 
-// import DarkModeSwitch from "./DarkModeSwitch";
-// import LangSelect from "./LangSelect";
 import Logo from "./Logo";
 
 interface NavigationProps extends React.ComponentPropsWithoutRef<"nav"> {}

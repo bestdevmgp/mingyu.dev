@@ -28,7 +28,7 @@ const Modal = ({ children }: ModalProps) => {
 
   useEffect(() => {
     if (isOpen === false) {
-      setTimeout(exit, 200); // time for exit animation
+      setTimeout(exit, 200);
     }
   }, [isOpen, exit]);
 

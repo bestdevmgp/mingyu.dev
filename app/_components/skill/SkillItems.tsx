@@ -17,6 +17,8 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
   const activeCategoryWidth = useMotionValue(0);
 
   const handleCategoryClick = (e: React.MouseEvent, category: Category) => {
+    e.preventDefault();
+    
     if (activeCategory === category) {
       setActiveCategory(undefined);
     } else {
@@ -48,7 +50,9 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
               "text-sm sm:text-base font-semibold text-gray-400 px-2 sm:px-3 py-1 rounded-full",
               activeCategory === value && " text-gray-700 dark:text-gray-100",
             )}
-            onClickCapture={e => handleCategoryClick(e, value)}
+            onClick={e => handleCategoryClick(e, value)}
+            onTouchStart={(e) => e.stopPropagation()}
+            style={{ touchAction: 'manipulation' }}
           >
             <p className="relative z-10">{name}</p>
           </button>
