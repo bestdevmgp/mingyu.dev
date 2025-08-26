@@ -29,7 +29,7 @@ const MainSection = () => {
       <CTAButton
         label="이력서 바로가기"
         suffix={<ExternalLink className="w-4 h-4" />}
-        link={process.env.NEXT_PUBLIC_RESUME_DOWNLOAD_URL}
+        link="https://bestdevmgp.notion.site/303d28862aeb42129a198da5b8ab8c7e"
       />
     </div>
   );
