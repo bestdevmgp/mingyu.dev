@@ -19,8 +19,6 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
   const handleCategoryClick = (e: React.MouseEvent, category: Category) => {
     if (activeCategory === category) {
       setActiveCategory(undefined);
-      activeCategoryX.set(0);
-      activeCategoryWidth.set(0);
     } else {
       setActiveCategory(category);
       if (e.currentTarget.parentElement) {
@@ -48,7 +46,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             key={`nav-item-${value}`}
             className={cn(
               "text-sm sm:text-base font-semibold text-gray-400 px-2 sm:px-3 py-1 rounded-full",
-              activeCategory === value && " text-gray-700",
+              activeCategory === value && " text-gray-700 dark:text-gray-100",
             )}
             onClickCapture={e => handleCategoryClick(e, value)}
           >
