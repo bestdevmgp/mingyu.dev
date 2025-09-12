@@ -4,7 +4,6 @@ import { FC, PropsWithChildren, createContext, useContext, useState } from "reac
 
 import { motion } from "framer-motion";
 
-// Context
 interface SectionWatchContextType {
   activeId: string;
   activate: (sectionId: string) => void;
@@ -39,7 +38,6 @@ export const useSectionWatch = () => {
   return context;
 };
 
-// Component
 interface SectionWatcherProps extends Omit<PropsWithChildren, "id"> {
   id: string;
 }

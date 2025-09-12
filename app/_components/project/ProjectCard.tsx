@@ -27,7 +27,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
           id % 3 === 2 && "hover:bg-lime hover:text-gray-800",
         )}
       >
-        <div className="text-lef">
+        <div className="text-left">
           <div className="relative mb-2.5 md:mb-4 w-5 md:w-6 h-5 md:h-6">
             <Image
               className="group-hover:hidden object-contain"
@@ -44,7 +44,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
               priority={true}
             />
           </div>
-          <p className=" text-lg md:text-xl font-semibold md:mb-4 no-underline!important">{parse(title)}</p>
+          <p className="text-lg md:text-xl font-semibold md:mb-4">{parse(title)}</p>
           <p className="text-sm font-normal opacity-60 hidden md:inline-block">{parse(sub_title)}</p>
         </div>
 
