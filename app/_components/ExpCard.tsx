@@ -31,7 +31,7 @@ const ExpCard = ({ id, period, is_active, title, sub_title, skills, items }: Exp
 
       <div className="pl-6 sm:pl-0 sm:col-span-2 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-base md:text-lg font-semibold ">{title}</p>
+          <p className="text-base md:text-lg font-semibold">{title}</p>
           {sub_title && (
             <p className="text-xs md:text-sm font-normal text-foreground/60 whitespace-pre-wrap">{parse(sub_title)}</p>
           )}
@@ -45,21 +45,25 @@ const ExpCard = ({ id, period, is_active, title, sub_title, skills, items }: Exp
           ))}
         </ul>
 
-        <button className="text-primary/75 flex items-center gap-1 mt-2" onClick={toggleDetail}>
-          <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
-          <p className="text-left text-xs md:text-sm">주요 내용 {isExpanded ? "가리기" : "보기"}</p>
-        </button>
-        {isExpanded && (
-          <ul className="list-disc list-inside bg-foreground/5 rounded-lg p-4 -indent-5 pl-10">
-            {items.map((data, index) => (
-              <li
-                key={`exp-${id}-detail-${index}`}
-                className="text-sm md:text-base font-normal mb-1 last:mb-0 text-foreground/80"
-              >
-                {data}
-              </li>
-            ))}
-          </ul>
+        {items.length > 0 && (
+          <>
+            <button className="text-primary/75 flex items-center gap-1 mt-2" onClick={toggleDetail}>
+              <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
+              <p className="text-left text-xs md:text-sm">주요 내용 {isExpanded ? "가리기" : "보기"}</p>
+            </button>
+            {isExpanded && (
+              <ul className="list-disc list-inside bg-foreground/5 rounded-lg p-4 -indent-5 pl-10">
+                {items.map((data, index) => (
+                  <li
+                    key={`exp-${id}-detail-${index}`}
+                    className="text-sm md:text-base font-normal mb-1 last:mb-0 text-foreground/80"
+                  >
+                    {data}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </div>
     </div>
