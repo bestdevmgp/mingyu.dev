@@ -25,9 +25,14 @@ const OutroSection = () => {
             <p>me@mingyu.dev</p>
           </Link>
 
-          <p className="font-semibold">Github</p>
+          <p className="font-semibold">GitHub</p>
           <Link href="https://github.com/bestdevmgp" target="_blank" className="col-span-2">
             <p>@bestdevmgp</p>
+          </Link>
+
+          <p className="font-semibold">LinkedIn</p>
+          <Link href="https://www.linkedin.com/in/bestdevmgp/" target="_blank" className="col-span-2">
+            <p>in/bestdevmgp</p>
           </Link>
         </div>
       </SlideUpInView>
