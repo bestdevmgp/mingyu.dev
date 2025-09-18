@@ -27,10 +27,29 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const [hasMouseMoved, setHasMouseMoved] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
 
+  const resetZoom = useCallback(() => {
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  }, []);
+
+  const goToNext = useCallback(() => {
+    if (currentIndex < images.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      resetZoom();
+    }
+  }, [currentIndex, images.length, resetZoom]);
+
+  const goToPrevious = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+      resetZoom();
+    }
+  }, [currentIndex, resetZoom]);
+
   useEffect(() => {
     setCurrentIndex(initialIndex);
     resetZoom();
-  }, [initialIndex]);
+  }, [initialIndex, resetZoom]);
 
   useEffect(() => {
     if (isOpen) {
@@ -59,11 +78,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     }
   }, [isOpen]);
 
-  const resetZoom = useCallback(() => {
-    setZoom(1);
-    setPosition({ x: 0, y: 0 });
-  }, []);
-
   useEffect(() => {
     return () => {
       document.body.style.overflow = "";
@@ -71,12 +85,14 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     };
   }, []);
 
+  const onCloseCallback = useCallback(onClose, [onClose]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
 
       if (e.key === "Escape") {
-        onClose();
+        onCloseCallback();
       } else if (e.key === "ArrowLeft" && currentIndex > 0) {
         goToPrevious();
       } else if (e.key === "ArrowRight" && currentIndex < images.length - 1) {
@@ -86,21 +102,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, currentIndex, images.length]);
-
-  const goToNext = useCallback(() => {
-    if (currentIndex < images.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      resetZoom();
-    }
-  }, [currentIndex, images.length, resetZoom]);
-
-  const goToPrevious = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-      resetZoom();
-    }
-  }, [currentIndex, resetZoom]);
+  }, [isOpen, currentIndex, images.length, onCloseCallback, goToPrevious, goToNext]);
 
   const handleZoomIn = (clickX?: number, clickY?: number) => {
     if (clickX !== undefined && clickY !== undefined && imageRef.current) {
@@ -315,7 +317,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
               <button
                 onClick={e => {
                   e.stopPropagation();
-                  onClose();
+                  onCloseCallback();
                 }}
                 className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
                 aria-label="닫기"
