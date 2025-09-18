@@ -50,7 +50,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
 
         <ul className="p-0 flex gap-2 list-none flex-wrap">
           {skills.map(skill => (
-            <li key={`project-${id}-skill-${id}`} className="indent-0">
+            <li key={`project-${id}-skill-${skill.id}`} className="indent-0">
               <SkillItem label={skill.item} imageUrl={skill.blobUrl} size="xs" />
             </li>
           ))}
