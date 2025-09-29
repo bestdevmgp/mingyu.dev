@@ -22,8 +22,8 @@ const ProfileImage = () => {
       ref={scope}
       className="flex justify-center items-center"
       style={{ width: "100%", height: "240px", zIndex: 10 }}
-      whileHover={isDone ? { y: -20 } : undefined}
-      whileTap={isDone ? { scale: 0.95 } : undefined}
+      whileHover={isDone ? { y: -8 } : undefined}
+      whileTap={isDone ? { scale: 0.98 } : undefined}
       transition={{ duration: 0.3, type: "spring", damping: 10, bounce: 0.2 }}
     >
       <motion.div
@@ -35,7 +35,7 @@ const ProfileImage = () => {
           height: 180,
           borderRadius: "50%",
           overflow: "hidden",
-          border: "4px solid #ffffff",
+          border: "3.5px solid #ffffff",
           boxShadow: "0 12px 40px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.08)",
           backgroundColor: "#f3f4f6",
         }}
