@@ -26,11 +26,7 @@ const MainSection = () => {
         함께 제품을 만들고 성장시킬 곳을 찾고 있습니다.
       </p>
 
-      <CTAButton
-        label="이력서 바로가기"
-        suffix={<ExternalLink className="w-4 h-4" />}
-        link="https://bestdevmgp.notion.site/303d28862aeb42129a198da5b8ab8c7e"
-      />
+      <CTAButton label="이력서 바로가기" suffix={<ExternalLink className="w-4 h-4" />} link="https://cv.mingyu.dev" />
     </div>
   );
 };
