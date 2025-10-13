@@ -33,6 +33,7 @@ model education {
   period    String   @db.VarChar(50)
   items     String[] @db.VarChar(255)
   category  String?  @db.VarChar(50)
+  is_active Boolean? @default(false)
 }
 
 model experience {
