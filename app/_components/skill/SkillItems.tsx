@@ -47,14 +47,17 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
           <button
             key={`nav-item-${value}`}
             className={cn(
-              "text-sm sm:text-base font-semibold text-gray-400 px-2 sm:px-3 py-1 rounded-full",
-              activeCategory === value && " text-gray-700 dark:text-gray-100",
+              "text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
+              "hover:bg-gray-200/100 dark:hover:bg-gray-700/10",
+              activeCategory === value ? "text-gray-700 dark:text-gray-100" : "text-gray-400 dark:text-gray-500",
             )}
             onClick={e => handleCategoryClick(e, value)}
             onTouchStart={e => e.stopPropagation()}
             style={{ touchAction: "manipulation" }}
           >
-            <p className="relative z-10">{name}</p>
+            <span className="relative z-10 hover:text-gray-600 dark:hover:text-gray-800 transition-colors duration-200">
+              {name}
+            </span>
           </button>
         ))}
         <motion.div
