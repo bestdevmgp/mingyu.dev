@@ -70,13 +70,14 @@ const Header = ({ className, ...props }: HeaderProps) => {
               <li
                 className={cn(
                   "px-3 md:px-4 py-1.5 md:py-2 rounded-full flex gap-0.5 items-center transition-colors",
+                  "hover:bg-background/50",
                   activeId === id && "bg-background",
                 )}
               >
                 <span
                   className={cn(
-                    "text-xs md:text-sm font-semibold whitespace-nowrap",
-                    activeId === id ? "text-foreground" : "text-foreground/60",
+                    "text-xs md:text-sm font-semibold whitespace-nowrap transition-colors",
+                    activeId === id ? "text-foreground" : "text-foreground/60 hover:text-foreground/80",
                   )}
                 >
                   {label}
@@ -102,7 +103,12 @@ const Header = ({ className, ...props }: HeaderProps) => {
         style={{ clipPath: "inset(0% 50% 100% 50% round 10px)" }}
       >
         {navItems.map(({ label, id }) => (
-          <Link key={`header-item-m-${id}`} href={`#${id}`} className={cn("mobile-menu-item", "no-underline")}>
+          <Link
+            key={`header-item-m-${id}`}
+            href={`#${id}`}
+            className={cn("mobile-menu-item", "no-underline")}
+            onClick={() => setIsExpanded(false)}
+          >
             <li className="py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80">{label}</li>
           </Link>
         ))}

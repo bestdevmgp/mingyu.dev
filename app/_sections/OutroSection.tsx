@@ -1,10 +1,11 @@
 import Link from "next/link";
 
+import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 
 const OutroSection = () => {
   return (
-    <section className="py-20 md:py-24">
+    <SectionWatcher id="contact">
       <SlideUpInView>
         <p className="text-center text-2xl md:text-3xl font-semibold leading-normal md:leading-normal mb-4 md:mb-6">
           감사합니다
@@ -36,7 +37,7 @@ const OutroSection = () => {
           </Link>
         </div>
       </SlideUpInView>
-    </section>
+    </SectionWatcher>
   );
 };
 
