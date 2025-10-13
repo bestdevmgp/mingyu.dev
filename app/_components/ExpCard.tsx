@@ -51,18 +51,25 @@ const ExpCard = ({ id, period, is_active, title, sub_title, skills, items }: Exp
               <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
               <p className="text-left text-xs md:text-sm">주요 내용 {isExpanded ? "가리기" : "보기"}</p>
             </button>
-            {isExpanded && (
-              <ul className="list-disc list-inside bg-foreground/5 rounded-lg p-4 -indent-5 pl-10">
-                {items.map((data, index) => (
-                  <li
-                    key={`exp-${id}-detail-${index}`}
-                    className="text-sm md:text-base font-normal mb-1 last:mb-0 text-foreground/80"
-                  >
-                    {data}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <div
+              className={cn(
+                "grid transition-all duration-300 ease-in-out",
+                isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+              )}
+            >
+              <div className="overflow-hidden">
+                <ul className="list-disc list-inside bg-foreground/5 rounded-lg p-4 -indent-5 pl-10 mt-2">
+                  {items.map((data, index) => (
+                    <li
+                      key={`exp-${id}-detail-${index}`}
+                      className="text-sm md:text-base font-normal mb-1 last:mb-0 text-foreground/80"
+                    >
+                      {data}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </>
         )}
       </div>
