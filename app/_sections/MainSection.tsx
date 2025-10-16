@@ -26,7 +26,11 @@ const MainSection = () => {
         함께 제품을 만들고 성장시킬 곳을 찾고 있습니다.
       </p>
 
-      <CTAButton label="포트폴리오 바로가기" suffix={<ExternalLink className="w-4 h-4" />} link="https://cv.mingyu.dev" />
+      <CTAButton
+        label="포트폴리오 바로가기"
+        suffix={<ExternalLink className="w-4 h-4" />}
+        link="https://cv.mingyu.dev"
+      />
     </div>
   );
 };
