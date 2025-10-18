@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: "박민규 | 백엔드 개발자",
     images: [
       {
-        url: "/opengraph-image.jpg",
+        url: "/opengraph-image.png",
         width: 1200,
         height: 630,
         alt: "박민규 | 백엔드 개발자",
