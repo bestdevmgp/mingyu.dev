@@ -55,7 +55,12 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             onTouchStart={e => e.stopPropagation()}
             style={{ touchAction: "manipulation" }}
           >
-            <span className="relative z-10 hover:text-gray-600 dark:hover:text-gray-800 transition-colors duration-200">
+            <span
+              className={cn(
+                "relative z-10 transition-colors duration-200",
+                activeCategory !== value && "hover:text-gray-600 dark:hover:text-gray-800",
+              )}
+            >
               {name}
             </span>
           </button>
