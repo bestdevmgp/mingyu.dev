@@ -48,7 +48,7 @@ export default async function ExperienceSection() {
 
         {[
           { title: "프로젝트", data: projects },
-          { title: "수상 및 활동", data: activities },
+          { title: "대표 수상 및 활동", data: activities },
         ].map(({ title, data }) => (
           <React.Fragment key={`exp-${title}`}>
             <div className="flex gap-4 items-center md:max-w-[768px] mx-auto mt-12 mb-8">
