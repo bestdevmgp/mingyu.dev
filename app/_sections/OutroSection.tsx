@@ -32,8 +32,8 @@ const OutroSection = () => {
           </Link>
 
           <p className="font-semibold">LinkedIn</p>
-          <Link href="https://www.linkedin.com/in/bestdevmgp/" target="_blank" className="col-span-2">
-            <p>in/bestdevmgp</p>
+          <Link href="https://www.linkedin.com/in/min-gyu" target="_blank" className="col-span-2">
+            <p>in/min-gyu</p>
           </Link>
         </div>
       </SlideUpInView>
