@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { motion, useAnimate } from "framer-motion";
+import { motion, useAnimate } from "motion/react";
 import Image from "next/image";
 
 const ProfileImage = () => {

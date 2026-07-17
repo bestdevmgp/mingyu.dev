@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 
 interface ImageModalProps {
@@ -46,10 +46,14 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     }
   }, [currentIndex, resetZoom]);
 
+  // Intentionally resync the viewer's internal state whenever a different
+  // image (initialIndex) is opened by the parent.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setCurrentIndex(initialIndex);
     resetZoom();
   }, [initialIndex, resetZoom]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (isOpen) {
@@ -85,14 +89,12 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     };
   }, []);
 
-  const onCloseCallback = useCallback(onClose, [onClose]);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
 
       if (e.key === "Escape") {
-        onCloseCallback();
+        onClose();
       } else if (e.key === "ArrowLeft" && currentIndex > 0) {
         goToPrevious();
       } else if (e.key === "ArrowRight" && currentIndex < images.length - 1) {
@@ -102,7 +104,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, currentIndex, images.length, onCloseCallback, goToPrevious, goToNext]);
+  }, [isOpen, currentIndex, images.length, onClose, goToPrevious, goToNext]);
 
   const handleZoomIn = (clickX?: number, clickY?: number) => {
     if (clickX !== undefined && clickY !== undefined && imageRef.current) {
@@ -134,6 +136,8 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   };
 
   const handleImageClick = (e: React.MouseEvent) => {
+    // Date.now() runs only inside this click handler, never during render.
+    // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
     if (now - lastTouchTime < 300) {
       return;
@@ -295,7 +299,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center image-modal-container"
+        className="fixed inset-0 bg-black/90 backdrop-blur-xs z-50 flex items-center justify-center image-modal-container"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -317,7 +321,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
               <button
                 onClick={e => {
                   e.stopPropagation();
-                  onCloseCallback();
+                  onClose();
                 }}
                 className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
                 aria-label="닫기"

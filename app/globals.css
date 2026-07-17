@@ -1,14 +1,73 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme inline {
+  --background-color-dark: rgb(15, 24, 42);
+  --background-color-light: #ffffff;
+
+  --color-blue: #007aff;
+  --color-green: #00c676;
+  --color-lime: #e2ff00;
+  --color-black: #222222;
+  --color-primary: rgb(var(--primary-rgb));
+  --color-secondary: rgb(var(--secondary-rgb));
+  --color-point: rgb(var(--point-rgb));
+  --color-foreground: rgb(var(--foreground-rgb));
+  --color-background: rgb(var(--background-rgb));
+
+  --z-index-modal-overlay: 899;
+  --z-index-modal-content: 900;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility section-title {
+  @apply text-2xl font-semibold break-keep mb-8 md:mb-12 text-center;
+}
+
+@utility section-description {
+  @apply text-center text-sm md:text-base font-normal text-gray-400 mb-6 md:mb-8;
+}
+
+@utility section-eyebrow {
+  @apply text-primary font-semibold text-sm md:text-base mb-1 md:mb-1.5 text-center;
+}
+
+@utility overview-frame {
+  scrollbar-width: none;
+  &.box::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility box {
+  &.overview-frame::-webkit-scrollbar {
+    display: none;
+  }
+}
 
 :root {
   --foreground-rgb: 34, 34, 34;
   --background-rgb: 255, 255, 255;
   /* blue, green, lime */
-  --color-primary: 0, 122, 255;
-  --color-secondary: 0, 198, 118;
-  --color-point: 226, 255, 0;
+  --primary-rgb: 0, 122, 255;
+  --secondary-rgb: 0, 198, 118;
+  --point-rgb: 226, 255, 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,9 +75,9 @@
     --foreground-rgb: 255, 255, 255;
     --background-rgb: 15, 24, 42;
     /* green, lime, blue */
-    --color-primary: 0, 209, 125;
-    --color-secondary: 203, 229, 0;
-    --color-point: 0, 122, 255;
+    --primary-rgb: 0, 209, 125;
+    --secondary-rgb: 203, 229, 0;
+    --point-rgb: 0, 122, 255;
   }
 }
 
@@ -60,26 +119,5 @@ body {
   }
   ol {
     @apply list-decimal;
-  }
-}
-
-@layer components {
-  .section-title {
-    @apply text-2xl font-semibold break-keep mb-8 md:mb-12 text-center;
-  }
-
-  .section-description {
-    @apply text-center text-sm md:text-base font-normal text-gray-400 mb-6 md:mb-8;
-  }
-
-  .section-eyebrow {
-    @apply text-primary font-semibold text-sm md:text-base mb-1 md:mb-1.5 text-center;
-  }
-
-  .overview-frame {
-    scrollbar-width: none;
-  }
-  .overview-frame.box::-webkit-scrollbar {
-    display: none;
   }
 }

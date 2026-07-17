@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { Category, skill } from "@prisma/client";
 import cn from "classnames";
-import { motion, useMotionValue } from "framer-motion";
+import { motion, useMotionValue } from "motion/react";
 
 import SkillItem from "./SkillItem";
 
@@ -48,7 +48,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             key={`nav-item-${value}`}
             className={cn(
               "text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
-              "hover:bg-gray-200/100 dark:hover:bg-gray-700/10",
+              "hover:bg-gray-200 dark:hover:bg-gray-700/10",
               activeCategory === value ? "text-gray-700 dark:text-gray-100" : "text-gray-400 dark:text-gray-500",
             )}
             onClick={e => handleCategoryClick(e, value)}

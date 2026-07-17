@@ -15,12 +15,12 @@ const BlogCard = ({ title, date, forwardLink, bgImageUrl }: BlogCardProps) => {
     <Link className="no-underline" href={forwardLink} target="_blank">
       <div className="w-full h-fit md:h-64 xl:h-72 p-5 md:p-6 rounded-md md:rounded-lg border-black/25 relative overflow-hidden group">
         <Image className="object-cover" src={bgImageUrl} alt={`blog-${title}`} fill />
-        <div className="overlay absolute top-0 bottom-0 left-0 right-0 bg-black/50 backdrop-blur-[2px] group-hover:backdrop-blur transition-[backdrop-filter]" />
+        <div className="overlay absolute top-0 bottom-0 left-0 right-0 bg-black/50 backdrop-blur-[2px] group-hover:backdrop-blur-sm transition-[backdrop-filter]" />
 
         <div className="relative z-10 flex flex-col md:h-full">
           <p className="text-white text-lg md:text-xl font-bold mb-10 md:mb-4">{title}</p>
 
-          <div className="text-white/60 text-xs md:text-sm font-normal flex justify-between md:flex-col md:flex-grow">
+          <div className="text-white/60 text-xs md:text-sm font-normal flex justify-between md:flex-col md:grow">
             <p>{date}</p>
             <div className="flex gap-1 items-center">
               <p>자세히 보기</p>

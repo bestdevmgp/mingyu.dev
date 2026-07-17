@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { X } from "react-feather";
 import { RemoveScroll } from "react-remove-scroll";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 
 import useOnClickOutside from "@/utils/useOnClickOutside";
@@ -63,7 +63,7 @@ const Modal = ({ children }: ModalProps) => {
                   id="modal-content"
                   ref={contentRef}
                   className="
-                    w-96 md:w-[688px] max-h-[calc(100vh_-_6rem)] my-12 p-6 md:p-8
+                    w-96 md:w-[688px] max-h-[calc(100vh-6rem)] my-12 p-6 md:p-8
                     bg-background border border-foreground/15 rounded-md md:rounded-lg
                     relative overflow-y-scroll
                     "

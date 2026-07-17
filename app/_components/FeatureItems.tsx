@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 import { intro } from "@prisma/client";
-import { stagger, useAnimate, useInView } from "framer-motion";
+import { stagger, useAnimate, useInView } from "motion/react";
 
 import FeatureItem from "./FeatureItem";
 

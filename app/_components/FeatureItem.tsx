@@ -1,6 +1,6 @@
 import { intro } from "@prisma/client";
-import { motion, MotionProps } from "framer-motion";
 import parse from "html-react-parser";
+import { motion, MotionProps } from "motion/react";
 import Image from "next/image";
 
 interface FeatureItemProps extends intro, MotionProps {}
@@ -11,7 +11,7 @@ const FeatureItem = ({ id, blobUrl, title, detail, ...props }: FeatureItemProps)
       {blobUrl && (
         <div className="relative w-full h-60 ">
           <Image
-            className="bg-foreground/5 dark:bg-foreground/[0.08] rounded-lg shadow-[0_0_0_1px_rgba(0,0,0,0.05)] object-cover object-center"
+            className="bg-foreground/5 dark:bg-foreground/8 rounded-lg shadow-[0_0_0_1px_rgba(0,0,0,0.05)] object-cover object-center"
             src={blobUrl}
             fill
             alt={`feature-${title}`}
