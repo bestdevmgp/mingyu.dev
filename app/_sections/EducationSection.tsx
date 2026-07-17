@@ -25,7 +25,7 @@ export default async function EducationSection() {
           {educations.map(data => (
             <EducationCard key={`edu-card-${data.id}`} {...data} />
           ))}
-          <div className="w-full max-w-[600px] h-[1px] mx-auto my-3 md:my-5 bg-gradient-to-r from-foreground/0 via-foreground/15 to-foreground/0" />
+          <div className="w-full max-w-[600px] h-px mx-auto my-3 md:my-5 bg-linear-to-r from-foreground/0 via-foreground/15 to-foreground/0" />
           {certifications.map(data => (
             <EducationCard key={`edu-card-${data.id}`} {...data} />
           ))}

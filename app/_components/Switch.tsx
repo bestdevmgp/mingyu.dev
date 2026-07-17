@@ -13,7 +13,7 @@ const Switch = ({ onChange, defaultChecked }: SwitchProps) => {
     <label className="relative inline-block align-middle">
       <input
         type="checkbox"
-        className="border-0 w-[1px] h-[1px] m-[-1px] p-0 overflow-hidden absolute opacity-0"
+        className="border-0 w-px h-px -m-px p-0 overflow-hidden absolute opacity-0"
         defaultChecked={defaultChecked}
         onChange={e => {
           onChange?.(e);

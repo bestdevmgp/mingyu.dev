@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "react-feather";
 
 import cn from "classnames";
-import { useAnimate, stagger } from "framer-motion";
+import { useAnimate, stagger } from "motion/react";
 import Link from "next/link";
 
 import useOnClickOutside from "@/utils/useOnClickOutside";

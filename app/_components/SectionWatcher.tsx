@@ -2,7 +2,7 @@
 
 import { FC, PropsWithChildren, createContext, useContext, useState } from "react";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 interface SectionWatchContextType {
   activeId: string;

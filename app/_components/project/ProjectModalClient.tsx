@@ -91,7 +91,7 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
         </div>
       </div>
 
-      <div className="w-full h-[1px] min-h-[1px] bg-foreground/10 my-10 md:my-12" />
+      <div className="w-full h-px min-h-px bg-foreground/10 my-10 md:my-12" />
 
       <div id="project-modal-content" className="text-sm md:text-base flex flex-col gap-2">
         <p className="font-semibold text-base md:text-lg">상세 내용</p>

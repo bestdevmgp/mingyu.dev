@@ -52,9 +52,9 @@ export default async function ExperienceSection() {
         ].map(({ title, data }) => (
           <React.Fragment key={`exp-${title}`}>
             <div className="flex gap-4 items-center md:max-w-[768px] mx-auto mt-12 mb-8">
-              <div className="w-full h-[1px] bg-gradient-to-l from-foreground/15" />
-              <p className="flex-shrink-0 text-xs md:text-sm text-foreground/50">{title}</p>
-              <div className="w-full h-[1px] bg-gradient-to-r from-foreground/15" />
+              <div className="w-full h-px bg-linear-to-l from-foreground/15" />
+              <p className="shrink-0 text-xs md:text-sm text-foreground/50">{title}</p>
+              <div className="w-full h-px bg-linear-to-r from-foreground/15" />
             </div>
 
             <div className="flex flex-col gap-8 md:gap-10">
