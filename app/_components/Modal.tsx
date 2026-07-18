@@ -27,6 +27,21 @@ const Modal = ({ children }: ModalProps) => {
   useOnClickOutside(contentRef, close);
 
   useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [close]);
+
+  useEffect(() => {
+    window.__lenis?.stop();
+    return () => {
+      window.__lenis?.start();
+    };
+  }, []);
+
+  useEffect(() => {
     if (isOpen === false) {
       setTimeout(exit, 200);
     }
@@ -62,16 +77,17 @@ const Modal = ({ children }: ModalProps) => {
                 <div
                   id="modal-content"
                   ref={contentRef}
+                  data-lenis-prevent
                   className="
-                    w-96 md:w-[688px] max-h-[calc(100vh-6rem)] my-12 p-6 md:p-8
+                    w-96 md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-6rem)] my-12 p-6 md:p-8
                     bg-background border border-foreground/15 rounded-md md:rounded-lg
-                    relative overflow-y-scroll
+                    relative overflow-y-auto
                     "
                 >
                   {children}
                   <X
                     className="absolute top-5 right-5 md:top-7 md:right-7
-                    w-6 h-6 md:w-8 md:h-8
+                    w-6 h-6 md:w-8 md:h-8 cursor-pointer
                     text-foreground opacity-45 hover:opacity-60 active:opacity-75
                   "
                     strokeWidth={1.5}

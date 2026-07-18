@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowUpRight } from "react-feather";
 
 import cn from "classnames";
 import parse from "html-react-parser";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import ImageModal from "./ImageModal";
 import SkillItem from "../skill/SkillItem";
@@ -21,6 +23,7 @@ interface ProjectData {
     title: string;
     content: string[] | null;
     blobUrls: string[] | null;
+    image_ratio: "PORTRAIT" | "LANDSCAPE" | "SQUARE" | null;
   }>;
 }
 
@@ -30,6 +33,7 @@ interface ProjectModalClientProps {
 }
 
 export default function ProjectModalClient({ id, projectData }: ProjectModalClientProps) {
+  const t = useTranslations("Project");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -53,10 +57,17 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
   );
 
   const linksElement = (
-    <div className="flex gap-2">
+    <div className="flex gap-4 flex-wrap">
       {links.map(({ href, label }) => (
-        <Link key={`link-${label}`} href={href}>
-          {label}
+        <Link
+          key={`link-${label}`}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="no-underline text-primary inline-flex items-center gap-1 hover:opacity-70 transition-opacity"
+        >
+          <span className="underline underline-offset-2">{label}</span>
+          <ArrowUpRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
         </Link>
       ))}
     </div>
@@ -73,15 +84,15 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
 
         <div className="flex gap-6 flex-wrap">
           {[
-            { title: "프로젝트 설명", content: parse(sub_title), isFull: true },
+            { title: t("description"), content: parse(sub_title), isFull: true },
             {
-              title: "기술 스택",
+              title: t("skills"),
               content: skillsElement,
               isFull: true,
             },
-            { title: "참여인원", content: member },
-            { title: "기간", content: period },
-            ...(links.length ? [{ title: "관련 링크", content: linksElement }] : []),
+            { title: t("member"), content: member },
+            { title: t("period"), content: period },
+            ...(links.length ? [{ title: t("links"), content: linksElement }] : []),
           ].map(({ title, content, isFull }) => (
             <div key={`project-info-${title}`} className={cn("flex flex-col gap-1", isFull && "w-full")}>
               <p className="text-sm font-medium text-foreground/50">{title}</p>
@@ -94,7 +105,7 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
       <div className="w-full h-px min-h-px bg-foreground/10 my-10 md:my-12" />
 
       <div id="project-modal-content" className="text-sm md:text-base flex flex-col gap-2">
-        <p className="font-semibold text-base md:text-lg">상세 내용</p>
+        <p className="font-semibold text-base md:text-lg">{t("detail")}</p>
         <ol className="list-decimal break-keep">
           {items.map((item, index) => (
             <li key={`project-item-${index}`} className="mb-6 md:mb-8 last:mb-0">
@@ -110,9 +121,18 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
                 </ul>
               )}
               {item.blobUrls && item.blobUrls.length > 0 && (
-                <div className="flex flex-col gap-4 mt-4">
+                <div
+                  className={cn(
+                    "flex gap-4 mt-4",
+
+                    item.image_ratio === "PORTRAIT" ? "flex-row items-start" : "flex-col",
+                  )}
+                >
                   {item.blobUrls.map((imageUrl, imgIndex) => (
-                    <div key={`project-image-${index}-${imgIndex}`} className="w-full cursor-pointer">
+                    <div
+                      key={`project-image-${index}-${imgIndex}`}
+                      className={cn("cursor-pointer", item.image_ratio === "PORTRAIT" ? "flex-1 min-w-0" : "w-full")}
+                    >
                       <Image
                         className="w-full h-auto object-contain hover:opacity-80 transition-opacity"
                         src={imageUrl}

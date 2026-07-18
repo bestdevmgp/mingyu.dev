@@ -1,21 +1,17 @@
 import React from "react";
 
+import { getLocale, getTranslations } from "next-intl/server";
+
 import ExpCard from "@/_components/ExpCard";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import prisma from "@/lib/prisma";
+import { getSkills } from "@/utils/api";
+import { applyLocaleAll } from "@/utils/localize";
 import { parsePrismaJSON } from "@/utils/parsePrisma";
 
-async function getSkills(ids: number[]) {
-  const response = await prisma.skill.findMany({
-    where: { OR: ids.map(id => ({ id })) },
-    orderBy: { category: "asc" },
-  });
-  return response;
-}
-
-async function getExperience() {
-  const experiences = await prisma.experience.findMany({ orderBy: { index: "asc" } });
+async function getExperience(locale: string) {
+  const experiences = applyLocaleAll(await prisma.experience.findMany({ orderBy: { index: "asc" } }), locale);
 
   const expWithSkills = await Promise.all(
     experiences.map(async ({ skill_ids, ...exp }) => {
@@ -31,39 +27,40 @@ async function getExperience() {
 }
 
 export default async function ExperienceSection() {
-  const data = await getExperience();
+  const t = await getTranslations("Experience");
+  const data = await getExperience(await getLocale());
 
+  const interns = data.filter(({ category }) => category === "INTERN");
   const activities = data.filter(({ category }) => category === "ACTIVITY");
   const projects = data.filter(({ category }) => category === "PROJECT");
 
   return (
     <SectionWatcher id="experience">
       <SlideUpInView>
-        <h2 className="section-eyebrow">활동 및 프로젝트</h2>
-        <p className="section-title">
-          다양한 프로젝트와 활동을 통해
-          <br />
-          경험을 쌓고 있습니다.
-        </p>
+        <h2 className="section-eyebrow">{t("eyebrow")}</h2>
+        <p className="section-title">{t.rich("title", { br: () => <br /> })}</p>
 
         {[
-          { title: "프로젝트", data: projects },
-          { title: "대표 수상 및 활동", data: activities },
-        ].map(({ title, data }) => (
-          <React.Fragment key={`exp-${title}`}>
-            <div className="flex gap-4 items-center md:max-w-[768px] mx-auto mt-12 mb-8">
-              <div className="w-full h-px bg-linear-to-l from-foreground/15" />
-              <p className="shrink-0 text-xs md:text-sm text-foreground/50">{title}</p>
-              <div className="w-full h-px bg-linear-to-r from-foreground/15" />
-            </div>
+          { title: t("groupIntern"), data: interns },
+          { title: t("groupProject"), data: projects },
+          { title: t("groupActivity"), data: activities },
+        ]
+          .filter(({ data }) => data.length > 0)
+          .map(({ title, data }) => (
+            <React.Fragment key={`exp-${title}`}>
+              <div className="flex gap-4 items-center md:max-w-[768px] mx-auto mt-12 mb-8">
+                <div className="w-full h-px bg-linear-to-l from-foreground/15" />
+                <p className="shrink-0 text-xs md:text-sm text-foreground/50">{title}</p>
+                <div className="w-full h-px bg-linear-to-r from-foreground/15" />
+              </div>
 
-            <div className="flex flex-col gap-8 md:gap-10">
-              {data.map(props => (
-                <ExpCard key={`exp-${title}-card-${props.id}`} {...props} />
-              ))}
-            </div>
-          </React.Fragment>
-        ))}
+              <div className="flex flex-col gap-8 md:gap-10">
+                {data.map(props => (
+                  <ExpCard key={`exp-${title}-card-${props.id}`} {...props} />
+                ))}
+              </div>
+            </React.Fragment>
+          ))}
       </SlideUpInView>
     </SectionWatcher>
   );

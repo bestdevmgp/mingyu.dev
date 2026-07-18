@@ -1,7 +1,10 @@
+import { getLocale, getTranslations } from "next-intl/server";
+
 import EducationCard from "@/_components/EducationCard";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import prisma from "@/lib/prisma";
+import { applyLocaleAll } from "@/utils/localize";
 
 async function getEducations() {
   const response = await prisma.education.findMany({
@@ -11,7 +14,9 @@ async function getEducations() {
 }
 
 export default async function EducationSection() {
-  const data = await getEducations();
+  const locale = await getLocale();
+  const t = await getTranslations("Education");
+  const data = applyLocaleAll(await getEducations(), locale);
 
   const educations = data.filter(d => d.category === "EDUCATION");
   const certifications = data.filter(d => d.category === "CERTIFICATION");
@@ -19,7 +24,7 @@ export default async function EducationSection() {
   return (
     <SectionWatcher id="education">
       <SlideUpInView>
-        <h2 className="section-eyebrow mb-6 md:mb-8">교육 및 자격증</h2>
+        <h2 className="section-eyebrow mb-6 md:mb-8">{t("eyebrow")}</h2>
 
         <div className="flex flex-col gap-8 md:gap-10">
           {educations.map(data => (

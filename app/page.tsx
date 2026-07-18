@@ -1,4 +1,5 @@
 import Header from "@/_components/Header";
+import SiteHeader from "@/_components/SiteHeader";
 import BlogSection from "@/_sections/BlogSection";
 import EducationSection from "@/_sections/EducationSection";
 import ExperienceSection from "@/_sections/ExperienceSection";
@@ -13,6 +14,7 @@ import { SectionWatchProvider } from "./_components/SectionWatcher";
 export default function Home() {
   return (
     <SectionWatchProvider>
+      <SiteHeader />
       <main
         className="
         w-full min-w-96 max-w-(--breakpoint-lg) min-h-screen mx-auto

@@ -16,6 +16,8 @@ async function getBlogs() {
 export default async function BlogSection() {
   const blogs = await getBlogs();
 
+  if (!blogs.length) return null;
+
   return (
     <SectionWatcher id="blog">
       <SlideUpInView>

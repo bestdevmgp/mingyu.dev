@@ -14,6 +14,7 @@ model ProjectItem {
   image_ratio ratio?
   row_number  Int?
   blobUrls    String[] @db.VarChar(255)
+  i18n        Json?
   project     project? @relation(fields: [projectId], references: [id])
 }
 
@@ -33,6 +34,7 @@ model education {
   items     String[] @db.VarChar(255)
   category  String?  @db.VarChar(50)
   is_active Boolean? @default(false)
+  i18n      Json?
 }
 
 model experience {
@@ -46,6 +48,7 @@ model experience {
   index     Int      @default(0)
   category  String?  @db.VarChar(100)
   skill_ids Int[]
+  i18n      Json?
 }
 
 model intro {
@@ -53,6 +56,7 @@ model intro {
   title   String  @db.VarChar(100)
   detail  String
   blobUrl String? @db.VarChar(255)
+  i18n    Json?
 }
 
 model project {
@@ -65,6 +69,7 @@ model project {
   links       Json[]        @db.Json
   row_number  Int?
   skill_ids   Int[]         @default([])
+  i18n        Json?
   ProjectItem ProjectItem[]
 }
 

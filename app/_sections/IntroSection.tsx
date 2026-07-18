@@ -1,6 +1,9 @@
+import { getLocale, getTranslations } from "next-intl/server";
+
 import FeatureItems from "@/_components/FeatureItems";
 import SlideUpInView from "@/_components/SlideUpInView";
 import prisma from "@/lib/prisma";
+import { applyLocaleAll } from "@/utils/localize";
 
 async function getIntro() {
   const response = await prisma.intro.findMany({ orderBy: { id: "asc" } });
@@ -8,13 +11,15 @@ async function getIntro() {
 }
 
 export default async function IntroSection() {
-  const features = await getIntro();
+  const locale = await getLocale();
+  const t = await getTranslations("Intro");
+  const features = applyLocaleAll(await getIntro(), locale);
 
   return (
     <section id="intro">
       <SlideUpInView>
-        <p className="section-eyebrow">핵심 역량</p>
-        <p className="section-title">유연하게 소통하고 견고하게 개발합니다.</p>
+        <p className="section-eyebrow">{t("eyebrow")}</p>
+        <p className="section-title">{t("title")}</p>
         <FeatureItems features={features} />
       </SlideUpInView>
     </section>

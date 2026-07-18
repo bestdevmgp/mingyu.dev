@@ -1,0 +1,65 @@
+{
+  "Header": {
+    "name": "Mingyu Park",
+    "role": "Backend Developer",
+    "toggleTheme": "Toggle theme",
+    "changeLanguage": "Change language",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "contact": "Contact"
+  },
+  "Nav": {
+    "skill": "Skills",
+    "experience": "Activity",
+    "project": "Projects",
+    "education": "Education"
+  },
+  "Main": {
+    "heading": "Hello,<br></br>I'm <em>Mingyu Park</em>,<br></br>a Backend Developer.",
+    "subtitle": "I design and build web application servers centered on Spring Boot.<br></br>I love building and growing products together.",
+    "cta": "View Portfolio"
+  },
+  "Intro": {
+    "eyebrow": "Core Competencies",
+    "title": "I communicate flexibly and build robustly."
+  },
+  "Skill": {
+    "eyebrow": "Tech Stack",
+    "title": "I work with the technologies below.",
+    "backend": "Backend",
+    "devops": "Infra",
+    "frontend": "Frontend",
+    "ai": "AI"
+  },
+  "Experience": {
+    "eyebrow": "Internship & Activities",
+    "title": "Building experience through<br></br>hands-on work and diverse activities.",
+    "groupIntern": "Internship",
+    "groupProject": "Projects",
+    "groupActivity": "Awards & Activities",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details"
+  },
+  "Project": {
+    "eyebrow": "Projects",
+    "title": "Explore the details of my key projects.",
+    "showMore": "Show more",
+    "description": "Overview",
+    "skills": "Tech Stack",
+    "member": "Team",
+    "period": "Period",
+    "links": "Links",
+    "detail": "Details"
+  },
+  "Education": {
+    "eyebrow": "Education & Certifications"
+  },
+  "Outro": {
+    "heading": "Thank you.<br></br>If you'd like to know more,<br></br>feel free to reach out.",
+    "phone": "Phone",
+    "email": "Email"
+  },
+  "Common": {
+    "backHome": "Back to home"
+  }
+}
