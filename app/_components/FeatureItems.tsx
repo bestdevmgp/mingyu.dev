@@ -8,7 +8,7 @@ import { stagger, useAnimate, useInView } from "motion/react";
 import FeatureItem from "./FeatureItem";
 
 interface FeatureItemsProps {
-  features: intro[];
+  features: Omit<intro, "i18n">[];
 }
 
 const staggerMenuItems = stagger(0.2, { startDelay: 0.1 });

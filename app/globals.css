@@ -1,4 +1,6 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --background-color-dark: rgb(15, 24, 42);
@@ -18,14 +20,6 @@
   --z-index-modal-content: 900;
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -64,31 +58,69 @@
 :root {
   --foreground-rgb: 34, 34, 34;
   --background-rgb: 255, 255, 255;
-  /* blue, green, lime */
+
   --primary-rgb: 0, 122, 255;
   --secondary-rgb: 0, 198, 118;
   --point-rgb: 226, 255, 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-rgb: 15, 24, 42;
-    /* green, lime, blue */
-    --primary-rgb: 0, 209, 125;
-    --secondary-rgb: 203, 229, 0;
-    --point-rgb: 0, 122, 255;
-  }
+:root.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 15, 24, 42;
+
+  --primary-rgb: 0, 209, 125;
+  --secondary-rgb: 203, 229, 0;
+  --point-rgb: 0, 122, 255;
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
+@media (min-width: 64rem) {
+  html {
+    scroll-padding-top: 9rem;
+  }
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   letter-spacing: -0.025rem;
+
+  overflow-x: clip;
+}
+
+::selection {
+  background-color: #e2ff00;
+  color: #1c1c1c;
+}
+
+html,
+#modal-content {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, rgb(var(--foreground-rgb)) 30%, transparent) transparent;
+}
+html::-webkit-scrollbar,
+#modal-content::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html::-webkit-scrollbar-track,
+#modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-thumb,
+#modal-content::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, rgb(var(--foreground-rgb)) 28%, transparent);
+  border: 3px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+html::-webkit-scrollbar-thumb:hover,
+#modal-content::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, rgb(var(--foreground-rgb)) 45%, transparent);
+  background-clip: padding-box;
 }
 
 @layer base {
@@ -110,6 +142,11 @@ body {
     @apply not-italic font-bold text-primary;
   }
 
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+
   ul,
   ol {
     @apply list-inside -indent-5 pl-5;
@@ -120,4 +157,87 @@ body {
   ol {
     @apply list-decimal;
   }
+}
+
+.hero-blob {
+  pointer-events: none;
+  position: absolute;
+  filter: blur(60px);
+  will-change: transform;
+}
+.hero-blob-blue {
+  background: radial-gradient(circle at center, rgb(0 122 255 / 0.2) 0%, rgb(0 122 255 / 0.2) 32%, transparent 76%);
+}
+.hero-blob-green {
+  background: radial-gradient(circle at center, rgb(0 198 118 / 0.2) 0%, rgb(0 198 118 / 0.2) 32%, transparent 76%);
+}
+.hero-blob-lime {
+  background: radial-gradient(circle at center, rgb(226 255 0 / 0.15) 0%, rgb(226 255 0 / 0.15) 32%, transparent 76%);
+}
+:root.dark {
+  .hero-blob-blue {
+    background: radial-gradient(circle at center, rgb(0 122 255 / 0.3) 0%, rgb(0 122 255 / 0.3) 32%, transparent 76%);
+  }
+  .hero-blob-green {
+    background: radial-gradient(circle at center, rgb(0 198 118 / 0.3) 0%, rgb(0 198 118 / 0.3) 32%, transparent 76%);
+  }
+  .hero-blob-lime {
+    background: radial-gradient(circle at center, rgb(226 255 0 / 0.25) 0%, rgb(226 255 0 / 0.25) 32%, transparent 76%);
+  }
+}
+
+.hero-rise {
+  animation: hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-drift-a {
+  0% {
+    transform: translate(0) scale(1);
+  }
+  100% {
+    transform: translate(48px, 36px) scale(1.12);
+  }
+}
+@keyframes hero-drift-b {
+  0% {
+    transform: translate(0) scale(1.06);
+  }
+  100% {
+    transform: translate(-40px, -44px) scale(1);
+  }
+}
+@keyframes hero-drift-c {
+  0% {
+    transform: translate(0) scale(1);
+  }
+  100% {
+    transform: translate(28px, -34px) scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-blob {
+    animation: none !important;
+  }
+  .hero-rise {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }

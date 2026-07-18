@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Category, skill } from "@prisma/client";
 import cn from "classnames";
 import { motion, useMotionValue } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import SkillItem from "./SkillItem";
 
@@ -11,6 +12,7 @@ interface SkillItemsProps {
   skills: skill[];
 }
 const SkillItems = ({ skills }: SkillItemsProps) => {
+  const t = useTranslations("Skill");
   const [activeCategory, setActiveCategory] = useState<string>();
 
   const activeCategoryX = useMotionValue(0);
@@ -39,10 +41,11 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
     <div className="flex flex-col gap-8 items-center">
       <nav className="bg-gray-100 p-1.5 rounded-full flex items-center relative">
         {[
-          { name: "백엔드", value: Category.BACKEND },
-          { name: "DevOps", value: Category.DEVOPS },
-          { name: "프론트엔드", value: Category.FRONTEND },
-          { name: "AI", value: Category.AI },
+          { name: t("backend"), value: Category.BACKEND },
+
+          { name: t("devops"), value: Category.DEVOPS },
+          { name: t("frontend"), value: Category.FRONTEND },
+          { name: t("ai"), value: Category.AI },
         ].map(({ name, value }) => (
           <button
             key={`nav-item-${value}`}

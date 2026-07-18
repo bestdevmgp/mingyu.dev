@@ -4,7 +4,7 @@ import parse from "html-react-parser";
 
 import Shape from "@/assets/shape-sparkle.svg";
 
-interface EducationCardProps extends education {}
+interface EducationCardProps extends Omit<education, "i18n"> {}
 
 const EducationCard = ({ id, period, title, sub_title, items, is_active }: EducationCardProps) => {
   return (

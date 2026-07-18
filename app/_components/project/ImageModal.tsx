@@ -46,8 +46,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     }
   }, [currentIndex, resetZoom]);
 
-  // Intentionally resync the viewer's internal state whenever a different
-  // image (initialIndex) is opened by the parent.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setCurrentIndex(initialIndex);
@@ -136,7 +134,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   };
 
   const handleImageClick = (e: React.MouseEvent) => {
-    // Date.now() runs only inside this click handler, never during render.
     // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
     if (now - lastTouchTime < 300) {

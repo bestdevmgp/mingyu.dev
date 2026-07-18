@@ -6,6 +6,7 @@ import { Menu, X } from "react-feather";
 import cn from "classnames";
 import { useAnimate, stagger } from "motion/react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
@@ -14,16 +15,12 @@ import { useSectionWatch } from "./SectionWatcher";
 
 interface HeaderProps extends React.HTMLAttributes<HTMLHeadElement> {}
 
-const navItems = [
-  { label: "기술", id: "skill" },
-  { label: "활동", id: "experience" },
-  { label: "프로젝트", id: "project" },
-  { label: "교육", id: "education" },
-];
+const navItems = [{ id: "skill" }, { id: "experience" }, { id: "project" }, { id: "education" }] as const;
 
 const staggerMenuItems = stagger(0.1, { startDelay: 0.15 });
 
 const Header = ({ className, ...props }: HeaderProps) => {
+  const t = useTranslations("Nav");
   const { activeId } = useSectionWatch();
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -31,6 +28,14 @@ const Header = ({ className, ...props }: HeaderProps) => {
 
   const toggleMobileMenu = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const scrollToTop = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (window.__lenis) window.__lenis.scrollTo(0);
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
   };
 
   useEffect(() => {
@@ -51,7 +56,7 @@ const Header = ({ className, ...props }: HeaderProps) => {
   useOnClickOutside(scope, () => setIsExpanded(false));
 
   return (
-    <header className="w-full sm:w-auto sticky top-4 z-50 px-3 sm:px-0" {...props} ref={scope}>
+    <header className="hidden lg:block sticky top-20 z-40 px-0" {...props} ref={scope}>
       <div
         className={cn(
           className,
@@ -60,12 +65,12 @@ const Header = ({ className, ...props }: HeaderProps) => {
           "dark:bg-light/10 ",
         )}
       >
-        <Link className="no-underline" href="#top">
+        <Link className="no-underline" href="#top" onClick={scrollToTop}>
           <Logo className="mr-4" />
         </Link>
 
         <ul className="hidden sm:flex gap-1.5 md:gap-2 items-center list-none p-0 indent-0">
-          {navItems.map(({ label, id }) => (
+          {navItems.map(({ id }) => (
             <Link key={`header-item-${id}`} href={`#${id}`} className="no-underline">
               <li
                 className={cn(
@@ -80,7 +85,7 @@ const Header = ({ className, ...props }: HeaderProps) => {
                     activeId === id ? "text-foreground" : "text-foreground/60 hover:text-foreground/80",
                   )}
                 >
-                  {label}
+                  {t(id)}
                 </span>
               </li>
             </Link>
@@ -102,14 +107,14 @@ const Header = ({ className, ...props }: HeaderProps) => {
         )}
         style={{ clipPath: "inset(0% 50% 100% 50% round 10px)" }}
       >
-        {navItems.map(({ label, id }) => (
+        {navItems.map(({ id }) => (
           <Link
             key={`header-item-m-${id}`}
             href={`#${id}`}
             className={cn("mobile-menu-item", "no-underline")}
             onClick={() => setIsExpanded(false)}
           >
-            <li className="py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80">{label}</li>
+            <li className="py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80">{t(id)}</li>
           </Link>
         ))}
       </ul>

@@ -3,7 +3,7 @@ import parse from "html-react-parser";
 import { motion, MotionProps } from "motion/react";
 import Image from "next/image";
 
-interface FeatureItemProps extends intro, MotionProps {}
+interface FeatureItemProps extends Omit<intro, "i18n">, MotionProps {}
 
 const FeatureItem = ({ id, blobUrl, title, detail, ...props }: FeatureItemProps) => {
   return (
