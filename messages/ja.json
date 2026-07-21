@@ -1,0 +1,69 @@
+{
+  "Header": {
+    "name": "パク・ミンギュ",
+    "role": "バックエンド開発者",
+    "toggleTheme": "テーマ切り替え",
+    "changeLanguage": "言語を変更",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる",
+    "contact": "連絡先"
+  },
+  "Nav": {
+    "skill": "スキル",
+    "experience": "活動",
+    "project": "プロジェクト",
+    "education": "教育"
+  },
+  "Main": {
+    "heading": "こんにちは、<br></br>バックエンド開発者<br></br><em>パク・ミンギュ</em>です。",
+    "subtitle": "Spring Boot を中心に、Web アプリケーションサーバーの設計・開発を行っています。<br></br>チームで製品を作り、育てることが好きです。",
+    "cta": "ポートフォリオを見る"
+  },
+  "Intro": {
+    "eyebrow": "コアコンピテンシー",
+    "title": "柔軟にコミュニケーションし、堅牢に開発します。"
+  },
+  "Skill": {
+    "eyebrow": "技術スタック",
+    "title": "以下の技術を扱えます。",
+    "backend": "バックエンド",
+    "devops": "インフラ",
+    "frontend": "フロントエンド",
+    "ai": "AI"
+  },
+  "Experience": {
+    "eyebrow": "インターン経験と活動",
+    "title": "実務とさまざまな活動を通じて<br></br>経験を積んでいます。",
+    "groupIntern": "インターン",
+    "groupProject": "プロジェクト",
+    "groupActivity": "主な受賞・活動",
+    "showDetails": "詳細を見る",
+    "hideDetails": "詳細を隠す"
+  },
+  "Project": {
+    "eyebrow": "プロジェクト",
+    "title": "主要プロジェクトの詳細をご覧ください。",
+    "showMore": "もっと見る",
+    "description": "概要",
+    "skills": "技術スタック",
+    "member": "チーム",
+    "period": "期間",
+    "links": "関連リンク",
+    "detail": "詳細"
+  },
+  "Education": {
+    "eyebrow": "教育・資格"
+  },
+  "Outro": {
+    "heading": "ありがとうございます。<br></br>もっと知りたいことがあれば<br></br>お気軽にご連絡ください。",
+    "phone": "電話番号",
+    "email": "メール"
+  },
+  "Common": {
+    "backHome": "メインに戻る"
+  },
+  "Meta": {
+    "title": "パク・ミンギュ | バックエンド開発者",
+    "description": "バックエンド開発者のパク・ミンギュです。Java と Kotlin で Spring Boot の Web アプリケーションサーバーを開発しています。"
+  }
+}

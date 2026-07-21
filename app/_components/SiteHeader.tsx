@@ -86,11 +86,11 @@ const SiteHeader = () => {
             : "bg-background/50 border-transparent",
       )}
     >
-      <Link className="no-underline flex items-center gap-2 shrink-0" href="#top" onClick={scrollToTop}>
+      <Link className="no-underline flex items-center gap-2 min-w-0" href="#top" onClick={scrollToTop}>
         <Sparkle className="w-[18px] h-[18px] shrink-0 text-lime" aria-hidden="true" />
         <p
           className={cn(
-            "text-sm md:text-base whitespace-nowrap leading-none",
+            "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate",
 
             locale === "en" && "-translate-y-px",
           )}
@@ -109,12 +109,12 @@ const SiteHeader = () => {
 
         <button
           type="button"
-          className="block lg:hidden text-foreground/70 -mr-1 p-1"
+          className="block lg:hidden shrink-0 text-foreground/70 -mr-1 p-1"
           onClick={() => setIsExpanded(prev => !prev)}
           aria-label={t(isExpanded ? "closeMenu" : "openMenu")}
           aria-expanded={isExpanded}
         >
-          {isExpanded ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {isExpanded ? <X className="block w-5 h-5" /> : <Menu className="block w-5 h-5" />}
         </button>
       </div>
 
@@ -143,12 +143,12 @@ const SiteHeader = () => {
           ))}
         </ul>
 
-        <ContactMenu variant="inline" className="mobile-menu-item h-11 mt-2 border-t border-foreground/10" />
-
-        <div className="mobile-menu-item h-11 flex items-center justify-between gap-3 border-t border-foreground/10">
-          <LanguageSwitcher variant="inline" />
+        <div className="mobile-menu-item flex items-center justify-between gap-3 h-11 mt-2 border-t border-foreground/10">
+          <ContactMenu variant="inline" />
           <ThemeToggle />
         </div>
+
+        <LanguageSwitcher variant="inline" className="mobile-menu-item py-2.5 border-t border-foreground/10" />
       </div>
     </header>
   );

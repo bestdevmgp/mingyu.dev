@@ -4,8 +4,9 @@ import { useRef, useState } from "react";
 
 import cn from "classnames";
 import { AnimatePresence, motion } from "motion/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
+import { phoneDisplay, phoneHref } from "@/utils/phone";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
 type SvgProps = React.SVGProps<SVGSVGElement>;
@@ -123,16 +124,21 @@ interface ContactMenuProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuProps) => {
   const t = useTranslations("Header");
+  const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useOnClickOutside(ref, () => setIsOpen(false));
+
+  const contacts = CONTACTS.map(contact =>
+    contact.id === "phone" ? { ...contact, value: phoneDisplay(locale), href: phoneHref(locale) } : contact,
+  );
 
   if (variant === "inline") {
     return (
       <div className={cn("flex items-center gap-2", className)} {...props}>
         <ContactTriggerIcon className="w-[18px] h-[18px] text-foreground/55 shrink-0" />
         <div className="flex items-center gap-0.5" role="group" aria-label={t("contact")}>
-          {CONTACTS.map(({ id, label, href, external }) => (
+          {contacts.map(({ id, label, href, external }) => (
             <a
               key={id}
               href={href}
@@ -174,7 +180,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
             className="absolute right-[-2px] top-full mt-2 w-[190px] p-1 rounded-xl flex flex-col
               bg-background border border-foreground/10 shadow-lg shadow-black/5 z-50"
           >
-            {CONTACTS.map(contact => (
+            {contacts.map(contact => (
               <ContactRow key={contact.id} contact={contact} onClick={() => setIsOpen(false)} />
             ))}
           </motion.div>

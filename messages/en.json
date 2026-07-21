@@ -61,5 +61,9 @@
   },
   "Common": {
     "backHome": "Back to home"
+  },
+  "Meta": {
+    "title": "Mingyu Park | Backend Developer",
+    "description": "I'm Mingyu Park, a backend developer building Spring Boot web application servers with Java and Kotlin."
   }
 }

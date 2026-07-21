@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
+import { phoneDisplay, phoneHref } from "@/utils/phone";
 
 const OutroSection = async () => {
   const t = await getTranslations("Outro");
+  const locale = await getLocale();
 
   return (
     <SectionWatcher id="contact">
@@ -16,8 +18,8 @@ const OutroSection = async () => {
 
         <div className="w-72 md:w-80 mx-auto grid grid-cols-3 text-sm md:text-base gap-2 md:gap-3 p-6 md:p-8 rounded-2xl bg-dark/5 dark:bg-light/10">
           <p className="font-semibold">{t("phone")}</p>
-          <Link href="tel:01036723858" target="_blank" className="col-span-2">
-            <p>010-3672-3858</p>
+          <Link href={phoneHref(locale)} target="_blank" className="col-span-2">
+            <p>{phoneDisplay(locale)}</p>
           </Link>
 
           <p className="font-semibold">{t("email")}</p>

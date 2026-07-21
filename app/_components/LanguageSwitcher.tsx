@@ -15,9 +15,10 @@ import useOnClickOutside from "@/utils/useOnClickOutside";
 const LOCALE_LABELS: Record<Locale, string> = {
   ko: "한국어",
   en: "English",
+  ja: "日本語",
+  "zh-Hans": "简体中文",
+  "zh-Hant": "繁體中文",
 };
-
-const LANG_BTN_WIDTH = "w-[65px]";
 
 const setLocaleCookie = (locale: Locale) => {
   document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax`;
@@ -49,9 +50,9 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
 
   if (variant === "inline") {
     return (
-      <div className={cn("flex items-center gap-2", className)} {...props}>
-        <Globe className="w-[18px] h-[18px] text-foreground/55 shrink-0" strokeWidth={1.5} aria-hidden />
-        <div className="relative flex items-center gap-1" role="group" aria-label={t("changeLanguage")}>
+      <div className={cn("flex items-start gap-2", className)} {...props}>
+        <Globe className="w-[18px] h-[18px] shrink-0 mt-[5px] text-foreground/55" strokeWidth={1.5} aria-hidden />
+        <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("changeLanguage")}>
           {locales.map(locale => {
             const isActive = locale === displayLocale;
             return (
@@ -61,19 +62,13 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
                 aria-pressed={isActive}
                 onClick={() => changeLocale(locale)}
                 className={cn(
-                  "relative flex items-center justify-center h-7 leading-none rounded-md text-sm transition-colors",
-                  LANG_BTN_WIDTH,
-                  isActive ? "font-semibold text-foreground" : "font-normal text-foreground/55 hover:text-foreground",
+                  "px-2 py-1 rounded-md text-sm whitespace-nowrap transition-colors",
+                  isActive
+                    ? "font-semibold text-foreground bg-foreground/10"
+                    : "font-normal text-foreground/55 hover:text-foreground",
                 )}
               >
-                {isActive && (
-                  <motion.span
-                    layoutId="lang-pill"
-                    className="absolute inset-x-0 inset-y-[0.25px] rounded-md bg-foreground/10"
-                    transition={{ type: "spring", bounce: 0.15, duration: 0.35 }}
-                  />
-                )}
-                <span className="relative z-10">{LOCALE_LABELS[locale]}</span>
+                {LOCALE_LABELS[locale]}
               </button>
             );
           })}
