@@ -1,0 +1,69 @@
+{
+  "Header": {
+    "name": "朴珉圭",
+    "role": "後端開發者",
+    "toggleTheme": "切換主題",
+    "changeLanguage": "切換語言",
+    "openMenu": "開啟選單",
+    "closeMenu": "關閉選單",
+    "contact": "聯絡方式"
+  },
+  "Nav": {
+    "skill": "技術",
+    "experience": "活動",
+    "project": "專案",
+    "education": "教育"
+  },
+  "Main": {
+    "heading": "你好，<br></br>我是後端開發者<br></br><em>朴珉圭</em>。",
+    "subtitle": "以 Spring Boot 為核心，設計並開發 Web 應用伺服器。<br></br>喜歡與團隊一起打造並培育產品。",
+    "cta": "查看作品集"
+  },
+  "Intro": {
+    "eyebrow": "核心能力",
+    "title": "靈活溝通，穩健開發。"
+  },
+  "Skill": {
+    "eyebrow": "技術棧",
+    "title": "我能使用以下技術。",
+    "backend": "後端",
+    "devops": "基礎設施",
+    "frontend": "前端",
+    "ai": "AI"
+  },
+  "Experience": {
+    "eyebrow": "實習經歷與活動",
+    "title": "透過實務與多樣的活動<br></br>不斷累積經驗。",
+    "groupIntern": "實習",
+    "groupProject": "專案",
+    "groupActivity": "主要獲獎與活動",
+    "showDetails": "查看詳情",
+    "hideDetails": "收起詳情"
+  },
+  "Project": {
+    "eyebrow": "專案",
+    "title": "查看我主要專案的詳細資訊。",
+    "showMore": "查看更多",
+    "description": "概述",
+    "skills": "技術棧",
+    "member": "團隊",
+    "period": "期間",
+    "links": "相關連結",
+    "detail": "詳細內容"
+  },
+  "Education": {
+    "eyebrow": "教育與證照"
+  },
+  "Outro": {
+    "heading": "謝謝。<br></br>如果想了解更多，<br></br>歡迎隨時與我聯絡。",
+    "phone": "電話",
+    "email": "電子郵件"
+  },
+  "Common": {
+    "backHome": "返回主頁"
+  },
+  "Meta": {
+    "title": "朴珉圭 | 後端開發者",
+    "description": "我是後端開發者朴珉圭。使用 Java 與 Kotlin 開發 Spring Boot Web 應用伺服器。"
+  }
+}

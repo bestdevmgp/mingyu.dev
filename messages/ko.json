@@ -61,5 +61,9 @@
   },
   "Common": {
     "backHome": "메인으로 돌아가기"
+  },
+  "Meta": {
+    "title": "박민규 | 백엔드 개발자",
+    "description": "백엔드 개발자 박민규입니다. Java 및 Kotlin으로 Spring Boot 웹 애플리케이션 서버를 개발합니다."
   }
 }
