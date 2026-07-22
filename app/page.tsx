@@ -1,4 +1,5 @@
 import Header from "@/_components/Header";
+import ScrollCue from "@/_components/ScrollCue";
 import SiteHeader from "@/_components/SiteHeader";
 import BlogSection from "@/_sections/BlogSection";
 import EducationSection from "@/_sections/EducationSection";
@@ -24,6 +25,7 @@ export default function Home() {
       >
         <MainSection />
         <Header className="mb-10" />
+        <ScrollCue />
         <IntroSection />
         <SkillSection />
         <ExperienceSection />

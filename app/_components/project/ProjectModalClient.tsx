@@ -50,7 +50,7 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
     <ul className="p-0 flex gap-2 list-none flex-wrap">
       {skills.map(({ id, item, blobUrl }) => (
         <li key={`project-info-skill-${id}`} className="indent-0">
-          <SkillItem size="xs" label={item} imageUrl={blobUrl} />
+          <SkillItem size="xs" label={item} imageUrl={blobUrl} tappable />
         </li>
       ))}
     </ul>
@@ -80,7 +80,7 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
           <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} fill alt="shape" />
         </div>
 
-        <p className="text-xl md:text-2xl font-semibold leading-normal break-keep mb-4">{parse(title)}</p>
+        <p className="text-xl md:text-2xl font-semibold leading-normal mb-4">{parse(title)}</p>
 
         <div className="flex gap-6 flex-wrap">
           {[
@@ -106,7 +106,7 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
 
       <div id="project-modal-content" className="text-sm md:text-base flex flex-col gap-2">
         <p className="font-semibold text-base md:text-lg">{t("detail")}</p>
-        <ol className="list-decimal break-keep">
+        <ol className="list-decimal">
           {items.map((item, index) => (
             <li key={`project-item-${index}`} className="mb-6 md:mb-8 last:mb-0">
               <span>{item.title}</span>

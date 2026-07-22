@@ -1,6 +1,6 @@
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Gothic_A1, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
@@ -12,11 +12,6 @@ import type { Metadata } from "next";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 
-const gothicA1 = Gothic_A1({
-  weight: ["400", "600", "700", "800"],
-  subsets: ["latin"],
-});
-
 const inter = Inter({
   weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
@@ -26,6 +21,18 @@ const cjkFontClass: Record<string, string> = {
   ja: "font-ja",
   "zh-Hans": "font-zh-hans",
   "zh-Hant": "font-zh-hant",
+};
+
+// Fonts not bundled through next/font are loaded per locale via <link>. Korean uses
+// Pretendard via a self-hosted CSS (public/fonts, generated with a size-adjust that
+// enlarges the glyphs) whose woff2 chunks still load on-demand from jsdelivr; the CJK
+// locales use Noto Sans (Google Fonts). All use unicode-range subsetting, so only the
+// glyphs actually on the page download.
+const webFontHref: Record<string, string> = {
+  ko: "/fonts/pretendard.css",
+  ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
+  "zh-Hans": "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap",
+  "zh-Hant": "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap",
 };
 
 const OG_LOCALE: Record<string, string> = {
@@ -73,9 +80,24 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
   const locale = await getLocale();
   const messages = await getMessages();
 
+  const fontHref = webFontHref[locale];
+
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? gothicA1.className)}>
+      {fontHref && (
+        <head>
+          {locale === "ko" ? (
+            <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+          ) : (
+            <>
+              <link rel="preconnect" href="https://fonts.googleapis.com" />
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+            </>
+          )}
+          <link rel="stylesheet" href={fontHref} />
+        </head>
+      )}
+      <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko")}>
         <ThemeScript />
         <SmoothScroll />
         <NextIntlClientProvider locale={locale} messages={messages}>

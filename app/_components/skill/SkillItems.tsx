@@ -82,6 +82,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             label={skill.item}
             imageUrl={skill.blobUrl}
             isActive={!activeCategory || activeCategory === skill.category}
+            tappable
           />
         ))}
       </div>

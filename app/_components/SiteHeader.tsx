@@ -74,23 +74,30 @@ const SiteHeader = () => {
     <header
       ref={scope}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 h-14 px-5 md:px-6",
+        "sticky top-0 z-50 h-14 px-6 -mb-14",
         "flex items-center justify-between gap-4",
 
-        "border-b transition-colors duration-300",
+        // Bottom hairline is drawn as a pseudo-element (not border-b) so its left end
+        // can be inset 10px — matching the right end, which the scrollbar already
+        // pushes in — without shifting the header's content off Megan's spacing.
+        "after:content-[''] after:absolute after:bottom-0 after:left-2.5 after:right-0 after:h-px",
+        "transition-colors duration-300 after:transition-colors after:duration-300",
         !atTop && !scrolled && !isExpanded && "backdrop-blur-md",
         scrolled || isExpanded
-          ? "bg-background border-foreground/10"
+          ? "bg-background after:bg-foreground/10"
           : atTop
-            ? "bg-transparent border-transparent"
-            : "bg-background/50 border-transparent",
+            ? "bg-transparent after:bg-transparent"
+            : "bg-background/50 after:bg-transparent",
       )}
     >
-      <Link className="no-underline flex items-center gap-2 min-w-0" href="#top" onClick={scrollToTop}>
+      <Link className="no-underline flex items-center gap-1.5 min-w-0" href="#top" onClick={scrollToTop}>
         <Sparkle className="w-[18px] h-[18px] shrink-0 text-lime" aria-hidden="true" />
         <p
           className={cn(
-            "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate",
+            // py-1 gives ascenders/descenders room inside the truncate's
+            // overflow:hidden box, so they aren't intermittently clipped when the
+            // web font swaps in (leading-none makes the line box otherwise too tight).
+            "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate py-1",
 
             locale === "en" && "-translate-y-px",
           )}
