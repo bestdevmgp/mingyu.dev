@@ -42,7 +42,7 @@ const SmoothScroll = () => {
       if (!el) return;
       event.preventDefault();
 
-      const offset = window.matchMedia("(min-width: 64rem)").matches ? -144 : -72;
+      const offset = window.matchMedia("(min-width: 64rem)").matches ? -60 : -24;
       lenis.scrollTo(el, { offset });
     };
     document.addEventListener("click", onAnchorClick);

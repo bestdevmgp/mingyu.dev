@@ -16,7 +16,7 @@ const MailIcon = (props: SvgProps) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth={1.5}
+    strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
@@ -31,7 +31,7 @@ const PhoneIcon = (props: SvgProps) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth={1.5}
+    strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
@@ -87,7 +87,7 @@ const ContactTriggerIcon = ({ className }: { className?: string }) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth={1.25}
+    strokeWidth={1.75}
     strokeLinecap="round"
     strokeLinejoin="round"
     className={className}
@@ -109,7 +109,7 @@ const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () =
       onClick={onClick}
       className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors hover:bg-foreground/5"
     >
-      <Icon className="w-[17px] h-[17px] shrink-0 text-foreground/60" />
+      <Icon className="w-[18px] h-[18px] shrink-0 text-foreground/60" />
       <span className="flex flex-col min-w-0">
         <span className="text-[13px] font-medium leading-tight text-foreground">{label}</span>
         <span className="text-[11px] leading-tight text-foreground/50 truncate">{value}</span>
@@ -163,7 +163,10 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
         aria-label={t("contact")}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        className="flex items-center text-foreground/55 hover:text-foreground transition-colors"
+        className={cn(
+          "flex items-center transition-colors",
+          isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
+        )}
       >
         <ContactTriggerIcon className="w-[19px] h-[19px]" />
       </button>

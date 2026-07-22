@@ -31,7 +31,7 @@
 }
 
 @utility section-title {
-  @apply text-2xl font-semibold break-keep mb-8 md:mb-12 text-center;
+  @apply text-2xl font-semibold mb-8 md:mb-12 text-center;
 }
 
 @utility section-description {
@@ -74,13 +74,13 @@
 }
 
 html {
-  scroll-padding-top: 4.5rem;
+  scroll-padding-top: 1.5rem;
   overflow-x: clip;
 }
 
 @media (min-width: 64rem) {
   html {
-    scroll-padding-top: 9rem;
+    scroll-padding-top: 3.75rem;
   }
 }
 
@@ -92,14 +92,32 @@ body {
   overflow-x: clip;
 }
 
+/* Korean words are space-delimited, so keep a whole word together on wrap — it never
+   splits mid-character (안녕하 / 세요); a word that doesn't fit drops to the next line
+   whole. Scoped to Korean ONLY: Japanese/Chinese don't put spaces between words, so
+   keep-all there would give the line no break points and overflow. word-break inherits,
+   so setting it on <html lang="ko"> covers every element, including portaled modals. */
+html[lang="ko"] {
+  word-break: keep-all;
+}
+
+/* Korean: Pretendard (loaded via <link>), falling back to system Korean fonts. */
+.font-ko {
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo",
+    "Malgun Gothic", "Noto Sans KR", sans-serif;
+}
+
+/* Apple system fonts first (great native rendering), then the loaded Noto Sans
+   web font (full weight range, so headings/body don't look thin), then the
+   remaining system fonts as a last resort. */
 .font-ja {
-  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", YuGothic, Meiryo, "Noto Sans JP", sans-serif;
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", YuGothic, Meiryo, sans-serif;
 }
 .font-zh-hans {
-  font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
 }
 .font-zh-hant {
-  font-family: "PingFang TC", "Microsoft JhengHei", "Hiragino Sans CNS", "Noto Sans TC", sans-serif;
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Hiragino Sans CNS", sans-serif;
 }
 
 ::selection {
@@ -237,6 +255,23 @@ html::-webkit-scrollbar-thumb:hover,
   }
 }
 
+.scroll-cue {
+  animation: scroll-cue 2s ease-out infinite;
+}
+@keyframes scroll-cue {
+  0% {
+    opacity: 0;
+    transform: translateY(-9px);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(11px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-blob {
     animation: none !important;
@@ -245,8 +280,17 @@ html::-webkit-scrollbar-thumb:hover,
     animation: none !important;
     opacity: 1 !important;
   }
+  .scroll-cue {
+    animation: none !important;
+    opacity: 0.7 !important;
+    transform: none !important;
+  }
 }
 
+/* Light/dark toggle uses the View Transitions API: the new theme (a full snapshot,
+   text included) is revealed in a circle growing from the toggle button, so nothing
+   disappears mid-transition. Disable the default cross-fade so the JS-driven
+   clip-path circle is the only animation and the old snapshot stays put underneath. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
