@@ -146,7 +146,10 @@ const SiteHeader = () => {
 
         <div className="mobile-menu-item flex items-center justify-between gap-3 h-11 mt-2 border-t border-foreground/10">
           <ContactMenu variant="inline" />
-          <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="w-px h-[22px] bg-foreground/15 shrink-0" />
+            <ThemeToggle />
+          </div>
         </div>
 
         <LanguageSwitcher variant="inline" className="mobile-menu-item py-2.5 border-t border-foreground/10" />
