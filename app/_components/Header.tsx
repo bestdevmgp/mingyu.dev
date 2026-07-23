@@ -11,7 +11,6 @@ import { useTranslations } from "next-intl";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
 import Logo from "./Logo";
-import { useSectionWatch } from "./SectionWatcher";
 
 interface HeaderProps extends React.HTMLAttributes<HTMLHeadElement> {}
 
@@ -21,10 +20,29 @@ const staggerMenuItems = stagger(0.1, { startDelay: 0.15 });
 
 const Header = ({ className, ...props }: HeaderProps) => {
   const t = useTranslations("Nav");
-  const { activeId } = useSectionWatch();
 
+  const [activeId, setActiveId] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [scope, animate] = useAnimate();
+
+  useEffect(() => {
+    const ids = navItems.map(({ id }) => id);
+    const update = () => {
+      let current = "";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= 120) current = id;
+      }
+      setActiveId(current);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsExpanded(!isExpanded);
