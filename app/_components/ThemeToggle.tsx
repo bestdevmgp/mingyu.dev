@@ -12,9 +12,6 @@ type ViewTransitionDocument = Document & {
   startViewTransition?: (callback: () => void) => { ready: Promise<unknown> };
 };
 
-// Rapid, back-to-back View Transitions are what trigger the Chromium/Brave
-// STATUS_BREAKPOINT crash. This cooldown hard-blocks a new toggle until well after
-// the previous one's animation has finished, so transitions can never stack.
 const COOLDOWN_MS = 1000;
 
 const ThemeToggle = ({ className, duration = 500, ...props }: ThemeToggleProps) => {
@@ -35,16 +32,11 @@ const ThemeToggle = ({ className, duration = 500, ...props }: ThemeToggleProps) 
       typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const startViewTransition = (document as ViewTransitionDocument).startViewTransition;
 
-    // No animation available (or wanted): switch instantly. There is no View
-    // Transition here, so nothing can crash and no cooldown is needed.
     if (!button || prefersReducedMotion || !startViewTransition) {
       applyTheme();
       return;
     }
 
-    // Cooldown: ignore clicks fired within COOLDOWN_MS of the last accepted one.
-    // The lock is set synchronously from a timestamp and only ever released by the
-    // clock passing — never early — so rapid clicks genuinely cannot stack transitions.
     const now = performance.now();
     if (now < lockedUntil.current) return;
     lockedUntil.current = now + COOLDOWN_MS;

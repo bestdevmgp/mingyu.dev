@@ -23,11 +23,6 @@ const cjkFontClass: Record<string, string> = {
   "zh-Hant": "font-zh-hant",
 };
 
-// Fonts not bundled through next/font are loaded per locale via <link>. Korean uses
-// Pretendard via a self-hosted CSS (public/fonts, generated with a size-adjust that
-// enlarges the glyphs) whose woff2 chunks still load on-demand from jsdelivr; the CJK
-// locales use Noto Sans (Google Fonts). All use unicode-range subsetting, so only the
-// glyphs actually on the page download.
 const webFontHref: Record<string, string> = {
   ko: "/fonts/pretendard.css",
   ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",

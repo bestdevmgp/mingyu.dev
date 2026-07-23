@@ -11,18 +11,11 @@ interface SkillItemProps {
   label: string;
   imageUrl: string;
   isActive?: boolean;
-  // When true (skill / experience lists), tapping the icon toggles the name label
-  // below it — the touch equivalent of the desktop hover. Left off for project
-  // cards, where a tap should fall through to open the project modal instead.
   tappable?: boolean;
 }
 
-// Dispatched whenever a tappable item opens, so every other open one closes itself:
-// only a single label is ever shown at a time.
 const OPEN_EVENT = "skillitem:open";
 
-// Whether the primary input can't hover (a touch device). Read via useSyncExternalStore
-// so there's no setState-in-effect and it stays correct if the input capability changes.
 const HOVER_NONE_QUERY = "(hover: none)";
 const subscribeHoverNone = (onChange: () => void) => {
   const mql = window.matchMedia(HOVER_NONE_QUERY);
@@ -33,17 +26,11 @@ const getHoverNone = () => window.matchMedia(HOVER_NONE_QUERY).matches;
 
 const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = false }: SkillItemProps) => {
   const isRawImage = imageUrl.includes("raw");
-  // Single source of corner radius per size, shared by the box AND the raw image,
-  // so background photos (TS/JS) round exactly like transparent icons instead of
-  // looking rounder — especially at the smaller xs size used in project/experience.
   const rounded = size === "md" ? "rounded-lg" : "rounded-md";
 
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  // Tap-to-toggle is for touch devices only. Hover-capable devices (desktop) keep the
-  // pure CSS :hover behavior — the label shows while the pointer is over the icon and
-  // hides the moment it leaves, whether you clicked or just hovered.
   const isTouch = useSyncExternalStore(subscribeHoverNone, getHoverNone, () => false);
   const canTap = tappable && isActive && isTouch;
 
@@ -54,17 +41,12 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
     const onOtherOpen = (event: Event) => {
       if ((event as CustomEvent<string>).detail !== id) close();
     };
-    // Any touch/click outside the icon dismisses it (tapping elsewhere, or the
-    // touch that begins a scroll); a scroll or drag dismisses it too.
     const onPointerDown = (event: Event) => {
       if (!ref.current?.contains(event.target as Node)) close();
     };
 
     window.addEventListener(OPEN_EVENT, onOtherOpen);
     document.addEventListener("pointerdown", onPointerDown, true);
-    // Capture on window (the root of every event path) so scrolling inside a scroll
-    // container — e.g. the project modal's own scroll area — dismisses it too, not
-    // just page scroll (scroll events don't bubble).
     window.addEventListener("scroll", close, { capture: true, passive: true });
     window.addEventListener("touchmove", close, { passive: true });
     return () => {

@@ -77,9 +77,6 @@ const SiteHeader = () => {
         "sticky top-0 z-50 h-14 px-6 -mb-14",
         "flex items-center justify-between gap-4",
 
-        // Bottom hairline is drawn as a pseudo-element (not border-b) so its left end
-        // can be inset 10px — matching the right end, which the scrollbar already
-        // pushes in — without shifting the header's content off Megan's spacing.
         "after:content-[''] after:absolute after:bottom-0 after:left-2.5 after:right-0 after:h-px",
         "transition-colors duration-300 after:transition-colors after:duration-300",
         !atTop && !scrolled && !isExpanded && "backdrop-blur-md",
@@ -94,9 +91,6 @@ const SiteHeader = () => {
         <Sparkle className="w-[18px] h-[18px] shrink-0 text-lime" aria-hidden="true" />
         <p
           className={cn(
-            // py-1 gives ascenders/descenders room inside the truncate's
-            // overflow:hidden box, so they aren't intermittently clipped when the
-            // web font swaps in (leading-none makes the line box otherwise too tight).
             "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate py-1",
 
             locale === "en" && "-translate-y-px",
