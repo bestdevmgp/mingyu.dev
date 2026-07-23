@@ -10,11 +10,9 @@ import OutroSection from "@/_sections/OutroSection";
 import ProjectSection from "@/_sections/ProjectSection";
 import SkillSection from "@/_sections/SkillSection";
 
-import { SectionWatchProvider } from "./_components/SectionWatcher";
-
 export default function Home() {
   return (
-    <SectionWatchProvider>
+    <>
       <SiteHeader />
       <main
         className="
@@ -34,6 +32,6 @@ export default function Home() {
         <EducationSection />
         <OutroSection />
       </main>
-    </SectionWatchProvider>
+    </>
   );
 }

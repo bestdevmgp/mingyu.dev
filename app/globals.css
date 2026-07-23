@@ -182,27 +182,32 @@ html::-webkit-scrollbar-thumb:hover,
 .hero-blob {
   pointer-events: none;
   position: absolute;
-  filter: blur(60px);
+  filter: blur(145px);
   will-change: transform;
 }
+@media (max-width: 767px) {
+  .hero-blob {
+    filter: blur(75px);
+  }
+}
 .hero-blob-blue {
-  background: radial-gradient(circle at center, rgb(0 122 255 / 0.2) 0%, rgb(0 122 255 / 0.2) 32%, transparent 76%);
+  background: radial-gradient(circle at center, rgb(0 122 255 / 0.3) 0%, rgb(0 122 255 / 0.16) 40%, transparent 82%);
 }
 .hero-blob-green {
-  background: radial-gradient(circle at center, rgb(0 198 118 / 0.2) 0%, rgb(0 198 118 / 0.2) 32%, transparent 76%);
+  background: radial-gradient(circle at center, rgb(0 198 118 / 0.3) 0%, rgb(0 198 118 / 0.16) 40%, transparent 82%);
 }
 .hero-blob-lime {
-  background: radial-gradient(circle at center, rgb(226 255 0 / 0.15) 0%, rgb(226 255 0 / 0.15) 32%, transparent 76%);
+  background: radial-gradient(circle at center, rgb(226 255 0 / 0.24) 0%, rgb(226 255 0 / 0.13) 40%, transparent 82%);
 }
 :root.dark {
   .hero-blob-blue {
-    background: radial-gradient(circle at center, rgb(0 122 255 / 0.3) 0%, rgb(0 122 255 / 0.3) 32%, transparent 76%);
+    background: radial-gradient(circle at center, rgb(0 122 255 / 0.42) 0%, rgb(0 122 255 / 0.22) 40%, transparent 82%);
   }
   .hero-blob-green {
-    background: radial-gradient(circle at center, rgb(0 198 118 / 0.3) 0%, rgb(0 198 118 / 0.3) 32%, transparent 76%);
+    background: radial-gradient(circle at center, rgb(0 198 118 / 0.42) 0%, rgb(0 198 118 / 0.22) 40%, transparent 82%);
   }
   .hero-blob-lime {
-    background: radial-gradient(circle at center, rgb(226 255 0 / 0.25) 0%, rgb(226 255 0 / 0.25) 32%, transparent 76%);
+    background: radial-gradient(circle at center, rgb(226 255 0 / 0.36) 0%, rgb(226 255 0 / 0.2) 40%, transparent 82%);
   }
 }
 
