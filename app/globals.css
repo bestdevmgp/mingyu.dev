@@ -92,24 +92,15 @@ body {
   overflow-x: clip;
 }
 
-/* Korean words are space-delimited, so keep a whole word together on wrap — it never
-   splits mid-character (안녕하 / 세요); a word that doesn't fit drops to the next line
-   whole. Scoped to Korean ONLY: Japanese/Chinese don't put spaces between words, so
-   keep-all there would give the line no break points and overflow. word-break inherits,
-   so setting it on <html lang="ko"> covers every element, including portaled modals. */
 html[lang="ko"] {
   word-break: keep-all;
 }
 
-/* Korean: Pretendard (loaded via <link>), falling back to system Korean fonts. */
 .font-ko {
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo",
     "Malgun Gothic", "Noto Sans KR", sans-serif;
 }
 
-/* Apple system fonts first (great native rendering), then the loaded Noto Sans
-   web font (full weight range, so headings/body don't look thin), then the
-   remaining system fonts as a last resort. */
 .font-ja {
   font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", YuGothic, Meiryo, sans-serif;
 }
@@ -287,10 +278,6 @@ html::-webkit-scrollbar-thumb:hover,
   }
 }
 
-/* Light/dark toggle uses the View Transitions API: the new theme (a full snapshot,
-   text included) is revealed in a circle growing from the toggle button, so nothing
-   disappears mid-transition. Disable the default cross-fade so the JS-driven
-   clip-path circle is the only animation and the old snapshot stays put underneath. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
