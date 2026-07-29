@@ -17,6 +17,14 @@ import ThemeToggle from "./ThemeToggle";
 
 const navItems = [{ id: "skill" }, { id: "experience" }, { id: "project" }, { id: "education" }] as const;
 
+const nameNudge: Record<string, string> = {
+  en: "-translate-y-[0.5px]",
+  ko: "-translate-y-px",
+  ja: "-translate-y-[2.2px]",
+  "zh-Hans": "-translate-y-[2.3px]",
+  "zh-Hant": "-translate-y-[2.3px]",
+};
+
 const staggerMenuItems = stagger(0.07, { startDelay: 0.1 });
 
 const SiteHeader = () => {
@@ -93,7 +101,7 @@ const SiteHeader = () => {
           className={cn(
             "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate py-1",
 
-            locale === "en" && "-translate-y-px",
+            nameNudge[locale] ?? "-translate-y-px",
           )}
         >
           <span className="font-extrabold text-foreground">{t("name")}</span>
