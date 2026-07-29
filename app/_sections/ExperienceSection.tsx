@@ -5,13 +5,16 @@ import { getLocale, getTranslations } from "next-intl/server";
 import ExpCard from "@/_components/ExpCard";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
-import prisma from "@/lib/prisma";
+import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 import { getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 import { parsePrismaJSON } from "@/utils/parsePrisma";
 
 async function getExperience(locale: string) {
-  const experiences = applyLocaleAll(await prisma.experience.findMany({ orderBy: { index: "asc" } }), locale);
+  const experiences = applyLocaleAll(
+    await prisma.experience.findMany({ orderBy: { index: "asc" }, cacheStrategy: CACHE_STRATEGY }),
+    locale,
+  );
 
   const expWithSkills = await Promise.all(
     experiences.map(async ({ skill_ids, ...exp }) => {

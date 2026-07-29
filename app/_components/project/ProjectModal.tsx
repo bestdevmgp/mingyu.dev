@@ -1,6 +1,6 @@
 import { getLocale } from "next-intl/server";
 
-import prisma from "@/lib/prisma";
+import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 import { getSkills } from "@/utils/api";
 import { applyLocale, applyLocaleAll } from "@/utils/localize";
 import { parsePrismaJSON } from "@/utils/parsePrisma";
@@ -12,9 +12,16 @@ interface ProjectModalProps {
 }
 
 async function getProjectById(id: number, locale: string) {
-  const responseProject = applyLocale(await prisma.project.findUniqueOrThrow({ where: { id } }), locale);
+  const responseProject = applyLocale(
+    await prisma.project.findUniqueOrThrow({ where: { id }, cacheStrategy: CACHE_STRATEGY }),
+    locale,
+  );
   const responseItems = applyLocaleAll(
-    await prisma.projectItem.findMany({ where: { projectId: id }, orderBy: { row_number: "asc" } }),
+    await prisma.projectItem.findMany({
+      where: { projectId: id },
+      orderBy: { row_number: "asc" },
+      cacheStrategy: CACHE_STRATEGY,
+    }),
     locale,
   );
 

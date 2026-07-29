@@ -3,12 +3,13 @@ import { getLocale, getTranslations } from "next-intl/server";
 import EducationCard from "@/_components/EducationCard";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
-import prisma from "@/lib/prisma";
+import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 import { applyLocaleAll } from "@/utils/localize";
 
 async function getEducations() {
   const response = await prisma.education.findMany({
     orderBy: { id: "asc" },
+    cacheStrategy: CACHE_STRATEGY,
   });
   return response;
 }
