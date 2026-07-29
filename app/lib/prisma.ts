@@ -20,4 +20,4 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 export default prisma;
 
-export const CACHE_STRATEGY = { ttl: 600, swr: 2592000 };
+export const CACHE_STRATEGY = { ttl: 3600, swr: 2592000 };
