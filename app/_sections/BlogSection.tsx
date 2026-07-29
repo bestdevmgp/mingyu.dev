@@ -4,12 +4,12 @@ import BlogCard from "@/_components/BlogCard";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import CTAButton from "@/_components/buttons/CTAButton";
-import prisma from "@/lib/prisma";
+import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 
 const BLOG_LINK = "https://velog.io/@bestdevmgp";
 
 async function getBlogs() {
-  const response = await prisma.blog.findMany();
+  const response = await prisma.blog.findMany({ cacheStrategy: CACHE_STRATEGY });
   return response;
 }
 

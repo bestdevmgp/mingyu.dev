@@ -3,11 +3,12 @@ import { getTranslations } from "next-intl/server";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import SkillItems from "@/_components/skill/SkillItems";
-import prisma from "@/lib/prisma";
+import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 
 async function getAllSkills() {
   return await prisma.skill.findMany({
     orderBy: [{ category: "asc" }, { order: "asc" }],
+    cacheStrategy: CACHE_STRATEGY,
   });
 }
 

@@ -2,11 +2,11 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import FeatureItems from "@/_components/FeatureItems";
 import SlideUpInView from "@/_components/SlideUpInView";
-import prisma from "@/lib/prisma";
+import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 import { applyLocaleAll } from "@/utils/localize";
 
 async function getIntro() {
-  const response = await prisma.intro.findMany({ orderBy: { id: "asc" } });
+  const response = await prisma.intro.findMany({ orderBy: { id: "asc" }, cacheStrategy: CACHE_STRATEGY });
   return response;
 }
 

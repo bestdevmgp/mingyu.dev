@@ -3,7 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import ProjectCards from "@/_components/project/ProjectCards";
-import prisma from "@/lib/prisma";
+import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 import { getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 
@@ -20,6 +20,7 @@ async function getProjects(locale: string) {
       orderBy: {
         row_number: "asc",
       },
+      cacheStrategy: CACHE_STRATEGY,
     }),
     locale,
   );
