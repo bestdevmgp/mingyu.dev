@@ -95,7 +95,7 @@ const Modal = ({ children }: ModalProps) => {
               w-screen h-screen fixed top-0 left-0 z-modal-content
               flex justify-center items-start"
           >
-            <RemoveScroll>
+            <RemoveScroll removeScrollBar={false}>
               <motion.div
                 id="modal-transition"
                 initial={{ opacity: 0, translateY: 20, scale: 0.95 }}
