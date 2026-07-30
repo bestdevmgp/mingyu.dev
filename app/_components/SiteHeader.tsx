@@ -95,7 +95,7 @@ const SiteHeader = () => {
             : "bg-background/50 after:bg-transparent",
       )}
     >
-      <Link className="no-underline flex items-center gap-[6px] lg:gap-[7px] min-w-0" href="#top" onClick={scrollToTop}>
+      <Link className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0" href="#top" onClick={scrollToTop}>
         <Sparkle className="w-[18px] h-[18px] shrink-0 text-lime" aria-hidden="true" />
         <p
           className={cn(
