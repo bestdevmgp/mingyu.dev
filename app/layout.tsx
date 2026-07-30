@@ -11,9 +11,6 @@ import type { Metadata } from "next";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 
-// preload: false so Inter is fetched only where it's actually applied (the en
-// body className). With a single shared layout (cookie-based i18n) next/font would
-// otherwise force-preload it on every locale, including ko/ja/zh where it's unused.
 const inter = Inter({
   weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],

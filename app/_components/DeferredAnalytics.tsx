@@ -5,11 +5,6 @@ import { useEffect, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-// Mount Vercel Analytics + Speed Insights only AFTER the page has loaded and the
-// main thread is idle. On iOS Safari/Chrome these scripts run inside the busy
-// first-load window and tip the compositor over frame budget (Brave/Opera block
-// them by default, which is why only Safari/Chrome janked). Deferring keeps the
-// data but moves the work out of the critical window.
 const DeferredAnalytics = () => {
   const [ready, setReady] = useState(false);
 

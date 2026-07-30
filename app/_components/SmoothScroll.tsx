@@ -16,10 +16,6 @@ const SmoothScroll = () => {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    // On touch devices lenis (smoothWheel-only) does nothing for the scroll feel
-    // yet keeps a permanent rAF loop running every frame — pure main-thread tax
-    // during the already-contended first load. Skip lenis there and let anchor
-    // links fall back to native smooth scroll (scroll-padding-top handles offset).
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
     let lenis: Lenis | null = null;
