@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 type ThemeToggleProps = React.HTMLAttributes<HTMLButtonElement> & { duration?: number };
 
 type ViewTransitionDocument = Document & {
-  startViewTransition?: (callback: () => void) => { ready: Promise<unknown> };
+  startViewTransition?: (callback: () => void) => { ready: Promise<unknown>; finished: Promise<unknown> };
 };
 
 const COOLDOWN_MS = 1000;
@@ -46,6 +46,8 @@ const ThemeToggle = ({ className, duration = 500, ...props }: ThemeToggleProps) 
     const y = top + height / 2;
     const maxRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
 
+    window.__pauseSmoothScroll?.();
+
     const transition = startViewTransition.call(document, () => {
       applyTheme();
     });
@@ -58,6 +60,10 @@ const ThemeToggle = ({ className, duration = 500, ...props }: ThemeToggleProps) 
         );
       })
       .catch(() => {});
+
+    transition.finished.catch(() => {}).finally(() => {
+      window.__resumeSmoothScroll?.();
+    });
   }, [duration]);
 
   return (
