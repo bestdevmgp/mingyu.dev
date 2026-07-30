@@ -46,25 +46,24 @@ const ThemeToggle = ({ className, duration = 500, ...props }: ThemeToggleProps) 
     const y = top + height / 2;
     const maxRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
 
-    const root = document.documentElement;
-    root.style.setProperty("--vt-x", `${x}px`);
-    root.style.setProperty("--vt-y", `${y}px`);
-    root.style.setProperty("--vt-r", `${maxRadius}px`);
-    root.style.setProperty("--vt-duration", `${duration}ms`);
-    root.classList.add("theme-transition");
-
     window.__pauseSmoothScroll?.();
 
     const transition = startViewTransition.call(document, () => {
       applyTheme();
     });
 
-    transition.finished
-      .catch(() => {})
-      .finally(() => {
-        root.classList.remove("theme-transition");
-        window.__resumeSmoothScroll?.();
-      });
+    transition.ready
+      .then(() => {
+        document.documentElement.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${maxRadius}px at ${x}px ${y}px)`] },
+          { duration, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" },
+        );
+      })
+      .catch(() => {});
+
+    transition.finished.catch(() => {}).finally(() => {
+      window.__resumeSmoothScroll?.();
+    });
   }, [duration]);
 
   return (
