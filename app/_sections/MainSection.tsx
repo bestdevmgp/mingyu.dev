@@ -40,7 +40,7 @@ const MainSection = async () => {
       </p>
 
       <div className="hero-rise relative z-10" style={{ animationDelay: "1.9s" }}>
-        <CTAButton label={t("cta")} suffix={<ExternalLink className="w-4 h-4" />} link="https://cv.mingyu.dev" />
+        <CTAButton label={t("cta")} prefix={<ExternalLink className="w-4 h-4" />} link="https://cv.mingyu.dev" />
       </div>
     </div>
   );
