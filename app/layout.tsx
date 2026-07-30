@@ -1,9 +1,8 @@
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
+import DeferredAnalytics from "@/_components/DeferredAnalytics";
 import SmoothScroll from "@/_components/SmoothScroll";
 import ThemeScript from "@/_components/ThemeScript";
 
@@ -99,8 +98,7 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
           {props.children}
           {props.modal}
           <div id="modal-root" />
-          <Analytics />
-          <SpeedInsights />
+          <DeferredAnalytics />
         </NextIntlClientProvider>
       </body>
     </html>
