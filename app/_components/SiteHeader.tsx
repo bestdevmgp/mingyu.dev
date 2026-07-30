@@ -82,7 +82,7 @@ const SiteHeader = () => {
     <header
       ref={scope}
       className={cn(
-        "sticky top-0 z-50 h-14 px-6 -mb-14",
+        "sticky top-0 z-[900] h-14 px-6 -mb-14",
         "flex items-center justify-between gap-4",
 
         "after:content-[''] after:absolute after:bottom-0 after:left-2.5 after:right-0 after:h-px",
