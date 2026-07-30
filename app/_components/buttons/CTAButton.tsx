@@ -1,7 +1,7 @@
 import cn from "classnames";
 import Link from "next/link";
 
-interface CTAButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface CTAButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "prefix"> {
   label: string;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
