@@ -15,14 +15,10 @@ const config = [
     ignores: ["**/.next/**", "**/node_modules/**", "**/generated/**", "next-env.d.ts"],
   },
 
-  // Next.js flat config: registers react, react-hooks, import, jsx-a11y,
-  // @next/next and @typescript-eslint plugins + core-web-vitals rules.
   ...next,
 
-  // Prettier last so it can turn off conflicting stylistic rules.
   prettierRecommended,
 
-  // Project-specific rule overrides (plugins already registered above).
   {
     settings: {
       "import/resolver": {
@@ -64,7 +60,6 @@ const config = [
     },
   },
 
-  // Node-context files (config files use CommonJS / Node globals).
   {
     files: ["**/*.{js,cjs,mjs}", "*.config.ts", "prisma.config.ts"],
     languageOptions: { globals: nodeGlobals },
