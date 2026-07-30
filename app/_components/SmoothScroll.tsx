@@ -7,8 +7,6 @@ import Lenis from "lenis";
 declare global {
   interface Window {
     __lenis?: Lenis;
-    __pauseSmoothScroll?: () => void;
-    __resumeSmoothScroll?: () => void;
   }
 }
 
@@ -24,21 +22,11 @@ const SmoothScroll = () => {
     window.__lenis = lenis;
 
     let rafId = 0;
-    let running = true;
     const raf = (time: number) => {
-      if (running) lenis.raf(time);
+      lenis.raf(time);
       rafId = requestAnimationFrame(raf);
     };
     rafId = requestAnimationFrame(raf);
-
-    window.__pauseSmoothScroll = () => {
-      running = false;
-      lenis.stop();
-    };
-    window.__resumeSmoothScroll = () => {
-      running = true;
-      lenis.start();
-    };
 
     const onAnchorClick = (event: MouseEvent) => {
       const anchor = (event.target as HTMLElement).closest?.('a[href^="#"]') as HTMLAnchorElement | null;
@@ -64,8 +52,6 @@ const SmoothScroll = () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
       window.__lenis = undefined;
-      window.__pauseSmoothScroll = undefined;
-      window.__resumeSmoothScroll = undefined;
     };
   }, []);
 
