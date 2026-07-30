@@ -26,6 +26,35 @@ const Modal = ({ children }: ModalProps) => {
   const contentRef = useRef<HTMLDivElement | null>(null);
   useOnClickOutside(contentRef, close);
 
+  const innerRef = useRef<HTMLDivElement | null>(null);
+  const [box, setBox] = useState<{ h: number; animate: boolean }>();
+  const [scrolls, setScrolls] = useState(true);
+
+  useEffect(() => {
+    const outer = contentRef.current;
+    const inner = innerRef.current;
+    if (!outer || !inner) return;
+    let seen = false;
+    let last = -1;
+    const measure = () => {
+      const maxH = window.innerHeight - 96;
+      const borderY = outer.offsetHeight - outer.clientHeight;
+      const h = Math.min(outer.scrollHeight + borderY, maxH);
+      if (h === last) return;
+      last = h;
+      setBox({ h, animate: seen });
+      if (seen) setScrolls(false);
+      seen = true;
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(inner);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
@@ -74,17 +103,21 @@ const Modal = ({ children }: ModalProps) => {
                 exit={{ opacity: 0, translateY: 20, scale: 0.9 }}
                 transition={{ duration: 0.1, damping: 0, ease: "easeOut" }}
               >
-                <div
+                <motion.div
                   id="modal-content"
                   ref={contentRef}
                   data-lenis-prevent
                   className="
                     w-96 md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-6rem)] my-12 p-6 md:p-8
                     bg-background border border-foreground/15 rounded-md md:rounded-lg
-                    relative overflow-y-auto
+                    relative
                     "
+                  style={{ overflowY: scrolls ? "auto" : "hidden" }}
+                  animate={box ? { height: box.h } : undefined}
+                  transition={box?.animate ? { duration: 0.35, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
+                  onAnimationComplete={() => setScrolls(true)}
                 >
-                  {children}
+                  <div ref={innerRef}>{children}</div>
                   <X
                     className="absolute top-5 right-5 md:top-7 md:right-7
                     w-6 h-6 md:w-8 md:h-8 cursor-pointer
@@ -93,7 +126,7 @@ const Modal = ({ children }: ModalProps) => {
                     strokeWidth={1.5}
                     onClick={close}
                   />
-                </div>
+                </motion.div>
               </motion.div>
             </RemoveScroll>
           </div>
