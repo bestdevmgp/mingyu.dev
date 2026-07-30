@@ -82,7 +82,7 @@ const SiteHeader = () => {
     <header
       ref={scope}
       className={cn(
-        "fixed top-0 inset-x-0 z-50 h-14 pr-6 pl-3 lg:pl-5",
+        "fixed top-0 inset-x-0 z-50 h-14 pr-6 lg:pr-5 pl-[18px] lg:pl-5",
         "flex items-center justify-between gap-4",
 
         "after:content-[''] after:absolute after:bottom-0 after:left-2.5 after:right-0 after:h-px",
