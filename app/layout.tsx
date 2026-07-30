@@ -1,9 +1,9 @@
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
+import DeferredAnalytics from "@/_components/DeferredAnalytics";
 import SmoothScroll from "@/_components/SmoothScroll";
 import ThemeScript from "@/_components/ThemeScript";
 
@@ -17,6 +17,17 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+// Self-hosted Pretendard variable font. Replaces the render-blocking external
+// pretendard.css (~28 cold-CDN subset fetches, each swap forcing a reflow) with a
+// single same-origin variable woff2 that swaps once — killing the font-swap reflow
+// storm that amplified the iOS first-load jank.
+const pretendard = localFont({
+  src: "./fonts/PretendardVariable.woff2",
+  display: "swap",
+  weight: "45 920",
+  variable: "--font-pretendard",
+});
+
 const cjkFontClass: Record<string, string> = {
   ja: "font-ja",
   "zh-Hans": "font-zh-hans",
@@ -24,7 +35,6 @@ const cjkFontClass: Record<string, string> = {
 };
 
 const webFontHref: Record<string, string> = {
-  ko: "/fonts/pretendard.css",
   ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
   "zh-Hans": "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap",
   "zh-Hant": "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap",
@@ -77,30 +87,30 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
 
   const fontHref = webFontHref[locale];
 
+  const bodyClassName =
+    locale === "en"
+      ? inter.className
+      : locale === "ko"
+        ? `${pretendard.variable} font-ko`
+        : (cjkFontClass[locale] ?? "font-ko");
+
   return (
     <html lang={locale} suppressHydrationWarning>
       {fontHref && (
         <head>
-          {locale === "ko" ? (
-            <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-          ) : (
-            <>
-              <link rel="preconnect" href="https://fonts.googleapis.com" />
-              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-            </>
-          )}
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link rel="stylesheet" href={fontHref} />
         </head>
       )}
-      <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko")}>
+      <body className={bodyClassName}>
         <ThemeScript />
         <SmoothScroll />
         <NextIntlClientProvider locale={locale} messages={messages}>
           {props.children}
           {props.modal}
           <div id="modal-root" />
-          <Analytics />
-          <SpeedInsights />
+          <DeferredAnalytics />
         </NextIntlClientProvider>
       </body>
     </html>
