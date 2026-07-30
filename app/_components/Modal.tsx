@@ -114,7 +114,7 @@ const Modal = ({ children }: ModalProps) => {
                     "
                   style={{ overflowY: scrolls ? "auto" : "hidden" }}
                   animate={box ? { height: box.h } : undefined}
-                  transition={box?.animate ? { duration: 0.35, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
+                  transition={box?.animate ? { duration: 0.25, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
                   onAnimationComplete={() => setScrolls(true)}
                 >
                   <div ref={innerRef}>{children}</div>
