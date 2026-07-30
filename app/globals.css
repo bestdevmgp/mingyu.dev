@@ -273,10 +273,9 @@ html::-webkit-scrollbar-thumb:hover,
   .hero-blob {
     animation: none !important;
   }
-  .hero-rise {
-    animation: none !important;
-    opacity: 1 !important;
-  }
+  /* .hero-rise is intentionally exempt: the hero intro must always play (product
+     decision). Some iOS browsers (Safari/Chrome) evaluate reduce-motion even when
+     the user didn't opt in, which was suppressing the intro on those browsers. */
   .scroll-cue {
     animation: none !important;
     opacity: 0.7 !important;
