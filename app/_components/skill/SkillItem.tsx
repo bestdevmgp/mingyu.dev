@@ -87,10 +87,7 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
     >
       <Image
         draggable={false}
-        className={cn(
-          "pointer-events-none",
-          isRawImage ? cn("object-cover w-full h-full", rounded) : "object-contain",
-        )}
+        className={cn("pointer-events-none", isRawImage ? cn("object-cover w-full h-full", rounded) : "object-contain")}
         width={size === "md" ? 36 : size === "sm" ? 34 : 26}
         height={size === "md" ? 36 : size === "sm" ? 34 : 26}
         src={imageUrl}
