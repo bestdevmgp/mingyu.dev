@@ -136,7 +136,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
   if (variant === "inline") {
     return (
       <div className={cn("flex items-center gap-2", className)} {...props}>
-        <ContactTriggerIcon className="w-[18px] h-[18px] text-foreground/55 shrink-0" />
+        <ContactTriggerIcon className="w-[19px] h-[19px] text-foreground/55 shrink-0" />
         <div className="flex items-center gap-0.5" role="group" aria-label={t("contact")}>
           {contacts.map(({ id, label, href, external }) => (
             <a
