@@ -55,12 +55,9 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
   useEffect(() => {
     if (isOpen) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       const originalOverflow = document.body.style.overflow;
-      const originalPaddingRight = document.body.style.paddingRight;
 
       document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = `${scrollbarWidth + parseInt(originalPaddingRight || "0")}px`;
 
       const preventScroll = (e: TouchEvent) => {
         const target = e.target as Element;
@@ -74,7 +71,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
       return () => {
         document.body.style.overflow = originalOverflow || "";
-        document.body.style.paddingRight = originalPaddingRight || "";
         document.removeEventListener("touchmove", preventScroll);
       };
     }
@@ -83,7 +79,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   useEffect(() => {
     return () => {
       document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
     };
   }, []);
 
