@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Check, Globe } from "react-feather";
+import { Check } from "react-feather";
 
 import cn from "classnames";
 import { AnimatePresence, motion } from "motion/react";
@@ -101,7 +101,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <Globe className="w-[18px] h-[18px]" strokeWidth={2} />
+        <GlobeSimpleIcon className="w-[18px] h-[18px]" aria-hidden="true" />
         <span className="hidden md:inline text-xs font-semibold">{LOCALE_LABELS[activeLocale]}</span>
       </button>
 
