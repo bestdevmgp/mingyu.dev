@@ -305,166 +305,167 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     }
   };
 
-  if (!isOpen) return null;
-
   return (
     <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 bg-black/90 backdrop-blur-xs z-50 flex items-center justify-center image-modal-container"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
+      {isOpen && (
         <motion.div
-          className="relative w-full h-full flex items-center justify-center p-2 md:p-4"
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.9 }}
+          key="image-modal"
+          className="fixed inset-0 bg-black/90 backdrop-blur-xs z-50 flex items-center justify-center image-modal-container"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
-            {images.length > 1 && (
-              <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm pointer-events-auto">
-                {currentIndex + 1} / {images.length}
+          <motion.div
+            className="relative w-full h-full flex items-center justify-center p-2 md:p-4"
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0.9 }}
+          >
+            <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
+              {images.length > 1 && (
+                <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm pointer-events-auto">
+                  {currentIndex + 1} / {images.length}
+                </div>
+              )}
+
+              <div className="ml-auto pointer-events-auto">
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    onClose();
+                  }}
+                  className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                  aria-label="닫기"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
+            </div>
+
+            <div
+              ref={imageRef}
+              className="relative w-full h-full flex items-center justify-center overflow-hidden cursor-pointer select-none"
+              onClick={handleImageClick}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{
+                cursor: zoom > 1 ? (isDragging ? "grabbing" : "grab") : "zoom-in",
+              }}
+            >
+              <div
+                ref={imageContentRef}
+                className={cn("transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
+                style={{
+                  transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+                  willChange: isDragging || isPinching ? "transform" : "auto",
+                }}
+              >
+                <Image
+                  src={images[currentIndex]}
+                  alt={`Image ${currentIndex + 1}`}
+                  width={1200}
+                  height={800}
+                  className="max-w-full max-h-[90vh] md:max-h-[80vh] w-auto h-auto object-contain"
+                  quality={90}
+                  priority
+                  draggable={false}
+                />
+              </div>
+            </div>
+
+            {images.length > 1 && (
+              <>
+                {currentIndex > 0 && (
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      goToPrevious();
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors z-10"
+                    aria-label="이전 이미지"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                )}
+
+                {currentIndex < images.length - 1 && (
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      goToNext();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors z-10"
+                    aria-label="다음 이미지"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
+              </>
             )}
 
-            <div className="ml-auto pointer-events-auto">
+            <div
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 rounded-full p-2"
+              onClick={e => e.stopPropagation()}
+            >
               <button
                 onClick={e => {
                   e.stopPropagation();
-                  onClose();
+                  handleZoomOut();
                 }}
-                className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
-                aria-label="닫기"
+                disabled={zoom <= 0.5}
+                className={cn(
+                  "text-white p-2 rounded-full transition-colors",
+                  zoom <= 0.5 ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
+                )}
+                aria-label="축소"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                </svg>
+              </button>
+
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  resetZoom();
+                }}
+                className="text-white px-3 py-2 rounded-full hover:bg-white/20 transition-colors text-sm"
+                aria-label="원래 크기"
+              >
+                {Math.round(zoom * 100)}%
+              </button>
+
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  handleZoomIn();
+                }}
+                disabled={zoom >= 5}
+                className={cn(
+                  "text-white p-2 rounded-full transition-colors",
+                  zoom >= 5 ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
+                )}
+                aria-label="확대"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </button>
             </div>
-          </div>
-
-          <div
-            ref={imageRef}
-            className="relative w-full h-full flex items-center justify-center overflow-hidden cursor-pointer select-none"
-            onClick={handleImageClick}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            style={{
-              cursor: zoom > 1 ? (isDragging ? "grabbing" : "grab") : "zoom-in",
-            }}
-          >
-            <div
-              ref={imageContentRef}
-              className={cn("transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
-              style={{
-                transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
-                willChange: isDragging || isPinching ? "transform" : "auto",
-              }}
-            >
-              <Image
-                src={images[currentIndex]}
-                alt={`Image ${currentIndex + 1}`}
-                width={1200}
-                height={800}
-                className="max-w-full max-h-[90vh] md:max-h-[80vh] w-auto h-auto object-contain"
-                quality={90}
-                priority
-                draggable={false}
-              />
-            </div>
-          </div>
-
-          {images.length > 1 && (
-            <>
-              {currentIndex > 0 && (
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    goToPrevious();
-                  }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors z-10"
-                  aria-label="이전 이미지"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-              )}
-
-              {currentIndex < images.length - 1 && (
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    goToNext();
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors z-10"
-                  aria-label="다음 이미지"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              )}
-            </>
-          )}
-
-          <div
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 rounded-full p-2"
-            onClick={e => e.stopPropagation()}
-          >
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                handleZoomOut();
-              }}
-              disabled={zoom <= 0.5}
-              className={cn(
-                "text-white p-2 rounded-full transition-colors",
-                zoom <= 0.5 ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
-              )}
-              aria-label="축소"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-              </svg>
-            </button>
-
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                resetZoom();
-              }}
-              className="text-white px-3 py-2 rounded-full hover:bg-white/20 transition-colors text-sm"
-              aria-label="원래 크기"
-            >
-              {Math.round(zoom * 100)}%
-            </button>
-
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                handleZoomIn();
-              }}
-              disabled={zoom >= 5}
-              className={cn(
-                "text-white p-2 rounded-full transition-colors",
-                zoom >= 5 ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
-              )}
-              aria-label="확대"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </AnimatePresence>
   );
 }
