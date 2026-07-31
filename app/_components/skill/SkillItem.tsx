@@ -72,8 +72,9 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
     <div
       ref={ref}
       onClick={canTap ? handleClick : undefined}
+      style={{ WebkitTouchCallout: "none" }}
       className={cn(
-        "relative group/skill transition-all shadow-xl hover:shadow-2xl flex items-center justify-center",
+        "relative group/skill transition-all shadow-xl hover:shadow-2xl flex items-center justify-center select-none",
         rounded,
         isRawImage ? "p-0" : "bg-white border border-gray-100 p-1",
         canTap && "cursor-pointer",
@@ -85,7 +86,11 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
       )}
     >
       <Image
-        className={isRawImage ? cn("object-cover w-full h-full", rounded) : "object-contain"}
+        draggable={false}
+        className={cn(
+          "pointer-events-none",
+          isRawImage ? cn("object-cover w-full h-full", rounded) : "object-contain",
+        )}
         width={size === "md" ? 36 : size === "sm" ? 34 : 26}
         height={size === "md" ? 36 : size === "sm" ? 34 : 26}
         src={imageUrl}
