@@ -134,7 +134,7 @@ const SiteHeader = () => {
 
           "flex flex-col lg:hidden px-5 pt-3 pb-0 indent-0",
 
-          "bg-background border-b-[3px] border-foreground/10 shadow-sm",
+          "bg-background border-b-[2px] border-foreground/10 shadow-sm",
           isExpanded ? "pointer-events-auto" : "pointer-events-none",
         )}
         style={{ clipPath: "inset(0% 0% 100% 0%)" }}
