@@ -51,7 +51,11 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
   if (variant === "inline") {
     return (
       <div className={cn("flex items-start gap-2", className)} {...props}>
-        <Globe className="w-[17px] h-[17px] shrink-0 mt-[5px] text-foreground/55" strokeWidth={2} aria-hidden />
+        <Globe
+          className="w-[18.5px] h-[18.5px] shrink-0 mt-[5px] translate-x-[1px] text-foreground/55"
+          strokeWidth={2}
+          aria-hidden
+        />
         <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("changeLanguage")}>
           {locales.map(locale => {
             const isActive = locale === displayLocale;
