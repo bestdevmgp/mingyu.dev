@@ -102,9 +102,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
         )}
       >
         <GlobeSimpleIcon className="w-[20.5px] h-[20.5px]" aria-hidden="true" />
-        <span className="hidden md:inline text-xs font-semibold relative top-[0.25px]">
-          {LOCALE_LABELS[activeLocale]}
-        </span>
+        <span className="hidden md:inline text-xs font-semibold">{LOCALE_LABELS[activeLocale]}</span>
       </button>
 
       <AnimatePresence>
