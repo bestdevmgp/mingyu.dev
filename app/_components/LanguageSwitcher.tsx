@@ -59,7 +59,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
   if (variant === "inline") {
     return (
       <div className={cn("flex items-center gap-2", className)} {...props}>
-        <GlobeSimpleIcon className="w-[21.5px] h-[21.5px] shrink-0 text-foreground/55" aria-hidden="true" />
+        <GlobeSimpleIcon className="w-[21.25px] h-[21.25px] shrink-0 text-foreground/55" aria-hidden="true" />
         <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("changeLanguage")}>
           {locales.map(locale => {
             const isActive = locale === displayLocale;
