@@ -28,6 +28,13 @@ const LOCALE_LABELS: Record<Locale, string> = {
   "zh-Hant": "繁體中文",
 };
 
+const labelNudge: Record<string, string> = {
+  ko: "relative top-[0.25px]",
+  ja: "relative top-[-0.5px]",
+  "zh-Hans": "relative top-[-0.5px]",
+  "zh-Hant": "relative top-[-0.5px]",
+};
+
 const setLocaleCookie = (locale: Locale) => {
   document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax`;
 };
@@ -102,7 +109,9 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
         )}
       >
         <GlobeSimpleIcon className="w-[20.5px] h-[20.5px]" aria-hidden="true" />
-        <span className="hidden md:inline text-xs font-semibold">{LOCALE_LABELS[activeLocale]}</span>
+        <span className={cn("hidden md:inline text-xs font-semibold", labelNudge[activeLocale])}>
+          {LOCALE_LABELS[activeLocale]}
+        </span>
       </button>
 
       <AnimatePresence>
