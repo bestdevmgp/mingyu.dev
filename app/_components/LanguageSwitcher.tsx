@@ -60,7 +60,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
     return (
       <div className={cn("flex items-start gap-2", className)} {...props}>
         <GlobeSimpleIcon
-          className="w-[18.5px] h-[18.5px] shrink-0 mt-[5px] translate-x-[1px] text-foreground/55"
+          className="w-[20px] h-[20px] shrink-0 mt-[4px] translate-x-[1px] text-foreground/55"
           aria-hidden="true"
         />
         <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("changeLanguage")}>
