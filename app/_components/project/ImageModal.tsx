@@ -26,6 +26,8 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const [hasMoved, setHasMoved] = useState(false);
   const [hasMouseMoved, setHasMouseMoved] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
+  const imageContentRef = useRef<HTMLDivElement>(null);
+  const mouseDownPosRef = useRef({ x: 0, y: 0 });
 
   const resetZoom = useCallback(() => {
     setZoom(1);
@@ -128,6 +130,13 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     setZoom(prev => Math.max(prev / 1.5, 0.5));
   };
 
+  const isOutsideImage = (clientX: number, clientY: number) => {
+    const el = imageContentRef.current;
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    return clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom;
+  };
+
   const handleImageClick = (e: React.MouseEvent) => {
     // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
@@ -136,6 +145,13 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     }
 
     e.stopPropagation();
+
+    const movedFromDown = Math.hypot(e.clientX - mouseDownPosRef.current.x, e.clientY - mouseDownPosRef.current.y);
+    if (movedFromDown < 10 && isOutsideImage(e.clientX, e.clientY)) {
+      onClose();
+      return;
+    }
+
     if (zoom === 1) {
       const rect = (e.currentTarget as Element).getBoundingClientRect();
       const clickX = e.clientX - rect.left;
@@ -166,6 +182,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
     if (zoom > 1) {
       setIsDragging(true);
       setHasMouseMoved(false);
@@ -258,7 +275,9 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     if (e.touches.length === 0) {
       if (!hasMoved && !isPinching) {
         e.stopPropagation();
-        if (zoom === 1) {
+        if (isOutsideImage(touchStartPos.x, touchStartPos.y)) {
+          onClose();
+        } else if (zoom === 1) {
           const rect = (e.currentTarget as Element).getBoundingClientRect();
           const tapX = touchStartPos.x - rect.left;
           const tapY = touchStartPos.y - rect.top;
@@ -297,19 +316,19 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="relative w-full h-full flex items-center justify-center p-4"
+          className="relative w-full h-full flex items-center justify-center p-2 md:p-4"
           initial={{ scale: 0.9 }}
           animate={{ scale: 1 }}
           exit={{ scale: 0.9 }}
         >
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20">
+          <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
             {images.length > 1 && (
-              <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm pointer-events-auto">
                 {currentIndex + 1} / {images.length}
               </div>
             )}
 
-            <div className="ml-auto">
+            <div className="ml-auto pointer-events-auto">
               <button
                 onClick={e => {
                   e.stopPropagation();
@@ -341,6 +360,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
             }}
           >
             <div
+              ref={imageContentRef}
               className={cn("transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
               style={{
                 transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
@@ -352,7 +372,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 alt={`Image ${currentIndex + 1}`}
                 width={1200}
                 height={800}
-                className="max-w-full max-h-[80vh] w-auto h-auto object-contain"
+                className="max-w-full max-h-[90vh] md:max-h-[80vh] w-auto h-auto object-contain"
                 quality={90}
                 priority
                 draggable={false}
