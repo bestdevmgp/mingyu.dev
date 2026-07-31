@@ -42,19 +42,6 @@
   @apply text-primary font-semibold text-sm md:text-base mb-1 md:mb-1.5 text-center;
 }
 
-@utility overview-frame {
-  scrollbar-width: none;
-  &.box::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-@utility box {
-  &.overview-frame::-webkit-scrollbar {
-    display: none;
-  }
-}
-
 :root {
   --foreground-rgb: 34, 34, 34;
   --background-rgb: 255, 255, 255;
@@ -83,6 +70,16 @@ html {
   html {
     scroll-padding-top: 3.75rem;
   }
+}
+
+@supports not (scrollbar-gutter: stable) {
+  html {
+    overflow-y: scroll;
+  }
+}
+
+#modal-content {
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -115,33 +112,6 @@ html[lang="ko"] {
 ::selection {
   background-color: #e2ff00;
   color: #1c1c1c;
-}
-
-html,
-#modal-content {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, rgb(var(--foreground-rgb)) 30%, transparent) transparent;
-}
-html::-webkit-scrollbar,
-#modal-content::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-html::-webkit-scrollbar-track,
-#modal-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-html::-webkit-scrollbar-thumb,
-#modal-content::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, rgb(var(--foreground-rgb)) 28%, transparent);
-  border: 3px solid transparent;
-  border-radius: 9999px;
-  background-clip: padding-box;
-}
-html::-webkit-scrollbar-thumb:hover,
-#modal-content::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, rgb(var(--foreground-rgb)) 45%, transparent);
-  background-clip: padding-box;
 }
 
 @layer base {
