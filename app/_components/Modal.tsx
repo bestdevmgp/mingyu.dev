@@ -37,7 +37,7 @@ const Modal = ({ children }: ModalProps) => {
     let seen = false;
     let last = -1;
     const measure = () => {
-      const maxH = window.innerHeight - (window.matchMedia("(min-width: 768px)").matches ? 96 : 32);
+      const maxH = window.innerHeight - (window.matchMedia("(min-width: 768px)").matches ? 96 : 28);
       const borderY = outer.offsetHeight - outer.clientHeight;
       const h = Math.min(outer.scrollHeight + borderY, maxH);
       if (h === last) return;
@@ -108,7 +108,7 @@ const Modal = ({ children }: ModalProps) => {
                   ref={contentRef}
                   data-lenis-prevent
                   className="
-                    w-[calc(100vw-2rem)] md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-6rem)] my-4 md:my-12 p-6 md:p-8
+                    w-[calc(100vw-1.75rem)] md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-1.75rem)] md:max-h-[calc(100vh-6rem)] my-3.5 md:my-12 p-6 md:p-8
                     bg-background border border-foreground/15 rounded-md md:rounded-lg
                     relative
                     "
