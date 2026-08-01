@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Check } from "react-feather";
 
 import cn from "classnames";
@@ -28,13 +28,7 @@ const LOCALE_LABELS: Record<Locale, string> = {
   "zh-Hant": "繁體中文",
 };
 
-const labelNudge: Record<string, string> = {
-  ko: "relative top-[-0.15px]",
-  en: "relative top-[-0.5px]",
-  ja: "relative top-[-1.25px]",
-  "zh-Hans": "relative top-[-1.25px]",
-  "zh-Hant": "relative top-[-1.25px]",
-};
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const setLocaleCookie = (locale: Locale) => {
   document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax`;
@@ -55,6 +49,39 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
 
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const displayLocale = pendingLocale ?? activeLocale;
+
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  useIsoLayoutEffect(() => {
+    const btn = triggerRef.current;
+    if (!btn) return;
+    const globe = btn.querySelector("svg");
+    const label = btn.querySelector<HTMLSpanElement>("span");
+    if (!globe || !label) return;
+
+    const center = () => {
+      label.style.transform = "";
+      if (!label.offsetParent) return;
+      const cs = getComputedStyle(label);
+      const fontPx = parseFloat(cs.fontSize);
+      const lineH = cs.lineHeight === "normal" ? 1.2 * fontPx : parseFloat(cs.lineHeight);
+      const ctx = document.createElement("canvas").getContext("2d");
+      if (!ctx) return;
+      ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const m = ctx.measureText(label.textContent ?? "");
+      const top = label.getBoundingClientRect().top;
+      const baseline =
+        top + (lineH - (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent)) / 2 + m.fontBoundingBoxAscent;
+      const inkCenter = baseline + (m.actualBoundingBoxDescent - m.actualBoundingBoxAscent) / 2;
+      const g = globe.getBoundingClientRect();
+      const delta = inkCenter - (g.top + g.bottom) / 2;
+      label.style.transform = `translateY(${(-delta).toFixed(2)}px)`;
+    };
+
+    center();
+    void document.fonts?.ready.then(center);
+    window.addEventListener("resize", center);
+    return () => window.removeEventListener("resize", center);
+  }, [activeLocale]);
 
   const changeLocale = (nextLocale: Locale) => {
     setIsOpen(false);
@@ -99,6 +126,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
   return (
     <div className={cn("relative", className)} ref={ref} {...props}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
         aria-label={t("changeLanguage")}
@@ -110,9 +138,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
         )}
       >
         <GlobeSimpleIcon className="w-[20.5px] h-[20.5px]" aria-hidden="true" />
-        <span className={cn("hidden md:inline text-xs font-semibold", labelNudge[activeLocale])}>
-          {LOCALE_LABELS[activeLocale]}
-        </span>
+        <span className="hidden md:inline text-xs font-semibold">{LOCALE_LABELS[activeLocale]}</span>
       </button>
 
       <AnimatePresence>
