@@ -89,7 +89,7 @@ const Header = ({ className, ...props }: HeaderProps) => {
 
         <ul className="hidden sm:flex gap-1.5 md:gap-2 items-center list-none p-0 indent-0">
           {navItems.map(({ id }) => (
-            <Link key={`header-item-${id}`} href={`#${id}`} className="no-underline">
+            <a key={`header-item-${id}`} href={`#${id}`} className="no-underline">
               <li
                 className={cn(
                   "px-3 md:px-4 py-1.5 md:py-2 rounded-full flex gap-0.5 items-center transition-colors",
@@ -106,7 +106,7 @@ const Header = ({ className, ...props }: HeaderProps) => {
                   {t(id)}
                 </span>
               </li>
-            </Link>
+            </a>
           ))}
         </ul>
 
@@ -126,14 +126,14 @@ const Header = ({ className, ...props }: HeaderProps) => {
         style={{ clipPath: "inset(0% 50% 100% 50% round 10px)" }}
       >
         {navItems.map(({ id }) => (
-          <Link
+          <a
             key={`header-item-m-${id}`}
             href={`#${id}`}
             className={cn("mobile-menu-item", "no-underline")}
             onClick={() => setIsExpanded(false)}
           >
             <li className="py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80">{t(id)}</li>
-          </Link>
+          </a>
         ))}
       </ul>
     </header>
