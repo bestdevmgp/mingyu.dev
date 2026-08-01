@@ -29,7 +29,6 @@ const LOCALE_LABELS: Record<Locale, string> = {
 };
 
 const labelNudge: Record<string, string> = {
-  en: "relative top-[-0.5px]",
   ja: "relative top-[-0.5px]",
   "zh-Hans": "relative top-[-0.5px]",
   "zh-Hant": "relative top-[-0.5px]",
