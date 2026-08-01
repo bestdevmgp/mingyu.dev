@@ -28,7 +28,12 @@ const LOCALE_LABELS: Record<Locale, string> = {
   "zh-Hant": "繁體中文",
 };
 
-const labelNudge: Record<string, string> = {};
+const labelNudge: Record<string, string> = {
+  en: "relative top-[-1px]",
+  ja: "relative top-[-0.5px]",
+  "zh-Hans": "relative top-[-0.5px]",
+  "zh-Hant": "relative top-[-0.5px]",
+};
 
 const setLocaleCookie = (locale: Locale) => {
   document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax`;
