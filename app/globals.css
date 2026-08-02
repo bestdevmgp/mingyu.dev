@@ -233,16 +233,19 @@ html[lang="ko"] {
    (blue top, green middle, lime bottom) — all stay visible. Desktop/landscape
    is untouched. */
 @media (max-aspect-ratio: 1/1) {
-  /* No top bleed on portrait, so pulling the page down (over-scroll) shows a
-     clean edge instead of a leftover strip of background above the hero. */
+  /* Bleed the canvas above the viewport (like the reference portfolio's
+     `-top-16`): the top edge is clipped OFF-screen, so the very top of the hero
+     is filled by the body of the blue blob instead of a hard cut line. Keeping
+     the bleed also means over-scrolling reveals the blob's soft blurred falloff,
+     not an abrupt clipped strip. */
   .hero-bg {
-    top: 0;
+    top: -4rem;
   }
   .hero-bg-canvas {
     --ratio: 0.62;
   }
   .hero-blob {
-    filter: blur(calc(var(--cw) * 0.18));
+    filter: blur(calc(var(--cw) * 0.24));
   }
   .hero-blob-blue {
     --blob-size: 95%;
