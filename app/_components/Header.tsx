@@ -14,7 +14,7 @@ import Logo from "./Logo";
 
 interface HeaderProps extends React.HTMLAttributes<HTMLHeadElement> {}
 
-const navItems = [{ id: "skill" }, { id: "experience" }, { id: "project" }, { id: "education" }] as const;
+const navItems = [{ id: "skills" }, { id: "experience" }, { id: "projects" }, { id: "education" }] as const;
 
 const staggerMenuItems = stagger(0.1, { startDelay: 0.15 });
 

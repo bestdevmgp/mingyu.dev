@@ -40,7 +40,7 @@ export default async function ProjectSection() {
   const projects = await getProjects(await getLocale());
 
   return (
-    <SectionWatcher id="project">
+    <SectionWatcher id="projects">
       <SlideUpInView>
         <h2 className="section-eyebrow">{t("eyebrow")}</h2>
         <p className="section-title">{t("title")}</p>
