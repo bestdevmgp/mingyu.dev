@@ -240,11 +240,16 @@ html[lang="ko"] {
      not an abrupt clipped strip. */
   .hero-bg {
     top: -4rem;
-    /* Extend the clip box 4rem below #main too (mobile only), so the rendered
-       blur reaches the same depth as the reference portfolio — whose in-flow
-       header pushes its hero, and this blur, 4rem lower on screen. Desktop keeps
-       bottom: 0. Purely the clip size; colours/blur/positions are unchanged. */
-    bottom: -4rem;
+  }
+  /* Grow the hero itself 4rem taller on mobile (instead of only stretching the
+     blur clip box). The blur background follows #main (bottom: 0), so it becomes
+     4rem taller to match the reference portfolio's rendered height — and because
+     the hero grew, the vertically-centred heading and CTA shift down with it and
+     the gap to the next section is preserved, rather than the blur alone reaching
+     past static content. !important overrides the inline min-height set in
+     MainSection. Mobile only; desktop is unchanged. */
+  #main {
+    min-height: calc(clamp(600px, 80vh, 1080px) + 4rem) !important;
   }
   .hero-bg-canvas {
     --ratio: 0.62;
