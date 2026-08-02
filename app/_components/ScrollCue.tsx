@@ -24,7 +24,7 @@ const ScrollCue = () => {
     <div
       aria-hidden
       className={cn(
-        "scroll-cue-wrap w-full h-8 -mb-8 flex items-center justify-center text-foreground/55",
+        "w-full h-8 -mb-8 flex items-center justify-center text-foreground/55",
         "transition-opacity duration-500",
         hidden ? "opacity-0" : "opacity-100",
       )}
