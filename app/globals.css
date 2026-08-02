@@ -68,7 +68,10 @@ html {
 
 @media (min-width: 64rem) {
   html {
-    scroll-padding-top: 3.75rem;
+    /* The section's own pt-20 (5rem) already clears the 3.5rem fixed header,
+       so only a small extra gap is needed here (section content lands ~2rem
+       below the header). */
+    scroll-padding-top: 0.5rem;
   }
 }
 

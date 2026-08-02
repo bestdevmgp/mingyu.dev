@@ -6,7 +6,8 @@
     "changeLanguage": "Change language",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "contact": "Contact"
+    "contact": "Contact",
+    "sectionNav": "Section navigation"
   },
   "Nav": {
     "skills": "Skills",

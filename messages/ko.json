@@ -6,7 +6,8 @@
     "changeLanguage": "언어 변경",
     "openMenu": "메뉴 열기",
     "closeMenu": "메뉴 닫기",
-    "contact": "연락처"
+    "contact": "연락처",
+    "sectionNav": "섹션 내비게이션"
   },
   "Nav": {
     "skills": "기술",

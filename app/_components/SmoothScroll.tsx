@@ -62,15 +62,10 @@ const SmoothScroll = () => {
       if (!el) return;
       event.preventDefault();
 
-      if (lenis) {
-        // scroll-padding-top already reserves the header space (3.75rem at lg / 1.5rem below),
-        // so this offset only adds a small breathing gap below the sticky sub-nav.
-        // Keep the lg value in sync with the scroll-spy activation line in Header.tsx.
-        const offset = window.matchMedia("(min-width: 64rem)").matches ? -18 : -8;
-        lenis.scrollTo(el, { offset });
-      } else {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      // scroll-padding-top reserves the fixed-header space, so Lenis and the
+      // native fallback both land the section just below the header.
+      if (lenis) lenis.scrollTo(el);
+      else el.scrollIntoView({ behavior: "smooth", block: "start" });
 
       window.history.replaceState(null, "", href);
     };
