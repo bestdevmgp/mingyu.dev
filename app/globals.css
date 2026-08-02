@@ -191,7 +191,7 @@ html[lang="ko"] {
   border-radius: 50%;
   /* Keep the blur tight relative to the canvas so each colour stays a
      recognisable light source instead of washing into a flat blend. */
-  filter: blur(calc(var(--cw) * 0.09));
+  filter: blur(calc(var(--cw) * 0.08));
   will-change: transform;
 }
 .hero-blob-blue {
@@ -245,7 +245,7 @@ html[lang="ko"] {
     --ratio: 0.62;
   }
   .hero-blob {
-    filter: blur(calc(var(--cw) * 0.21));
+    filter: blur(calc(var(--cw) * 0.225));
   }
   .hero-blob-blue {
     --blob-size: 95%;
