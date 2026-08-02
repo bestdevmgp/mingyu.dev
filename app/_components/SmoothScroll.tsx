@@ -63,7 +63,9 @@ const SmoothScroll = () => {
       event.preventDefault();
 
       if (lenis) {
-        const offset = window.matchMedia("(min-width: 64rem)").matches ? -60 : -24;
+        // scroll-padding-top already reserves the header space (3.75rem at lg / 1.5rem below),
+        // so this offset only adds a small breathing gap below the sticky sub-nav.
+        const offset = window.matchMedia("(min-width: 64rem)").matches ? -10 : -8;
         lenis.scrollTo(el, { offset });
       } else {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
