@@ -110,7 +110,7 @@ const SiteHeader = () => {
       </Link>
 
       <div className="flex items-center gap-2 shrink-0">
-        <div className="hidden lg:flex items-center gap-3.5">
+        <div className="hidden xl:flex items-center gap-3.5">
           <LanguageSwitcher />
           <ThemeToggle />
           <ContactMenu />
@@ -118,7 +118,7 @@ const SiteHeader = () => {
 
         <button
           type="button"
-          className="block lg:hidden shrink-0 text-foreground/70 -mr-1 p-1"
+          className="block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1"
           onClick={() => setIsExpanded(prev => !prev)}
           aria-label={t(isExpanded ? "closeMenu" : "openMenu")}
           aria-expanded={isExpanded}
@@ -132,7 +132,7 @@ const SiteHeader = () => {
           "mobile-menu",
           "absolute top-full left-0 right-0",
 
-          "flex flex-col lg:hidden px-5 pt-3 pb-0 indent-0",
+          "flex flex-col xl:hidden px-5 pt-3 pb-0 indent-0",
 
           "bg-background border-b-[2px] border-foreground/10 shadow-sm",
           isExpanded ? "pointer-events-auto" : "pointer-events-none",

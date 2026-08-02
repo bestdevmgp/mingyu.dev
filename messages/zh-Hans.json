@@ -6,7 +6,8 @@
     "changeLanguage": "切换语言",
     "openMenu": "打开菜单",
     "closeMenu": "关闭菜单",
-    "contact": "联系方式"
+    "contact": "联系方式",
+    "sectionNav": "章节导航"
   },
   "Nav": {
     "skills": "技术",

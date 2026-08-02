@@ -6,7 +6,8 @@
     "changeLanguage": "言語を変更",
     "openMenu": "メニューを開く",
     "closeMenu": "メニューを閉じる",
-    "contact": "連絡先"
+    "contact": "連絡先",
+    "sectionNav": "セクションナビゲーション"
   },
   "Nav": {
     "skills": "スキル",

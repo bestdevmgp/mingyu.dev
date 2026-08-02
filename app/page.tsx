@@ -1,5 +1,5 @@
-import Header from "@/_components/Header";
 import ScrollCue from "@/_components/ScrollCue";
+import SectionNav from "@/_components/SectionNav";
 import SiteHeader from "@/_components/SiteHeader";
 import BlogSection from "@/_sections/BlogSection";
 import EducationSection from "@/_sections/EducationSection";
@@ -14,6 +14,7 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
+      <SectionNav />
       <main
         className="
         w-full max-w-(--breakpoint-lg) min-h-screen mx-auto
@@ -22,7 +23,6 @@ export default function Home() {
       "
       >
         <MainSection />
-        <Header className="mb-10" />
         <ScrollCue />
         <IntroSection />
         <SkillSection />

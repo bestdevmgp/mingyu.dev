@@ -6,7 +6,8 @@
     "changeLanguage": "切換語言",
     "openMenu": "開啟選單",
     "closeMenu": "關閉選單",
-    "contact": "聯絡方式"
+    "contact": "聯絡方式",
+    "sectionNav": "章節導覽"
   },
   "Nav": {
     "skills": "技術",
