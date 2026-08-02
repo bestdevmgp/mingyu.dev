@@ -168,7 +168,10 @@ html[lang="ko"] {
   left: 50%;
   width: 100vw;
   transform: translateX(-50%);
-  overflow: hidden;
+  /* Clip the sides and bottom, but let the blur bleed off the TOP so it fills
+     the mobile over-scroll (rubber-band) area with a soft fade instead of
+     showing a hard cut edge when the page is pulled down. */
+  clip-path: inset(-100vh 0 0 0);
   /* size container: lets the canvas below size itself in cqw/cqh units */
   container-type: size;
   z-index: 0;
@@ -191,7 +194,7 @@ html[lang="ko"] {
   border-radius: 50%;
   /* Keep the blur tight relative to the canvas so each colour stays a
      recognisable light source instead of washing into a flat blend. */
-  filter: blur(calc(var(--cw) * 0.05));
+  filter: blur(calc(var(--cw) * 0.09));
   will-change: transform;
 }
 .hero-blob-blue {
@@ -237,7 +240,7 @@ html[lang="ko"] {
     --ratio: 0.62;
   }
   .hero-blob {
-    filter: blur(calc(var(--cw) * 0.18));
+    filter: blur(calc(var(--cw) * 0.22));
   }
   .hero-blob-blue {
     --blob-size: 95%;
