@@ -275,11 +275,6 @@ html[lang="ko"] {
     bottom: -12%;
     left: -18%;
   }
-  /* Scroll cue sits a touch higher on mobile than on desktop (net height stays 0). */
-  .scroll-cue-wrap {
-    margin-top: -19px;
-    margin-bottom: -13px;
-  }
 }
 
 .hero-rise {
@@ -330,6 +325,14 @@ html[lang="ko"] {
 .scroll-cue-wrap {
   margin-top: -14px;
   margin-bottom: -18px;
+}
+/* Portrait (mobile): a touch higher than desktop. Kept AFTER the default rule so
+   it wins on portrait (same specificity → source order decides). Net height 0. */
+@media (max-aspect-ratio: 1/1) {
+  .scroll-cue-wrap {
+    margin-top: -19px;
+    margin-bottom: -13px;
+  }
 }
 .scroll-cue {
   animation: scroll-cue 2s ease-out infinite;
