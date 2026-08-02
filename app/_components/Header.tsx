@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "react-feather";
 
 import cn from "classnames";
@@ -25,6 +25,11 @@ const Header = ({ className, ...props }: HeaderProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [scope, animate] = useAnimate();
 
+  // Clicking a nav item smooth-scrolls to it, passing over other sections on
+  // the way. Hold the clicked item active until the page actually reaches it,
+  // so the highlight doesn't flicker through those passed sections.
+  const pendingId = useRef<string | null>(null);
+
   useEffect(() => {
     const ids = navItems.map(({ id }) => id);
     const update = () => {
@@ -35,16 +40,36 @@ const Header = ({ className, ...props }: HeaderProps) => {
         // scroll offset in SmoothScroll.tsx so the landed section reads as active.
         if (el && el.getBoundingClientRect().top <= 128) current = id;
       }
+      const pending = pendingId.current;
+      if (pending) {
+        // Release the hold once the clicked section has actually arrived.
+        if (current === pending) pendingId.current = null;
+        setActiveId(pending);
+        return;
+      }
       setActiveId(current);
     };
     update();
+    // A genuine user scroll takes over from the click-driven hold at once.
+    const release = () => {
+      pendingId.current = null;
+    };
     window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchstart", release, { passive: true });
     return () => {
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
+      window.removeEventListener("wheel", release);
+      window.removeEventListener("touchstart", release);
     };
   }, []);
+
+  const handleNavClick = (id: string) => {
+    pendingId.current = id;
+    setActiveId(id);
+  };
 
   const toggleMobileMenu = () => {
     setIsExpanded(!isExpanded);
@@ -91,7 +116,7 @@ const Header = ({ className, ...props }: HeaderProps) => {
 
         <ul className="hidden sm:flex gap-1.5 md:gap-2 items-center list-none p-0 indent-0">
           {navItems.map(({ id }) => (
-            <a key={`header-item-${id}`} href={`#${id}`} className="no-underline">
+            <a key={`header-item-${id}`} href={`#${id}`} className="no-underline" onClick={() => handleNavClick(id)}>
               <li
                 className={cn(
                   "px-3 md:px-4 py-1.5 md:py-2 rounded-full flex gap-0.5 items-center transition-colors",
