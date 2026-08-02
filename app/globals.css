@@ -254,14 +254,6 @@ html[lang="ko"] {
        (overrides the mb-12 utility on portrait only). */
     margin-bottom: 4rem;
   }
-  /* Growing the hero (+4rem) and its bottom margin (+1rem) would push the scroll
-     cue down with it. Pull the cue back up by that combined 5rem so it stays at
-     its original height near the bottom of the first screen; the matching 3rem
-     margin-bottom keeps the first section (#intro) at its widened position. */
-  .scroll-cue-wrap {
-    margin-top: -5rem;
-    margin-bottom: 3rem;
-  }
   .hero-bg-canvas {
     --ratio: 0.62;
   }
