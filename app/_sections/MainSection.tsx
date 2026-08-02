@@ -10,7 +10,7 @@ const MainSection = async () => {
   return (
     <div
       id="main"
-      className="relative w-full flex flex-col items-center justify-center pt-32 md:pt-44 pb-32 mb-12 md:mb-20"
+      className="relative w-full flex flex-col items-center justify-center pt-32 md:pt-44 pb-32"
       style={{ minHeight: "clamp(600px, 80vh, 1080px)" }}
     >
       <div aria-hidden className="absolute -top-16 bottom-0 left-1/2 -translate-x-1/2 w-screen overflow-hidden z-0">
