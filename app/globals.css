@@ -189,7 +189,9 @@ html[lang="ko"] {
   width: var(--blob-size);
   aspect-ratio: 1;
   border-radius: 50%;
-  filter: blur(calc(var(--cw) * 0.055));
+  /* Keep the blur tight relative to the canvas so each colour stays a
+     recognisable light source instead of washing into a flat blend. */
+  filter: blur(calc(var(--cw) * 0.025));
   will-change: transform;
 }
 .hero-blob-blue {
