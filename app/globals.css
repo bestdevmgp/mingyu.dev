@@ -164,7 +164,14 @@ html[lang="ko"] {
   pointer-events: none;
   position: absolute;
   top: -4rem;
-  bottom: 0;
+  /* Extend the clip box 4rem BELOW #main as well. The reference portfolio keeps
+     its header in the document flow, which pushes its hero (and this blurred
+     background) down by the 4rem header height, so its rendered blur reaches
+     4rem lower on screen. Our header is fixed (out of flow), so #main starts at
+     the very top; matching the reference's rendered blur height therefore means
+     letting the blur extend the same 4rem past the hero. Purely the clip size —
+     colours, blur radius and blob positions are unchanged. */
+  bottom: -4rem;
   left: 50%;
   width: 100vw;
   transform: translateX(-50%);
