@@ -250,6 +250,9 @@ html[lang="ko"] {
      MainSection. Mobile only; desktop is unchanged. */
   #main {
     min-height: calc(clamp(600px, 80vh, 1080px) + 4rem) !important;
+    /* A touch more breathing room between the hero blur and the first section
+       (overrides the mb-12 utility on portrait only). */
+    margin-bottom: 4rem;
   }
   .hero-bg-canvas {
     --ratio: 0.62;
