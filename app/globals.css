@@ -227,6 +227,35 @@ html[lang="ko"] {
   }
 }
 
+/* Portrait screens (phones etc.) are managed separately: the wide landscape
+   layout above crops the side blobs out (only the centre colour shows), so on
+   portrait we switch to a tall canvas and stack the three colours vertically
+   (blue top, green middle, lime bottom) — all stay visible. Desktop/landscape
+   is untouched. */
+@media (max-aspect-ratio: 1/1) {
+  .hero-bg-canvas {
+    --ratio: 0.62;
+  }
+  .hero-blob {
+    filter: blur(calc(var(--cw) * 0.06));
+  }
+  .hero-blob-blue {
+    --blob-size: 95%;
+    top: -16%;
+    left: -25%;
+  }
+  .hero-blob-green {
+    --blob-size: 88%;
+    top: 24%;
+    right: -28%;
+  }
+  .hero-blob-lime {
+    --blob-size: 88%;
+    bottom: -12%;
+    left: -18%;
+  }
+}
+
 .hero-rise {
   animation: hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
