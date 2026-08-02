@@ -24,7 +24,9 @@ const ScrollCue = () => {
     <div
       aria-hidden
       className={cn(
-        "w-full h-8 -mb-8 flex items-center justify-center text-foreground/55",
+        // -mt-6 lifts the cue a little; -mb-2 keeps the net height at 0 (h-8 - mt - mb)
+        // so the next section's position is unchanged. Applies to both PC and mobile.
+        "w-full h-8 -mt-6 -mb-2 flex items-center justify-center text-foreground/55",
         "transition-opacity duration-500",
         hidden ? "opacity-0" : "opacity-100",
       )}
