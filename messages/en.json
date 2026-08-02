@@ -9,9 +9,9 @@
     "contact": "Contact"
   },
   "Nav": {
-    "skill": "Skills",
-    "experience": "Activity",
-    "project": "Projects",
+    "skills": "Skills",
+    "experience": "Activities",
+    "projects": "Projects",
     "education": "Education"
   },
   "Main": {
@@ -32,9 +32,9 @@
     "ai": "AI"
   },
   "Experience": {
-    "eyebrow": "Internship & Activities",
+    "eyebrow": "Internships & Activities",
     "title": "Building experience through<br></br>hands-on work and diverse activities.",
-    "groupIntern": "Internship",
+    "groupIntern": "Internships",
     "groupProject": "Projects",
     "groupActivity": "Awards & Activities",
     "showDetails": "Show details",

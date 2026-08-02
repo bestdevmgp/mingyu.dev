@@ -9,9 +9,9 @@
     "contact": "聯絡方式"
   },
   "Nav": {
-    "skill": "技術",
+    "skills": "技術",
     "experience": "活動",
-    "project": "專案",
+    "projects": "專案",
     "education": "教育"
   },
   "Main": {

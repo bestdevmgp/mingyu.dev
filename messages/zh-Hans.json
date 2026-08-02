@@ -9,9 +9,9 @@
     "contact": "联系方式"
   },
   "Nav": {
-    "skill": "技术",
+    "skills": "技术",
     "experience": "活动",
-    "project": "项目",
+    "projects": "项目",
     "education": "教育"
   },
   "Main": {

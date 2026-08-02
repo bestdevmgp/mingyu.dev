@@ -17,7 +17,7 @@ export default async function SkillSection() {
   const t = await getTranslations("Skill");
 
   return (
-    <SectionWatcher id="skill">
+    <SectionWatcher id="skills">
       <SlideUpInView>
         <h2 className="section-eyebrow">{t("eyebrow")}</h2>
         <p className="section-title">{t("title")}</p>
