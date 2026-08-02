@@ -24,9 +24,10 @@ const ScrollCue = () => {
     <div
       aria-hidden
       className={cn(
-        // -mt-6 lifts the cue a little; -mb-2 keeps the net height at 0 (h-8 - mt - mb)
-        // so the next section's position is unchanged. Applies to both PC and mobile.
-        "w-full h-8 -mt-6 -mb-2 flex items-center justify-center text-foreground/55",
+        // Vertical position is tuned in globals.css (.scroll-cue-wrap): a negative
+        // top margin lifts the cue, a matching bottom margin keeps the net height 0
+        // (h-8) so the next section never moves. PC sits a touch lower than mobile.
+        "scroll-cue-wrap w-full h-8 flex items-center justify-center text-foreground/55",
         "transition-opacity duration-500",
         hidden ? "opacity-0" : "opacity-100",
       )}

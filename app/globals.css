@@ -275,6 +275,11 @@ html[lang="ko"] {
     bottom: -12%;
     left: -18%;
   }
+  /* Scroll cue sits a touch higher on mobile than on desktop (net height stays 0). */
+  .scroll-cue-wrap {
+    margin-top: -19px;
+    margin-bottom: -13px;
+  }
 }
 
 .hero-rise {
@@ -318,6 +323,14 @@ html[lang="ko"] {
   }
 }
 
+/* Scroll cue vertical position. The negative top margin lifts the cue toward the
+   hero; the matching bottom margin keeps the wrapper's net height 0 (h-8 = 2rem)
+   so the section below never moves. This desktop value sits ~10px lower than the
+   previous baseline; the portrait override above it is ~5px lower. */
+.scroll-cue-wrap {
+  margin-top: -14px;
+  margin-bottom: -18px;
+}
 .scroll-cue {
   animation: scroll-cue 2s ease-out infinite;
 }
