@@ -191,7 +191,7 @@ html[lang="ko"] {
   border-radius: 50%;
   /* Keep the blur tight relative to the canvas so each colour stays a
      recognisable light source instead of washing into a flat blend. */
-  filter: blur(calc(var(--cw) * 0.028));
+  filter: blur(calc(var(--cw) * 0.04));
   will-change: transform;
 }
 .hero-blob-blue {
@@ -237,7 +237,7 @@ html[lang="ko"] {
     --ratio: 0.62;
   }
   .hero-blob {
-    filter: blur(calc(var(--cw) * 0.11));
+    filter: blur(calc(var(--cw) * 0.14));
   }
   .hero-blob-blue {
     --blob-size: 95%;
@@ -246,7 +246,7 @@ html[lang="ko"] {
   }
   .hero-blob-green {
     --blob-size: 88%;
-    top: 24%;
+    top: 12%;
     right: -28%;
   }
   .hero-blob-lime {
