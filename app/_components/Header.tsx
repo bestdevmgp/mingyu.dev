@@ -31,7 +31,9 @@ const Header = ({ className, ...props }: HeaderProps) => {
       let current = "";
       for (const id of ids) {
         const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= 120) current = id;
+        // Activation line ≈ sticky sub-nav bottom; kept in sync with the click
+        // scroll offset in SmoothScroll.tsx so the landed section reads as active.
+        if (el && el.getBoundingClientRect().top <= 128) current = id;
       }
       setActiveId(current);
     };
