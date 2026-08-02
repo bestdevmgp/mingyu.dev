@@ -153,25 +153,65 @@ html[lang="ko"] {
   }
 }
 
-.hero-blob {
+/* Hero aurora background.
+   The three colour blobs are drawn on a fixed-ratio canvas that is scaled to
+   COVER the hero area. Blob sizes, offsets and blur are ALL relative to the
+   canvas, so the whole composition scales as a single picture — it looks the
+   same at any screen size or resolution (only the cropped edges differ, exactly
+   like a `background-size: cover` image), instead of the colours drifting apart
+   on large monitors when their sizes were fixed pixels. */
+.hero-bg {
   pointer-events: none;
   position: absolute;
-  filter: blur(145px);
+  top: -4rem;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  overflow: hidden;
+  /* size container: lets the canvas below size itself in cqw/cqh units */
+  container-type: size;
+  z-index: 0;
+}
+.hero-bg-canvas {
+  --ratio: 2.2;
+  /* Cover: at least as large as the container in both axes, keeping --ratio. */
+  --cw: max(100cqw, calc(100cqh * var(--ratio)));
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--cw);
+  height: calc(var(--cw) / var(--ratio));
+  transform: translate(-50%, -50%);
+}
+.hero-blob {
+  position: absolute;
+  width: var(--blob-size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(calc(var(--cw) * 0.055));
   will-change: transform;
 }
-@media (max-width: 767px) {
-  .hero-blob {
-    filter: blur(75px);
-  }
-}
 .hero-blob-blue {
+  --blob-size: 60%;
+  top: -26%;
+  left: -10%;
   background: radial-gradient(circle at center, rgb(0 122 255 / 0.3) 0%, rgb(0 122 255 / 0.16) 40%, transparent 82%);
+  animation: hero-drift-a 22s ease-in-out infinite alternate;
 }
 .hero-blob-green {
+  --blob-size: 59%;
+  top: -6%;
+  right: -12%;
   background: radial-gradient(circle at center, rgb(0 198 118 / 0.3) 0%, rgb(0 198 118 / 0.16) 40%, transparent 82%);
+  animation: hero-drift-b 26s ease-in-out infinite alternate;
 }
 .hero-blob-lime {
+  --blob-size: 52%;
+  bottom: -30%;
+  left: 18%;
   background: radial-gradient(circle at center, rgb(226 255 0 / 0.24) 0%, rgb(226 255 0 / 0.13) 40%, transparent 82%);
+  animation: hero-drift-c 30s ease-in-out infinite alternate;
 }
 :root.dark {
   .hero-blob-blue {
@@ -200,28 +240,29 @@ html[lang="ko"] {
   }
 }
 
+/* Drift offsets are in % of each blob so they scale with the canvas too. */
 @keyframes hero-drift-a {
   0% {
-    transform: translate(0) scale(1);
+    transform: translate(0, 0) scale(1);
   }
   100% {
-    transform: translate(48px, 36px) scale(1.12);
+    transform: translate(4%, 3%) scale(1.12);
   }
 }
 @keyframes hero-drift-b {
   0% {
-    transform: translate(0) scale(1.06);
+    transform: translate(0, 0) scale(1.06);
   }
   100% {
-    transform: translate(-40px, -44px) scale(1);
+    transform: translate(-3.5%, -4%) scale(1);
   }
 }
 @keyframes hero-drift-c {
   0% {
-    transform: translate(0) scale(1);
+    transform: translate(0, 0) scale(1);
   }
   100% {
-    transform: translate(28px, -34px) scale(1.1);
+    transform: translate(3%, -3.4%) scale(1.1);
   }
 }
 
