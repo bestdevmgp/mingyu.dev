@@ -14,7 +14,6 @@ const SectionNav = () => {
   const [activeId, setActiveId] = useState("");
   const [isVisible, setIsVisible] = useState(false);
 
-  // Reveal only after the hero (#main) has scrolled out of view.
   useEffect(() => {
     const hero = document.getElementById("main");
     if (!hero) return;
@@ -23,9 +22,6 @@ const SectionNav = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Scroll-spy that holds the clicked item active until the page actually
-  // reaches it, so the highlight doesn't flicker through the sections passed
-  // during the click scroll. A genuine user scroll releases the hold at once.
   const pendingId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -34,8 +30,6 @@ const SectionNav = () => {
       let current = "";
       for (const id of ids) {
         const el = document.getElementById(id);
-        // Activation line ≈ fixed-header bottom; kept in sync with the scroll
-        // landing (scroll-padding-top) so the landed section reads as active.
         if (el && el.getBoundingClientRect().top <= 60) current = id;
       }
       const pending = pendingId.current;

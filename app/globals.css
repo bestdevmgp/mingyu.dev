@@ -68,9 +68,6 @@ html {
 
 @media (min-width: 64rem) {
   html {
-    /* The section's own pt-20 (5rem) already clears the 3.5rem fixed header,
-       so only a small extra gap is needed here (section content lands ~2rem
-       below the header). */
     scroll-padding-top: 0.5rem;
   }
 }
@@ -153,13 +150,6 @@ html[lang="ko"] {
   }
 }
 
-/* Hero aurora background.
-   The three colour blobs are drawn on a fixed-ratio canvas that is scaled to
-   COVER the hero area. Blob sizes, offsets and blur are ALL relative to the
-   canvas, so the whole composition scales as a single picture — it looks the
-   same at any screen size or resolution (only the cropped edges differ, exactly
-   like a `background-size: cover` image), instead of the colours drifting apart
-   on large monitors when their sizes were fixed pixels. */
 .hero-bg {
   pointer-events: none;
   position: absolute;
@@ -169,13 +159,11 @@ html[lang="ko"] {
   width: 100vw;
   transform: translateX(-50%);
   overflow: hidden;
-  /* size container: lets the canvas below size itself in cqw/cqh units */
   container-type: size;
   z-index: 0;
 }
 .hero-bg-canvas {
   --ratio: 2.2;
-  /* Cover: at least as large as the container in both axes, keeping --ratio. */
   --cw: max(100cqw, calc(100cqh * var(--ratio)));
   position: absolute;
   top: 50%;
@@ -189,8 +177,6 @@ html[lang="ko"] {
   width: var(--blob-size);
   aspect-ratio: 1;
   border-radius: 50%;
-  /* Keep the blur tight relative to the canvas so each colour stays a
-     recognisable light source instead of washing into a flat blend. */
   filter: blur(calc(var(--cw) * 0.08));
   will-change: transform;
 }
@@ -227,31 +213,12 @@ html[lang="ko"] {
   }
 }
 
-/* Portrait screens (phones etc.) are managed separately: the wide landscape
-   layout above crops the side blobs out (only the centre colour shows), so on
-   portrait we switch to a tall canvas and stack the three colours vertically
-   (blue top, green middle, lime bottom) — all stay visible. Desktop/landscape
-   is untouched. */
 @media (max-aspect-ratio: 1/1) {
-  /* Bleed the canvas above the viewport (like the reference portfolio's
-     `-top-16`): the top edge is clipped OFF-screen, so the very top of the hero
-     is filled by the body of the blue blob instead of a hard cut line. Keeping
-     the bleed also means over-scrolling reveals the blob's soft blurred falloff,
-     not an abrupt clipped strip. */
   .hero-bg {
     top: -4rem;
   }
-  /* Grow the hero itself 4rem taller on mobile (instead of only stretching the
-     blur clip box). The blur background follows #main (bottom: 0), so it becomes
-     4rem taller to match the reference portfolio's rendered height — and because
-     the hero grew, the vertically-centred heading and CTA shift down with it and
-     the gap to the next section is preserved, rather than the blur alone reaching
-     past static content. !important overrides the inline min-height set in
-     MainSection. Mobile only; desktop is unchanged. */
   #main {
     min-height: calc(clamp(600px, 80vh, 1080px) + 4rem) !important;
-    /* A touch more breathing room between the hero blur and the first section
-       (overrides the mb-12 utility on portrait only). */
     margin-bottom: 4rem;
   }
   .hero-bg-canvas {
@@ -292,7 +259,6 @@ html[lang="ko"] {
   }
 }
 
-/* Drift offsets are in % of each blob so they scale with the canvas too. */
 @keyframes hero-drift-a {
   0% {
     transform: translate(0, 0) scale(1);
@@ -318,16 +284,10 @@ html[lang="ko"] {
   }
 }
 
-/* Scroll cue vertical position. The negative top margin lifts the cue toward the
-   hero; the matching bottom margin keeps the wrapper's net height 0 (h-8 = 2rem)
-   so the section below never moves. This desktop value sits ~10px lower than the
-   previous baseline; the portrait override above it is ~5px lower. */
 .scroll-cue-wrap {
   margin-top: -14px;
   margin-bottom: -18px;
 }
-/* Portrait (mobile): a touch higher than desktop. Kept AFTER the default rule so
-   it wins on portrait (same specificity → source order decides). Net height 0. */
 @media (max-aspect-ratio: 1/1) {
   .scroll-cue-wrap {
     margin-top: -19px;

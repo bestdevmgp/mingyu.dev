@@ -62,8 +62,6 @@ const SmoothScroll = () => {
       if (!el) return;
       event.preventDefault();
 
-      // scroll-padding-top reserves the fixed-header space, so Lenis and the
-      // native fallback both land the section just below the header.
       if (lenis) lenis.scrollTo(el);
       else el.scrollIntoView({ behavior: "smooth", block: "start" });
 
