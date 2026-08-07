@@ -342,7 +342,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                     e.stopPropagation();
                     onClose();
                   }}
-                  className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors duration-200"
+                  className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-55 hover:opacity-100 transition-[opacity,background-color] duration-200"
                   aria-label="닫기"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
