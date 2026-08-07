@@ -17,12 +17,12 @@ const OutroSection = async () => {
         </p>
 
         <div className="w-72 md:w-80 mx-auto grid grid-cols-3 text-sm md:text-base gap-2 md:gap-3 p-6 md:p-8 rounded-2xl bg-dark/5 dark:bg-light/10">
-          <p className="font-semibold">{t("phone")}</p>
+          <p className="font-semibold">Phone</p>
           <Link href={phoneHref(locale)} target="_blank" className="col-span-2">
             <p>{phoneDisplay(locale)}</p>
           </Link>
 
-          <p className="font-semibold">{t("email")}</p>
+          <p className="font-semibold">Email</p>
           <Link href="mailto:me@mingyu.dev" target="_blank" className="col-span-2">
             <p>me@mingyu.dev</p>
           </Link>
