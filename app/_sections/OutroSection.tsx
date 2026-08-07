@@ -16,7 +16,7 @@ const OutroSection = async () => {
           {t.rich("heading", { br: () => <br /> })}
         </p>
 
-        <div className="w-72 md:w-80 mx-auto grid grid-cols-3 text-sm md:text-base gap-2 md:gap-3 p-6 md:p-8 rounded-2xl bg-dark/5 dark:bg-light/10">
+        <div className="w-72 md:w-80 mx-auto grid grid-cols-3 text-sm md:text-base gap-2 md:gap-3 p-6 md:p-8 rounded-2xl bg-dark/5 dark:bg-light/10 transition-colors duration-300">
           <p className="font-semibold">{t("phone")}</p>
           <Link href={phoneHref(locale)} target="_blank" className="col-span-2">
             <p>{phoneDisplay(locale)}</p>
