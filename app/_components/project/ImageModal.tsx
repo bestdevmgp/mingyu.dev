@@ -13,6 +13,11 @@ interface ImageModalProps {
   onClose: () => void;
 }
 
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 5;
+const ZOOM_STEP = 1.5;
+const WHEEL_SENSITIVITY = 0.0015;
+
 export default function ImageModal({ images, initialIndex, isOpen, onClose }: ImageModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
@@ -24,7 +29,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const [lastTouchTime, setLastTouchTime] = useState(0);
   const [touchStartPos, setTouchStartPos] = useState({ x: 0, y: 0 });
   const [hasMoved, setHasMoved] = useState(false);
-  const [hasMouseMoved, setHasMouseMoved] = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
   const imageContentRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
@@ -101,69 +105,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, currentIndex, images.length, onClose, goToPrevious, goToNext]);
 
-  const handleZoomIn = (clickX?: number, clickY?: number) => {
-    if (clickX !== undefined && clickY !== undefined && imageRef.current) {
-      const container = imageRef.current;
-      const containerRect = container.getBoundingClientRect();
-      const containerCenterX = containerRect.width / 2;
-      const containerCenterY = containerRect.height / 2;
-
-      const offsetX = clickX - containerCenterX;
-      const offsetY = clickY - containerCenterY;
-
-      const newZoom = Math.min(zoom * 1.5, 5);
-      setZoom(newZoom);
-
-      const newPosition = {
-        x: -offsetX * (newZoom / zoom - 1),
-        y: -offsetY * (newZoom / zoom - 1),
-      };
-
-      const constrainedPos = constrainPosition(newPosition.x, newPosition.y, newZoom);
-      setPosition(constrainedPos);
-    } else {
-      setZoom(prev => Math.min(prev * 1.5, 5));
-    }
-  };
-
-  const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev / 1.5, 0.5));
-  };
-
-  const isOutsideImage = (clientX: number, clientY: number) => {
-    const el = imageContentRef.current;
-    if (!el) return false;
-    const rect = el.getBoundingClientRect();
-    return clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom;
-  };
-
-  const handleImageClick = (e: React.MouseEvent) => {
-    // eslint-disable-next-line react-hooks/purity
-    const now = Date.now();
-    if (now - lastTouchTime < 300) {
-      return;
-    }
-
-    e.stopPropagation();
-
-    const movedFromDown = Math.hypot(e.clientX - mouseDownPosRef.current.x, e.clientY - mouseDownPosRef.current.y);
-    if (movedFromDown < 10 && isOutsideImage(e.clientX, e.clientY)) {
-      onClose();
-      return;
-    }
-
-    if (zoom === 1) {
-      const rect = (e.currentTarget as Element).getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
-      handleZoomIn(clickX, clickY);
-    } else if (zoom > 1 && !hasMouseMoved) {
-      resetZoom();
-    }
-
-    setHasMouseMoved(false);
-  };
-
   const constrainPosition = (newX: number, newY: number, currentZoom: number) => {
     if (!imageRef.current) return { x: newX, y: newY };
 
@@ -181,28 +122,78 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     };
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
-    if (zoom > 1) {
-      setIsDragging(true);
-      setHasMouseMoved(false);
-      setDragStart({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y,
+  const applyZoom = (nextZoom: number, anchor?: { x: number; y: number }) => {
+    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, nextZoom));
+    if (clamped === zoom) return;
+
+    const ratio = clamped / zoom;
+    const shifted = anchor
+      ? { x: position.x - anchor.x * (ratio - 1), y: position.y - anchor.y * (ratio - 1) }
+      : { x: position.x * ratio, y: position.y * ratio };
+
+    setZoom(clamped);
+    setPosition(constrainPosition(shifted.x, shifted.y, clamped));
+  };
+
+  const zoomBy = (factor: number, anchor?: { x: number; y: number }) => applyZoom(zoom * factor, anchor);
+
+  const handleZoomIn = () => zoomBy(ZOOM_STEP);
+  const handleZoomOut = () => zoomBy(1 / ZOOM_STEP);
+
+  const zoomByRef = useRef(zoomBy);
+  useEffect(() => {
+    zoomByRef.current = zoomBy;
+  });
+
+  useEffect(() => {
+    const container = imageRef.current;
+    if (!isOpen || !container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = container.getBoundingClientRect();
+      zoomByRef.current(Math.exp(-e.deltaY * WHEEL_SENSITIVITY), {
+        x: e.clientX - rect.left - rect.width / 2,
+        y: e.clientY - rect.top - rect.height / 2,
       });
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, [isOpen]);
+
+  const isOutsideImage = (clientX: number, clientY: number) => {
+    const el = imageContentRef.current;
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    return clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom;
+  };
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    if (Date.now() - lastTouchTime < 300) {
+      return;
+    }
+
+    e.stopPropagation();
+
+    const movedFromDown = Math.hypot(e.clientX - mouseDownPosRef.current.x, e.clientY - mouseDownPosRef.current.y);
+    if (movedFromDown < 10 && isOutsideImage(e.clientX, e.clientY)) {
+      onClose();
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
+  };
+
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && zoom > 1) {
-      setHasMouseMoved(true);
-      const newPos = {
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y,
-      };
-      const constrainedPos = constrainPosition(newPos.x, newPos.y, zoom);
-      setPosition(constrainedPos);
-    }
+    if (!isDragging) return;
+    setPosition(constrainPosition(e.clientX - dragStart.x, e.clientY - dragStart.y, zoom));
   };
 
   const handleMouseUp = () => {
@@ -228,14 +219,12 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
       setTouchStartPos({ x: touch.clientX, y: touch.clientY });
       setHasMoved(false);
 
-      if (zoom > 1) {
-        e.preventDefault();
-        setIsDragging(true);
-        setDragStart({
-          x: touch.clientX - position.x,
-          y: touch.clientY - position.y,
-        });
-      }
+      if (zoom > 1) e.preventDefault();
+      setIsDragging(true);
+      setDragStart({
+        x: touch.clientX - position.x,
+        y: touch.clientY - position.y,
+      });
     }
   };
 
@@ -244,7 +233,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
       e.preventDefault();
       const distance = getDistance(e.touches[0], e.touches[1]);
       const scale = distance / pinchStart.distance;
-      const newZoom = Math.max(0.5, Math.min(5, pinchStart.zoom * scale));
+      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStart.zoom * scale));
       setZoom(newZoom);
       setHasMoved(true);
     } else if (e.touches.length === 1) {
@@ -257,14 +246,9 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
         setHasMoved(true);
       }
 
-      if (isDragging && zoom > 1) {
-        e.preventDefault();
-        const newPos = {
-          x: touch.clientX - dragStart.x,
-          y: touch.clientY - dragStart.y,
-        };
-        const constrainedPos = constrainPosition(newPos.x, newPos.y, zoom);
-        setPosition(constrainedPos);
+      if (isDragging) {
+        if (zoom > 1) e.preventDefault();
+        setPosition(constrainPosition(touch.clientX - dragStart.x, touch.clientY - dragStart.y, zoom));
       }
     }
   };
@@ -273,18 +257,9 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     setLastTouchTime(Date.now());
 
     if (e.touches.length === 0) {
-      if (!hasMoved && !isPinching) {
+      if (!hasMoved && !isPinching && isOutsideImage(touchStartPos.x, touchStartPos.y)) {
         e.stopPropagation();
-        if (isOutsideImage(touchStartPos.x, touchStartPos.y)) {
-          onClose();
-        } else if (zoom === 1) {
-          const rect = (e.currentTarget as Element).getBoundingClientRect();
-          const tapX = touchStartPos.x - rect.left;
-          const tapY = touchStartPos.y - rect.top;
-          handleZoomIn(tapX, tapY);
-        } else {
-          resetZoom();
-        }
+        onClose();
       }
 
       setIsDragging(false);
@@ -294,14 +269,12 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
       setIsPinching(false);
       setHasMoved(false);
 
-      if (zoom > 1) {
-        const touch = e.touches[0];
-        setIsDragging(true);
-        setDragStart({
-          x: touch.clientX - position.x,
-          y: touch.clientY - position.y,
-        });
-      }
+      const touch = e.touches[0];
+      setIsDragging(true);
+      setDragStart({
+        x: touch.clientX - position.x,
+        y: touch.clientY - position.y,
+      });
     }
   };
 
@@ -347,7 +320,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
             <div
               ref={imageRef}
-              className="relative w-full h-full flex items-center justify-center overflow-hidden cursor-pointer select-none"
+              className="relative w-full h-full flex items-center justify-center overflow-hidden select-none"
               onClick={handleImageClick}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
@@ -357,7 +330,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
               style={{
-                cursor: zoom > 1 ? (isDragging ? "grabbing" : "grab") : "zoom-in",
+                cursor: isDragging ? "grabbing" : "default",
               }}
             >
               <div
@@ -366,6 +339,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 style={{
                   transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
                   willChange: isDragging || isPinching ? "transform" : "auto",
+                  cursor: isDragging ? "grabbing" : "grab",
                 }}
               >
                 <Image
@@ -424,10 +398,10 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   e.stopPropagation();
                   handleZoomOut();
                 }}
-                disabled={zoom <= 0.5}
+                disabled={zoom <= MIN_ZOOM}
                 className={cn(
                   "text-white p-2 rounded-full transition-colors duration-200",
-                  zoom <= 0.5 ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
+                  zoom <= MIN_ZOOM ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
                 )}
                 aria-label="축소"
               >
@@ -452,10 +426,10 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   e.stopPropagation();
                   handleZoomIn();
                 }}
-                disabled={zoom >= 5}
+                disabled={zoom >= MAX_ZOOM}
                 className={cn(
                   "text-white p-2 rounded-full transition-colors duration-200",
-                  zoom >= 5 ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
+                  zoom >= MAX_ZOOM ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
                 )}
                 aria-label="확대"
               >
