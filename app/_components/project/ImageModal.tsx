@@ -18,6 +18,7 @@ const MAX_ZOOM = 5;
 const ZOOM_STEP = 1.5;
 const WHEEL_SENSITIVITY = 0.0015;
 const FIT_RATIO = 0.7;
+const SCROLL_KEYS = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
 
 export default function ImageModal({ images, initialIndex, isOpen, onClose }: ImageModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -32,6 +33,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const [hasMoved, setHasMoved] = useState(false);
   const [aspect, setAspect] = useState<number | null>(null);
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const imageContentRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
@@ -92,21 +94,25 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   }, []);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return;
+    if (!isOpen) return;
 
-      if (e.key === "Escape") {
-        onClose();
-      } else if (e.key === "ArrowLeft" && currentIndex > 0) {
-        goToPrevious();
-      } else if (e.key === "ArrowRight" && currentIndex < images.length - 1) {
-        goToNext();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (e.key === "Escape") onClose();
+        else if (e.key === "ArrowLeft") goToPrevious();
+        else goToNext();
+        return;
       }
+
+      if (SCROLL_KEYS.includes(e.key)) e.preventDefault();
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, currentIndex, images.length, onClose, goToPrevious, goToNext]);
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
+  }, [isOpen, onClose, goToPrevious, goToNext]);
 
   useEffect(() => {
     const pane = imageRef.current;
@@ -164,20 +170,24 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   });
 
   useEffect(() => {
-    const container = imageRef.current;
-    if (!isOpen || !container) return;
+    const overlay = overlayRef.current;
+    if (!isOpen || !overlay) return;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const rect = container.getBoundingClientRect();
+
+      const pane = imageRef.current;
+      if (!pane) return;
+
+      const rect = pane.getBoundingClientRect();
       zoomByRef.current(Math.exp(-e.deltaY * WHEEL_SENSITIVITY), {
         x: e.clientX - rect.left - rect.width / 2,
         y: e.clientY - rect.top - rect.height / 2,
       });
     };
 
-    container.addEventListener("wheel", handleWheel, { passive: false });
-    return () => container.removeEventListener("wheel", handleWheel);
+    overlay.addEventListener("wheel", handleWheel, { passive: false });
+    return () => overlay.removeEventListener("wheel", handleWheel);
   }, [isOpen]);
 
   const isOutsideImage = (clientX: number, clientY: number) => {
@@ -306,7 +316,8 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
       {isOpen && (
         <motion.div
           key="image-modal"
-          className="fixed inset-0 bg-black/90 backdrop-blur-xs z-50 flex items-center justify-center image-modal-container"
+          ref={overlayRef}
+          className="fixed inset-0 bg-black/90 backdrop-blur-xs z-50 flex items-center justify-center select-none image-modal-container"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.25 } }}
