@@ -335,7 +335,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                     e.stopPropagation();
                     onClose();
                   }}
-                  className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                  className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors duration-200"
                   aria-label="닫기"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -389,7 +389,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                       e.stopPropagation();
                       goToPrevious();
                     }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors z-10"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors duration-200 z-10"
                     aria-label="이전 이미지"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -404,7 +404,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                       e.stopPropagation();
                       goToNext();
                     }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors z-10"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors duration-200 z-10"
                     aria-label="다음 이미지"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -426,7 +426,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 }}
                 disabled={zoom <= 0.5}
                 className={cn(
-                  "text-white p-2 rounded-full transition-colors",
+                  "text-white p-2 rounded-full transition-colors duration-200",
                   zoom <= 0.5 ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
                 )}
                 aria-label="축소"
@@ -441,7 +441,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   e.stopPropagation();
                   resetZoom();
                 }}
-                className="text-white px-3 py-2 rounded-full hover:bg-white/20 transition-colors text-sm"
+                className="text-white px-3 py-2 rounded-full hover:bg-white/20 transition-colors duration-200 text-sm"
                 aria-label="원래 크기"
               >
                 {Math.round(zoom * 100)}%
@@ -454,7 +454,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 }}
                 disabled={zoom >= 5}
                 className={cn(
-                  "text-white p-2 rounded-full transition-colors",
+                  "text-white p-2 rounded-full transition-colors duration-200",
                   zoom >= 5 ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
                 )}
                 aria-label="확대"
