@@ -2,6 +2,32 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@property --foreground {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(34, 34, 34);
+}
+@property --background {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(255, 255, 255);
+}
+@property --primary {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(0, 122, 255);
+}
+@property --secondary {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(0, 198, 118);
+}
+@property --point {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(226, 255, 0);
+}
+
 @theme inline {
   --background-color-dark: rgb(15, 24, 42);
   --background-color-light: #ffffff;
@@ -10,11 +36,11 @@
   --color-green: #00c676;
   --color-lime: #e2ff00;
   --color-black: #222222;
-  --color-primary: rgb(var(--primary-rgb));
-  --color-secondary: rgb(var(--secondary-rgb));
-  --color-point: rgb(var(--point-rgb));
-  --color-foreground: rgb(var(--foreground-rgb));
-  --color-background: rgb(var(--background-rgb));
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-point: var(--point);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
 
   --z-index-modal-overlay: 899;
   --z-index-modal-content: 900;
@@ -43,21 +69,21 @@
 }
 
 :root {
-  --foreground-rgb: 34, 34, 34;
-  --background-rgb: 255, 255, 255;
+  --foreground: rgb(34, 34, 34);
+  --background: rgb(255, 255, 255);
 
-  --primary-rgb: 0, 122, 255;
-  --secondary-rgb: 0, 198, 118;
-  --point-rgb: 226, 255, 0;
+  --primary: rgb(0, 122, 255);
+  --secondary: rgb(0, 198, 118);
+  --point: rgb(226, 255, 0);
 }
 
 :root.dark {
-  --foreground-rgb: 255, 255, 255;
-  --background-rgb: 15, 24, 42;
+  --foreground: rgb(255, 255, 255);
+  --background: rgb(15, 24, 42);
 
-  --primary-rgb: 0, 209, 125;
-  --secondary-rgb: 203, 229, 0;
-  --point-rgb: 0, 122, 255;
+  --primary: rgb(0, 209, 125);
+  --secondary: rgb(203, 229, 0);
+  --point: rgb(0, 122, 255);
 }
 
 html {
@@ -83,8 +109,8 @@ html {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  color: var(--foreground);
+  background: var(--background);
   letter-spacing: -0.025rem;
 
   overflow-x: clip;
@@ -326,24 +352,17 @@ html[lang="ko"] {
   }
 }
 
-html.theme-transition *,
-html.theme-transition *::before,
-html.theme-transition *::after {
+html.theme-transition {
   transition:
-    color 300ms ease,
-    background-color 300ms ease,
-    border-color 300ms ease,
-    outline-color 300ms ease,
-    text-decoration-color 300ms ease,
-    box-shadow 300ms ease,
-    fill 300ms ease,
-    stroke 300ms ease;
+    --foreground 300ms ease,
+    --background 300ms ease,
+    --primary 300ms ease,
+    --secondary 300ms ease,
+    --point 300ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.theme-transition *,
-  html.theme-transition *::before,
-  html.theme-transition *::after {
+  html.theme-transition {
     transition: none;
   }
 }
