@@ -29,6 +29,8 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const [lastTouchTime, setLastTouchTime] = useState(0);
   const [touchStartPos, setTouchStartPos] = useState({ x: 0, y: 0 });
   const [hasMoved, setHasMoved] = useState(false);
+  const [aspect, setAspect] = useState<number | null>(null);
+  const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const imageContentRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
@@ -56,7 +58,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   useEffect(() => {
     setCurrentIndex(initialIndex);
     resetZoom();
-  }, [initialIndex, resetZoom]);
+  }, [initialIndex, isOpen, resetZoom]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
@@ -105,17 +107,31 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, currentIndex, images.length, onClose, goToPrevious, goToNext]);
 
+  useEffect(() => {
+    const pane = imageRef.current;
+    if (!isOpen || !pane || !aspect) return;
+
+    const fit = () => {
+      const fittedWidth = Math.min(pane.offsetWidth, pane.offsetHeight * aspect);
+      setFitted({ width: fittedWidth, height: fittedWidth / aspect });
+    };
+
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(pane);
+    return () => observer.disconnect();
+  }, [isOpen, aspect]);
+
   const constrainPosition = (newX: number, newY: number, currentZoom: number) => {
     const container = imageRef.current;
     const content = imageContentRef.current;
     if (!container || !content) return { x: newX, y: newY };
 
-    const containerRect = container.getBoundingClientRect();
     const scaledWidth = content.offsetWidth * currentZoom;
     const scaledHeight = content.offsetHeight * currentZoom;
 
-    const maxX = Math.max(0, (scaledWidth - containerRect.width) / 2);
-    const maxY = Math.max(0, (scaledHeight - containerRect.height) / 2);
+    const maxX = Math.max(0, (scaledWidth - container.offsetWidth) / 2);
+    const maxY = Math.max(0, (scaledHeight - container.offsetHeight) / 2);
 
     return {
       x: Math.max(-maxX, Math.min(maxX, newX)),
@@ -343,6 +359,8 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 ref={imageContentRef}
                 className={cn("transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
                 style={{
+                  width: fitted ? `${fitted.width}px` : "100%",
+                  height: fitted ? `${fitted.height}px` : "100%",
                   transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
                   willChange: isDragging || isPinching ? "transform" : "auto",
                   cursor: isDragging ? "grabbing" : "grab",
@@ -353,10 +371,11 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   alt={`Image ${currentIndex + 1}`}
                   width={1200}
                   height={800}
-                  className="max-w-full max-h-[90vh] md:max-h-[80vh] w-auto h-auto object-contain"
-                  quality={90}
+                  sizes="100vw"
+                  className="w-full h-full object-contain"
                   priority
                   draggable={false}
+                  onLoad={e => setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)}
                 />
               </div>
             </div>
