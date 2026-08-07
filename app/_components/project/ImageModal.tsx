@@ -106,15 +106,16 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   }, [isOpen, currentIndex, images.length, onClose, goToPrevious, goToNext]);
 
   const constrainPosition = (newX: number, newY: number, currentZoom: number) => {
-    if (!imageRef.current) return { x: newX, y: newY };
-
     const container = imageRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const imageWidth = containerRect.width * currentZoom;
-    const imageHeight = containerRect.height * currentZoom;
+    const content = imageContentRef.current;
+    if (!container || !content) return { x: newX, y: newY };
 
-    const maxX = Math.max(0, (imageWidth - containerRect.width) / 2);
-    const maxY = Math.max(0, (imageHeight - containerRect.height) / 2);
+    const containerRect = container.getBoundingClientRect();
+    const scaledWidth = content.offsetWidth * currentZoom;
+    const scaledHeight = content.offsetHeight * currentZoom;
+
+    const maxX = Math.max(0, (scaledWidth - containerRect.width) / 2);
+    const maxY = Math.max(0, (scaledHeight - containerRect.height) / 2);
 
     return {
       x: Math.max(-maxX, Math.min(maxX, newX)),
@@ -184,6 +185,8 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
   const handleMouseDown = (e: React.MouseEvent) => {
     mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
+    if (isOutsideImage(e.clientX, e.clientY)) return;
+
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -219,6 +222,8 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
       setTouchStartPos({ x: touch.clientX, y: touch.clientY });
       setHasMoved(false);
 
+      if (isOutsideImage(touch.clientX, touch.clientY)) return;
+
       if (zoom > 1) e.preventDefault();
       setIsDragging(true);
       setDragStart({
@@ -235,6 +240,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
       const scale = distance / pinchStart.distance;
       const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStart.zoom * scale));
       setZoom(newZoom);
+      setPosition(constrainPosition(position.x, position.y, newZoom));
       setHasMoved(true);
     } else if (e.touches.length === 1) {
       const touch = e.touches[0];
