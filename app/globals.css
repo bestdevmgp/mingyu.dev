@@ -361,6 +361,12 @@ html.theme-transition {
     --point 300ms ease;
 }
 
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html.theme-transition {
     transition: none;
