@@ -85,14 +85,29 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
         !isActive && "opacity-15 blur-md",
       )}
     >
-      <Image
-        draggable={false}
-        className={cn("pointer-events-none", isRawImage ? cn("object-cover w-full h-full", rounded) : "object-contain")}
-        width={size === "md" ? 36 : size === "sm" ? 34 : 26}
-        height={size === "md" ? 36 : size === "sm" ? 34 : 26}
-        src={imageUrl}
-        alt={label}
-      />
+      {imageUrl ? (
+        <Image
+          draggable={false}
+          className={cn(
+            "pointer-events-none",
+            isRawImage ? cn("object-cover w-full h-full", rounded) : "object-contain",
+          )}
+          width={size === "md" ? 36 : size === "sm" ? 34 : 26}
+          height={size === "md" ? 36 : size === "sm" ? 34 : 26}
+          src={imageUrl}
+          alt={label}
+        />
+      ) : (
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none font-semibold text-gray-400 select-none",
+            size === "md" ? "text-base" : size === "sm" ? "text-sm" : "text-[11px]",
+          )}
+        >
+          {label.charAt(0).toUpperCase()}
+        </span>
+      )}
       <p
         className={cn(
           "absolute -bottom-1 translate-y-full left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-foreground/75 text-background rounded-sm text-xs md:text-sm text-center whitespace-nowrap font-normal z-10",
