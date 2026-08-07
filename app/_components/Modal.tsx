@@ -122,6 +122,7 @@ const Modal = ({ children }: ModalProps) => {
                     className="absolute top-5 right-5 md:top-7 md:right-7
                     w-6 h-6 md:w-8 md:h-8 cursor-pointer
                     text-foreground opacity-45 hover:opacity-60 active:opacity-75
+                    transition-opacity duration-200
                   "
                     strokeWidth={1.5}
                     onClick={close}
