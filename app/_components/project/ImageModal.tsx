@@ -17,6 +17,7 @@ const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 1.5;
 const WHEEL_SENSITIVITY = 0.0015;
+const FIT_RATIO = 0.7;
 
 export default function ImageModal({ images, initialIndex, isOpen, onClose }: ImageModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -112,7 +113,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     if (!isOpen || !pane || !aspect) return;
 
     const fit = () => {
-      const fittedWidth = Math.min(pane.offsetWidth, pane.offsetHeight * aspect);
+      const fittedWidth = Math.min(pane.offsetWidth, pane.offsetHeight * aspect) * FIT_RATIO;
       setFitted({ width: fittedWidth, height: fittedWidth / aspect });
     };
 
