@@ -372,6 +372,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   width={1200}
                   height={800}
                   sizes="100vw"
+                  quality={85}
                   className="w-full h-full object-contain"
                   priority
                   draggable={false}
