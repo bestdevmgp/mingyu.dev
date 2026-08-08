@@ -7,7 +7,8 @@ import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 
 async function getAllSkills() {
   return await prisma.skill.findMany({
-    orderBy: [{ category: "asc" }, { order: "asc" }],
+    where: { hidden: false },
+    orderBy: { order: "asc" },
     cacheStrategy: CACHE_STRATEGY,
   });
 }
