@@ -11,7 +11,7 @@
   },
   "Nav": {
     "skills": "Skills",
-    "career": "Experience",
+    "career": "Career",
     "projects": "Projects",
     "education": "Education"
   },
@@ -33,9 +33,9 @@
     "ai": "AI"
   },
   "Experience": {
-    "eyebrow": "Experience & Activities",
+    "eyebrow": "Career & Activities",
     "title": "Building experience through<br></br>hands-on work and diverse activities.",
-    "groupIntern": "Experience",
+    "groupIntern": "Career",
     "groupProject": "Projects",
     "groupActivity": "Awards & Activities",
     "showDetails": "Show details",
