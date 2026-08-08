@@ -38,7 +38,7 @@ export default async function ExperienceSection() {
   const projects = data.filter(({ category }) => category === "PROJECT");
 
   return (
-    <SectionWatcher id="experience">
+    <SectionWatcher id="career">
       <SlideUpInView>
         <h2 className="section-eyebrow">{t("eyebrow")}</h2>
         <p className="section-title">{t.rich("title", { br: () => <br /> })}</p>

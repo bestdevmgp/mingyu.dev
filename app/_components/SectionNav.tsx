@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import cn from "classnames";
 import { useTranslations } from "next-intl";
 
-const navItems = [{ id: "skills" }, { id: "experience" }, { id: "projects" }, { id: "education" }] as const;
+const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "education" }] as const;
 
 const SectionNav = () => {
   const t = useTranslations("Nav");
