@@ -109,6 +109,7 @@ const Modal = ({ children }: ModalProps) => {
                   data-lenis-prevent
                   className="
                     w-[calc(100vw-1.75rem)] md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-1.75rem)] md:max-h-[calc(100vh-4rem)] my-3.5 md:my-8 p-6 md:p-8
+                    overscroll-contain
                     bg-background border border-foreground/15 rounded-md md:rounded-lg
                     relative
                     "
