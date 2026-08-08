@@ -44,7 +44,7 @@ model experience {
   items     String[] @db.VarChar(255)
   links     Json[]   @db.Json
   is_active Boolean? @default(false)
-  sub_title String?  @db.VarChar(100)
+  sub_title String?  @db.VarChar(200)
   job_title String?  @db.VarChar(100)
   index     Int      @default(0)
   category  String?  @db.VarChar(100)
