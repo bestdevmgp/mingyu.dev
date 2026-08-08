@@ -16,7 +16,7 @@ interface ExpCardProps extends Omit<experience, "skill_ids" | "i18n"> {
   skills: skill[];
 }
 
-const ExpCard = ({ id, period, is_active, title, sub_title, skills, items }: ExpCardProps) => {
+const ExpCard = ({ id, period, is_active, title, job_title, sub_title, skills, items }: ExpCardProps) => {
   const t = useTranslations("Experience");
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -34,6 +34,7 @@ const ExpCard = ({ id, period, is_active, title, sub_title, skills, items }: Exp
       <div className="pl-6 sm:pl-0 sm:col-span-2 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <p className="text-base md:text-lg font-semibold">{title}</p>
+          {job_title && <p className="text-sm md:text-base font-medium text-foreground/75">{parse(job_title)}</p>}
           {sub_title && (
             <p className="text-xs md:text-sm font-normal text-foreground/60 whitespace-pre-wrap">{parse(sub_title)}</p>
           )}
