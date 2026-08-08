@@ -33,8 +33,12 @@ const ExpCard = ({ id, period, is_active, title, job_title, sub_title, skills, i
 
       <div className="pl-6 sm:pl-0 sm:col-span-2 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-base md:text-lg font-semibold">{title}</p>
-          {job_title && <p className="text-sm md:text-base font-medium text-foreground/75">{parse(job_title)}</p>}
+          <div className="flex flex-col gap-0.5">
+            <p className="text-base md:text-lg font-semibold">{title}</p>
+            {job_title && (
+              <p className="text-[13px] md:text-[15px] font-medium text-foreground/75">{parse(job_title)}</p>
+            )}
+          </div>
           {sub_title && (
             <p className="text-xs md:text-sm font-normal text-foreground/60 whitespace-pre-wrap">{parse(sub_title)}</p>
           )}
