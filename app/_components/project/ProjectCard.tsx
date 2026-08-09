@@ -37,10 +37,16 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
 
   const release = () => setIsPressed(false);
 
+  // a section link leaves its hash in the url; closing the modal would jump back to it
+  const dropSectionHash = () => {
+    if (!window.location.hash) return;
+    window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+  };
+
   const fill = ["bg-blue", "bg-green", "bg-lime text-gray-800"][id % 3];
 
   return (
-    <Link className="no-underline" href={`/project/${id}`} passHref scroll={false}>
+    <Link className="no-underline" href={`/project/${id}`} passHref scroll={false} onClick={dropSectionHash}>
       <div
         id={`project-card-${id}`}
         onTouchStart={handleTouchStart}
