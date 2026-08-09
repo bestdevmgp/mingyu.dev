@@ -6,6 +6,8 @@ import cn from "classnames";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 
+import useTouchPress from "@/utils/useTouchPress";
+
 interface ImageModalProps {
   images: string[];
   initialIndex: number;
@@ -33,6 +35,13 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const [hasMoved, setHasMoved] = useState(false);
   const [aspect, setAspect] = useState<number | null>(null);
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
+  const [closePressed, closePress] = useTouchPress();
+  const [prevPressed, prevPress] = useTouchPress();
+  const [nextPressed, nextPress] = useTouchPress();
+  const [zoomOutPressed, zoomOutPress] = useTouchPress();
+  const [resetPressed, resetPress] = useTouchPress();
+  const [zoomInPressed, zoomInPress] = useTouchPress();
+
   const overlayRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const imageContentRef = useRef<HTMLDivElement>(null);
@@ -342,7 +351,13 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                     e.stopPropagation();
                     onClose();
                   }}
-                  className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-55 hover:opacity-100 transition-[opacity,background-color] duration-200"
+                  {...closePress}
+                  className={cn(
+                    "text-white rounded-full p-2 transition-[opacity,background-color] duration-200",
+                    closePressed
+                      ? "bg-black/70 opacity-100"
+                      : "bg-black/50 opacity-55 hover:bg-black/70 hover:opacity-100",
+                  )}
                   aria-label="닫기"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,7 +416,14 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                       e.stopPropagation();
                       goToPrevious();
                     }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 opacity-55 hover:opacity-100 transition-[opacity,background-color] duration-200 z-10"
+                    {...prevPress}
+                    className={cn(
+                      "absolute left-4 top-1/2 -translate-y-1/2 text-white rounded-full p-3 z-10",
+                      "transition-[opacity,background-color] duration-200",
+                      prevPressed
+                        ? "bg-black/70 opacity-100"
+                        : "bg-black/50 opacity-55 hover:bg-black/70 hover:opacity-100",
+                    )}
                     aria-label="이전 이미지"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -416,7 +438,14 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                       e.stopPropagation();
                       goToNext();
                     }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 opacity-55 hover:opacity-100 transition-[opacity,background-color] duration-200 z-10"
+                    {...nextPress}
+                    className={cn(
+                      "absolute right-4 top-1/2 -translate-y-1/2 text-white rounded-full p-3 z-10",
+                      "transition-[opacity,background-color] duration-200",
+                      nextPressed
+                        ? "bg-black/70 opacity-100"
+                        : "bg-black/50 opacity-55 hover:bg-black/70 hover:opacity-100",
+                    )}
                     aria-label="다음 이미지"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -437,9 +466,14 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   handleZoomOut();
                 }}
                 disabled={zoom <= MIN_ZOOM}
+                {...zoomOutPress}
                 className={cn(
                   "text-white p-2 rounded-full transition-colors duration-200",
-                  zoom <= MIN_ZOOM ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
+                  zoom <= MIN_ZOOM
+                    ? "opacity-50 cursor-not-allowed"
+                    : zoomOutPressed
+                      ? "bg-white/20"
+                      : "hover:bg-white/20",
                 )}
                 aria-label="축소"
               >
@@ -453,7 +487,11 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   e.stopPropagation();
                   resetZoom();
                 }}
-                className="text-white px-3 py-2 rounded-full hover:bg-white/20 transition-colors duration-200 text-sm"
+                {...resetPress}
+                className={cn(
+                  "text-white px-3 py-2 rounded-full transition-colors duration-200 text-sm",
+                  resetPressed ? "bg-white/20" : "hover:bg-white/20",
+                )}
                 aria-label="원래 크기"
               >
                 {Math.round(zoom * 100)}%
@@ -465,9 +503,14 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   handleZoomIn();
                 }}
                 disabled={zoom >= MAX_ZOOM}
+                {...zoomInPress}
                 className={cn(
                   "text-white p-2 rounded-full transition-colors duration-200",
-                  zoom >= MAX_ZOOM ? "opacity-50 cursor-not-allowed" : "hover:bg-white/20",
+                  zoom >= MAX_ZOOM
+                    ? "opacity-50 cursor-not-allowed"
+                    : zoomInPressed
+                      ? "bg-white/20"
+                      : "hover:bg-white/20",
                 )}
                 aria-label="확대"
               >
