@@ -20,7 +20,6 @@ interface ProjectCardProps {
 const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   const [isPressed, pressHandlers] = useTouchPress();
 
-  // a section link leaves its hash in the url; closing the modal would jump back to it
   const dropSectionHash = () => {
     if (!window.location.hash) return;
     window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
