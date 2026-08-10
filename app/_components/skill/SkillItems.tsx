@@ -48,7 +48,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
 
   return (
     <div className="flex flex-col gap-8 items-center">
-      <nav className="bg-gray-100 p-1.5 rounded-full flex items-center gap-[0.5px] relative">
+      <nav className="bg-gray-100 p-1.5 rounded-full flex items-center relative">
         {[
           { name: t("backend"), value: Category.BACKEND },
 
