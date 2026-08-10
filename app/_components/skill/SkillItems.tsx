@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { Category, skill } from "@prisma/client";
 import cn from "classnames";
-import { motion, useMotionValue } from "motion/react";
+import { motion, useSpring } from "motion/react";
 import { useTranslations } from "next-intl";
 
 import SkillItem from "./SkillItem";
@@ -11,20 +11,31 @@ import SkillItem from "./SkillItem";
 interface SkillItemsProps {
   skills: skill[];
 }
+
+// Every animated property of the highlight pill goes through these springs, so
+// framer-motion is the only thing writing to the element. Driving them as motion
+// values (rather than the `animate` prop) keeps the animation on the inline style
+// each frame instead of WebAnimations, which is what stops WebKit from flashing
+// the previous state for a frame when an accelerated animation hands back over.
+const PILL_SPRING = { stiffness: 700, damping: 30 };
+
 const SkillItems = ({ skills }: SkillItemsProps) => {
   const t = useTranslations("Skill");
   const [activeCategory, setActiveCategory] = useState<string>();
 
-  const activeCategoryX = useMotionValue(0);
-  const activeCategoryWidth = useMotionValue(0);
+  const activeCategoryX = useSpring(0, PILL_SPRING);
+  const activeCategoryWidth = useSpring(0, PILL_SPRING);
+  const activeCategoryOpacity = useSpring(0, PILL_SPRING);
 
   const handleCategoryClick = (e: React.MouseEvent, category: Category) => {
     e.preventDefault();
 
     if (activeCategory === category) {
       setActiveCategory(undefined);
+      activeCategoryOpacity.set(0);
     } else {
       setActiveCategory(category);
+      activeCategoryOpacity.set(1);
       if (e.currentTarget.parentElement) {
         const targetRect = (e.currentTarget as Element).getBoundingClientRect();
         const containerRect = e.currentTarget.parentElement.getBoundingClientRect();
@@ -69,10 +80,8 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
           </button>
         ))}
         <motion.div
-          className="absolute bg-background z-0 rounded-full top-1.5 bottom-1.5 left-0 transition-all"
-          animate={{ opacity: activeCategory ? 1 : 0 }}
-          style={{ x: activeCategoryX, width: activeCategoryWidth }}
-          transition={{ duration: 0.5, type: "spring", stiffness: 700, damping: 30 }}
+          className="absolute bg-background z-0 rounded-full top-1.5 bottom-1.5 left-0"
+          style={{ x: activeCategoryX, width: activeCategoryWidth, opacity: activeCategoryOpacity }}
         />
       </nav>
       <div className="flex flex-wrap gap-4 max-w-96 justify-center">
