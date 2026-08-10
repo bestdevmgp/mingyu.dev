@@ -12,7 +12,7 @@ interface SkillItemsProps {
   skills: skill[];
 }
 
-const PILL_SPRING = { stiffness: 700, damping: 53 };
+const PILL_SPRING = { stiffness: 1500, damping: 78 };
 
 const SkillItems = ({ skills }: SkillItemsProps) => {
   const t = useTranslations("Skill");
