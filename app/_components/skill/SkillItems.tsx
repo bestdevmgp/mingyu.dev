@@ -56,8 +56,9 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
           <button
             key={`nav-item-${value}`}
             className={cn(
-              "text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
-              "hover:bg-gray-200 dark:hover:bg-gray-700/10",
+              "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
+              "mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",
+              "active:bg-gray-200 dark:active:bg-gray-700/10",
               activeCategory === value ? "text-gray-700 dark:text-gray-100" : "text-gray-400 dark:text-gray-500",
             )}
             onClick={e => handleCategoryClick(e, value)}
@@ -67,7 +68,8 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             <span
               className={cn(
                 "relative z-10 transition-colors duration-200",
-                activeCategory !== value && "hover:text-gray-600 dark:hover:text-gray-800",
+                activeCategory !== value &&
+                  "mouse:group-hover:text-gray-600 dark:mouse:group-hover:text-gray-800 group-active:text-gray-600 dark:group-active:text-gray-800",
               )}
             >
               {name}
