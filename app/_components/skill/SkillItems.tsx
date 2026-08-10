@@ -12,12 +12,7 @@ interface SkillItemsProps {
   skills: skill[];
 }
 
-// Every animated property of the highlight pill goes through these springs, so
-// framer-motion is the only thing writing to the element. Driving them as motion
-// values (rather than the `animate` prop) keeps the animation on the inline style
-// each frame instead of WebAnimations, which is what stops WebKit from flashing
-// the previous state for a frame when an accelerated animation hands back over.
-const PILL_SPRING = { stiffness: 700, damping: 30 };
+const PILL_SPRING = { stiffness: 700, damping: 53 };
 
 const SkillItems = ({ skills }: SkillItemsProps) => {
   const t = useTranslations("Skill");
