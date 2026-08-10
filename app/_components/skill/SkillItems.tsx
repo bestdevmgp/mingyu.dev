@@ -13,6 +13,7 @@ interface SkillItemsProps {
 }
 
 const PILL_SPRING = { stiffness: 1500, damping: 78 };
+const PILL_GROWTH = 2;
 
 const SkillItems = ({ skills }: SkillItemsProps) => {
   const t = useTranslations("Skill");
@@ -37,8 +38,8 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
         const targetRect = (e.currentTarget as Element).getBoundingClientRect();
         const containerRect = e.currentTarget.parentElement.getBoundingClientRect();
 
-        const x = targetRect.x - containerRect.x;
-        const width = targetRect.width;
+        const x = targetRect.x - containerRect.x - PILL_GROWTH;
+        const width = targetRect.width + PILL_GROWTH * 2;
         activeCategoryX.set(x);
         activeCategoryWidth.set(width);
       }
@@ -83,7 +84,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
           </button>
         ))}
         <motion.div
-          className="absolute bg-background z-0 rounded-full top-1.5 bottom-1.5 left-0"
+          className="absolute bg-background z-0 rounded-full top-1 bottom-1 left-0"
           style={{ x: activeCategoryX, width: activeCategoryWidth, opacity: activeCategoryOpacity }}
         />
       </nav>
