@@ -17,6 +17,8 @@ const PILL_SPRING = { stiffness: 1500, damping: 78 };
 const SkillItems = ({ skills }: SkillItemsProps) => {
   const t = useTranslations("Skill");
   const [activeCategory, setActiveCategory] = useState<string>();
+  const [pressedCategory, setPressedCategory] = useState<string | null>(null);
+  const releasePress = () => setPressedCategory(null);
 
   const activeCategoryX = useSpring(0, PILL_SPRING);
   const activeCategoryWidth = useSpring(0, PILL_SPRING);
@@ -58,18 +60,22 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             className={cn(
               "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
               "mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",
-              "active:bg-gray-200 dark:active:bg-gray-700/10",
+              pressedCategory === value && "bg-gray-200 dark:bg-gray-700/10",
               activeCategory === value ? "text-gray-700 dark:text-gray-100" : "text-gray-400 dark:text-gray-500",
             )}
             onClick={e => handleCategoryClick(e, value)}
+            onPointerDown={() => setPressedCategory(value)}
+            onPointerUp={releasePress}
+            onPointerCancel={releasePress}
+            onPointerLeave={releasePress}
             onTouchStart={e => e.stopPropagation()}
             style={{ touchAction: "manipulation" }}
           >
             <span
               className={cn(
                 "relative z-10 transition-colors duration-200",
-                activeCategory !== value &&
-                  "mouse:group-hover:text-gray-600 dark:mouse:group-hover:text-gray-800 group-active:text-gray-600 dark:group-active:text-gray-800",
+                activeCategory !== value && "mouse:group-hover:text-gray-600 dark:mouse:group-hover:text-gray-800",
+                activeCategory !== value && pressedCategory === value && "text-gray-600 dark:text-gray-800",
               )}
             >
               {name}

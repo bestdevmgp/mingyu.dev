@@ -74,7 +74,7 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
       onClick={canTap ? handleClick : undefined}
       style={{ WebkitTouchCallout: "none" }}
       className={cn(
-        "relative group/skill transition-all shadow-xl hover:shadow-2xl flex items-center justify-center select-none",
+        "relative group/skill transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center select-none",
         rounded,
         isRawImage ? "p-0" : "bg-white border border-gray-100 p-1",
         canTap && "cursor-pointer",
