@@ -17,7 +17,7 @@ export default function Home() {
       <SectionNav />
       <main
         className="
-        w-full max-w-(--breakpoint-lg) min-h-screen mx-auto
+        w-full max-w-(--breakpoint-lg) mx-auto
         px-5 md:px-8 lg:px-10
         flex flex-col items-center relative
       "
