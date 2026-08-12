@@ -11,6 +11,7 @@ const MainSection = async () => {
     <div
       id="main"
       className="relative w-full flex flex-col items-center justify-center pt-32 md:pt-44 pb-32 mb-12 md:mb-20"
+      style={{ minHeight: "clamp(600px, 80vh, 1080px)" }}
     >
       <div aria-hidden className="hero-bg">
         <div className="hero-bg-canvas">
