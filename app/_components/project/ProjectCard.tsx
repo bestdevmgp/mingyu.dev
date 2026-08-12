@@ -47,14 +47,12 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
               src={`/assets/shape-variant-${id % 9}.svg`}
               alt="shape"
               fill
-              priority={true}
             />
             <Image
               className="hidden group-hover:block object-contain"
               src={`/assets/shape-variant-${id % 9}-invert.svg`}
               alt="shape"
               fill
-              priority={true}
             />
           </div>
           <p className="text-lg md:text-xl font-semibold md:mb-4">{richText(title)}</p>
