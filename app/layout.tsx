@@ -105,7 +105,7 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "addEventListener('load',function(){document.documentElement.classList.add('anim-ready')},{once:true})",
+              "addEventListener('load',function(){var r=document.documentElement,h=document.getElementById('main');r.classList.add('anim-ready');if(!h||!window.IntersectionObserver)return;new IntersectionObserver(function(e){r.classList.toggle('hero-idle',!e[0].isIntersecting)},{threshold:0}).observe(h)},{once:true})",
           }}
         />
         <SmoothScroll />

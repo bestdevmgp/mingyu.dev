@@ -283,6 +283,11 @@ html[lang="ko"] {
   animation: hero-drift-c 30s ease-in-out infinite alternate;
 }
 
+:root.hero-idle .hero-blob {
+  animation-play-state: paused;
+  will-change: auto;
+}
+
 .hero-rise {
   animation: hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
