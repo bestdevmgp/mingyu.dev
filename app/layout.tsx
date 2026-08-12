@@ -102,6 +102,11 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
       )}
       <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko")}>
         <ThemeScript />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "addEventListener(load,function(){document.documentElement.classList.add(anim-ready)},{once:true})",
+          }}
+        />
         <SmoothScroll />
         <NextIntlClientProvider locale={locale} messages={messages}>
           {props.children}
