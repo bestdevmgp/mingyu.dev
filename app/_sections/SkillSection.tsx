@@ -3,18 +3,10 @@ import { getTranslations } from "next-intl/server";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import SkillItems from "@/_components/skill/SkillItems";
-import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
-
-async function getAllSkills() {
-  return await prisma.skill.findMany({
-    where: { hidden: false },
-    orderBy: { order: "asc" },
-    cacheStrategy: CACHE_STRATEGY,
-  });
-}
+import { getSkillTable } from "@/utils/api";
 
 export default async function SkillSection() {
-  const allSkills = await getAllSkills();
+  const allSkills = (await getSkillTable()).filter(skill => !skill.hidden);
   const t = await getTranslations("Skill");
 
   return (
