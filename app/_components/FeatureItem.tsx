@@ -1,7 +1,9 @@
-import { intro } from "@prisma/client";
-import parse from "html-react-parser";
 import { motion, MotionProps } from "motion/react";
 import Image from "next/image";
+
+import richText from "@/utils/richText";
+
+import type { intro } from "@prisma/client";
 
 interface FeatureItemProps extends Omit<intro, "i18n">, MotionProps {}
 
@@ -20,7 +22,7 @@ const FeatureItem = ({ id, blobUrl, title, detail, ...props }: FeatureItemProps)
       )}
       <div className="flex flex-col gap-2">
         <p className="text-lg md:text-xl font-semibold">{title}</p>
-        <p className="text-sm font-normal leading-normal text-foreground/60">{parse(detail)}</p>
+        <p className="text-sm font-normal leading-normal text-foreground/60">{richText(detail)}</p>
       </div>
     </motion.li>
   );

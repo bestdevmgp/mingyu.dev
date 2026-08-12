@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 
-import { intro } from "@prisma/client";
 import { stagger, useAnimate, useInView } from "motion/react";
 
 import FeatureItem from "./FeatureItem";
+
+import type { intro } from "@prisma/client";
 
 interface FeatureItemsProps {
   features: Omit<intro, "i18n">[];

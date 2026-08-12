@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import Lenis from "lenis";
+import type Lenis from "lenis";
 
 declare global {
   interface Window {
@@ -19,20 +19,26 @@ const SmoothScroll = () => {
     let lenis: Lenis | null = null;
     let rafId = 0;
 
-    if (!isTouch) {
-      const instance = new Lenis({
-        duration: 1.2,
-        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-      });
-      lenis = instance;
-      window.__lenis = instance;
+    let disposed = false;
 
-      const raf = (time: number) => {
-        instance.raf(time);
+    if (!isTouch) {
+      void (async () => {
+        const [{ default: LenisCtor }] = await Promise.all([import("lenis"), import("lenis/dist/lenis.css")]);
+        if (disposed) return;
+        const instance = new LenisCtor({
+          duration: 1.2,
+          easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+        });
+        lenis = instance;
+        window.__lenis = instance;
+
+        const raf = (time: number) => {
+          instance.raf(time);
+          rafId = requestAnimationFrame(raf);
+        };
         rafId = requestAnimationFrame(raf);
-      };
-      rafId = requestAnimationFrame(raf);
+      })();
     }
 
     const onAnchorClick = (event: MouseEvent) => {
@@ -58,6 +64,7 @@ const SmoothScroll = () => {
     document.addEventListener("click", onAnchorClick);
 
     return () => {
+      disposed = true;
       document.removeEventListener("click", onAnchorClick);
       if (lenis) {
         cancelAnimationFrame(rafId);

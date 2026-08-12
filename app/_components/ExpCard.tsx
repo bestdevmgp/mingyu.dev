@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { ChevronRight } from "react-feather";
 
-import { experience, skill } from "@prisma/client";
 import cn from "classnames";
-import parse from "html-react-parser";
 import { useTranslations } from "next-intl";
 
 import Shape from "@/assets/shape-sparkle.svg";
+import richText from "@/utils/richText";
 
 import SkillItem from "./skill/SkillItem";
+
+import type { experience, skill } from "@prisma/client";
 
 interface ExpCardProps extends Omit<experience, "skill_ids" | "i18n"> {
   skills: skill[];
@@ -36,11 +37,13 @@ const ExpCard = ({ id, period, is_active, title, job_title, sub_title, skills, i
           <div className="flex flex-col gap-0.5">
             <p className="text-base md:text-lg font-semibold">{title}</p>
             {job_title && (
-              <p className="text-[13px] md:text-[15px] font-medium text-foreground/75">{parse(job_title)}</p>
+              <p className="text-[13px] md:text-[15px] font-medium text-foreground/75">{richText(job_title)}</p>
             )}
           </div>
           {sub_title && (
-            <p className="text-xs md:text-sm font-normal text-foreground/60 whitespace-pre-wrap">{parse(sub_title)}</p>
+            <p className="text-xs md:text-sm font-normal text-foreground/60 whitespace-pre-wrap">
+              {richText(sub_title)}
+            </p>
           )}
         </div>
 
