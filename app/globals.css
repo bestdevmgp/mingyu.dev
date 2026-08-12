@@ -317,6 +317,19 @@ html[lang="ko"] {
 .diag-all img {
   visibility: hidden !important;
 }
+.diag-vh #main,
+.diag-all #main {
+  min-height: 600px !important;
+}
+.diag-vh main,
+.diag-all main {
+  min-height: 0 !important;
+}
+.diag-slide section > div,
+.diag-all section > div {
+  transform: none !important;
+  opacity: 1 !important;
+}
 
 .hero-rise {
   animation: hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
