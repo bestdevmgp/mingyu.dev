@@ -180,6 +180,15 @@ html[lang="ko"] {
   }
 }
 
+#main {
+  min-height: clamp(600px, 80vh, 1080px);
+}
+@supports (height: 1lvh) {
+  #main {
+    min-height: clamp(600px, 80lvh, 1080px);
+  }
+}
+
 .hero-bg {
   pointer-events: none;
   position: absolute;
@@ -244,8 +253,13 @@ html[lang="ko"] {
     top: -4rem;
   }
   #main {
-    min-height: calc(clamp(600px, 80vh, 1080px) + 4rem) !important;
+    min-height: calc(clamp(600px, 80vh, 1080px) + 4rem);
     margin-bottom: 4rem;
+  }
+  @supports (height: 1lvh) {
+    #main {
+      min-height: calc(clamp(600px, 80lvh, 1080px) + 4rem);
+    }
   }
   .hero-bg-canvas {
     --ratio: 0.62;
