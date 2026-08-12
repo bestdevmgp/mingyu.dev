@@ -330,6 +330,24 @@ html[lang="ko"] {
   transform: none !important;
   opacity: 1 !important;
 }
+.diag-vh1 #main {
+  min-height: 600px !important;
+}
+.diag-vh2 main {
+  min-height: 0 !important;
+}
+.diag-svh #main {
+  min-height: calc(clamp(600px, 80svh, 1080px) + 4rem) !important;
+}
+.diag-svh main {
+  min-height: 100svh !important;
+}
+.diag-lvh #main {
+  min-height: calc(clamp(600px, 80lvh, 1080px) + 4rem) !important;
+}
+.diag-lvh main {
+  min-height: 100lvh !important;
+}
 
 .hero-rise {
   animation: hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
