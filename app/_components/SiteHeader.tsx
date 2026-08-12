@@ -87,11 +87,12 @@ const SiteHeader = () => {
 
         "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px",
         "transition-colors duration-300 after:transition-colors after:duration-300",
+        !atTop && !scrolled && !isExpanded && "backdrop-blur-md",
         scrolled || isExpanded
           ? "bg-background after:bg-foreground/10"
           : atTop
             ? "bg-transparent after:bg-transparent"
-            : "bg-background/80 after:bg-transparent",
+            : "bg-background/50 after:bg-transparent",
       )}
     >
       <Link className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0" href="#top" onClick={scrollToTop}>
