@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import dynamic from "next/dynamic";
+
+const Analytics = dynamic(() => import("@vercel/analytics/react").then(m => m.Analytics));
+const SpeedInsights = dynamic(() => import("@vercel/speed-insights/next").then(m => m.SpeedInsights));
 
 const DeferredAnalytics = () => {
   const [ready, setReady] = useState(false);

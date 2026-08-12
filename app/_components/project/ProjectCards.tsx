@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 
-import { project, skill } from "@prisma/client";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
 import ProjectCard from "./ProjectCard";
 import CTAButton from "../buttons/CTAButton";
+
+import type { project, skill } from "@prisma/client";
 
 type OmittedProject = Pick<project, "id" | "title" | "sub_title"> & {
   skills: skill[];

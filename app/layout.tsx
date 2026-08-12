@@ -8,7 +8,6 @@ import ThemeScript from "@/_components/ThemeScript";
 
 import type { Metadata } from "next";
 
-import "lenis/dist/lenis.css";
 import "./globals.css";
 
 const inter = Inter({

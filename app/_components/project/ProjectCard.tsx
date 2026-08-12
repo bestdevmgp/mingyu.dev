@@ -1,14 +1,15 @@
 "use client";
 
-import { skill } from "@prisma/client";
 import cn from "classnames";
-import parse from "html-react-parser";
 import Image from "next/image";
 import Link from "next/link";
 
+import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
 
 import SkillItem from "../skill/SkillItem";
+
+import type { skill } from "@prisma/client";
 
 interface ProjectCardProps {
   id: number;
@@ -56,8 +57,8 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
               priority={true}
             />
           </div>
-          <p className="text-lg md:text-xl font-semibold md:mb-4">{parse(title)}</p>
-          <p className="text-sm font-normal opacity-60 hidden md:inline-block">{parse(sub_title)}</p>
+          <p className="text-lg md:text-xl font-semibold md:mb-4">{richText(title)}</p>
+          <p className="text-sm font-normal opacity-60 hidden md:inline-block">{richText(sub_title)}</p>
         </div>
 
         <ul className="p-0 flex gap-2 list-none flex-wrap">

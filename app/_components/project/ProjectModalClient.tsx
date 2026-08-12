@@ -4,10 +4,11 @@ import { useState } from "react";
 import { ArrowUpRight } from "react-feather";
 
 import cn from "classnames";
-import parse from "html-react-parser";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+
+import richText from "@/utils/richText";
 
 import ImageModal from "./ImageModal";
 import SkillItem from "../skill/SkillItem";
@@ -80,11 +81,11 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
           <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} fill alt="shape" />
         </div>
 
-        <p className="text-xl md:text-2xl font-semibold leading-normal mb-4">{parse(title)}</p>
+        <p className="text-xl md:text-2xl font-semibold leading-normal mb-4">{richText(title)}</p>
 
         <div className="flex gap-6 flex-wrap">
           {[
-            { title: t("description"), content: parse(sub_title), isFull: true },
+            { title: t("description"), content: richText(sub_title), isFull: true },
             {
               title: t("skills"),
               content: skillsElement,

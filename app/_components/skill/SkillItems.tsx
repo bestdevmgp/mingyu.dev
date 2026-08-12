@@ -1,16 +1,20 @@
 "use client";
 import { useState } from "react";
 
-import { Category, skill } from "@prisma/client";
 import cn from "classnames";
 import { motion, useSpring } from "motion/react";
 import { useTranslations } from "next-intl";
 
 import SkillItem from "./SkillItem";
 
+import type { skill } from "@prisma/client";
+
 interface SkillItemsProps {
   skills: skill[];
 }
+
+const CATEGORY = { BACKEND: "BACKEND", DEVOPS: "DEVOPS", FRONTEND: "FRONTEND", AI: "AI" } as const;
+type Category = (typeof CATEGORY)[keyof typeof CATEGORY];
 
 const PILL_SPRING = { stiffness: 1500, damping: 78 };
 const PILL_GROWTH = 2;
@@ -50,11 +54,11 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
     <div className="flex flex-col gap-8 items-center">
       <nav className="bg-gray-100 p-1.5 rounded-full flex items-center relative">
         {[
-          { name: t("backend"), value: Category.BACKEND },
+          { name: t("backend"), value: CATEGORY.BACKEND },
 
-          { name: t("devops"), value: Category.DEVOPS },
-          { name: t("frontend"), value: Category.FRONTEND },
-          { name: t("ai"), value: Category.AI },
+          { name: t("devops"), value: CATEGORY.DEVOPS },
+          { name: t("frontend"), value: CATEGORY.FRONTEND },
+          { name: t("ai"), value: CATEGORY.AI },
         ].map(({ name, value }) => (
           <button
             key={`nav-item-${value}`}

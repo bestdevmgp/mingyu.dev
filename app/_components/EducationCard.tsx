@@ -1,8 +1,9 @@
-import { education } from "@prisma/client";
 import cn from "classnames";
-import parse from "html-react-parser";
 
 import Shape from "@/assets/shape-sparkle.svg";
+import richText from "@/utils/richText";
+
+import type { education } from "@prisma/client";
 
 interface EducationCardProps extends Omit<education, "i18n"> {}
 
@@ -27,7 +28,7 @@ const EducationCard = ({ id, period, title, sub_title, items, is_active }: Educa
                 key={`edu-card-item-${index}`}
                 className="text-xs md:text-sm font-normal mb-1 last:mb-0 text-foreground/80 leading-normal"
               >
-                {parse(item)}
+                {richText(item)}
               </li>
             ))}
           </ul>
