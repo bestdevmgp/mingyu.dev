@@ -89,7 +89,16 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
               <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
             </>
           )}
-          <link rel="stylesheet" href={fontHref} />
+          <link rel="preload" as="style" href={fontHref} id="webfont-css" />
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                "(function(){var l=document.getElementById('webfont-css');if(!l)return;var d=0;function a(){if(d)return;d=1;l.rel='stylesheet'}l.addEventListener('load',a,{once:true});addEventListener('load',a,{once:true})})()",
+            }}
+          />
+          <noscript>
+            <link rel="stylesheet" href={fontHref} />
+          </noscript>
         </head>
       )}
       <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko")}>
