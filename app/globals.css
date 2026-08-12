@@ -208,28 +208,24 @@ html[lang="ko"] {
   aspect-ratio: 1;
   border-radius: 50%;
   filter: blur(calc(var(--cw) * 0.08));
-  will-change: transform;
 }
 .hero-blob-blue {
   --blob-size: 46%;
   top: -26%;
   left: -10%;
   background: radial-gradient(circle at center, rgb(0 122 255 / 0.45) 0%, rgb(0 122 255 / 0.24) 40%, transparent 82%);
-  animation: hero-drift-a 22s ease-in-out infinite alternate;
 }
 .hero-blob-green {
   --blob-size: 45%;
   top: -6%;
   right: -12%;
   background: radial-gradient(circle at center, rgb(0 198 118 / 0.45) 0%, rgb(0 198 118 / 0.24) 40%, transparent 82%);
-  animation: hero-drift-b 26s ease-in-out infinite alternate;
 }
 .hero-blob-lime {
   --blob-size: 40%;
   bottom: -30%;
   left: 18%;
   background: radial-gradient(circle at center, rgb(226 255 0 / 0.36) 0%, rgb(226 255 0 / 0.2) 40%, transparent 82%);
-  animation: hero-drift-c 30s ease-in-out infinite alternate;
 }
 :root.dark {
   .hero-blob-blue {
@@ -272,6 +268,19 @@ html[lang="ko"] {
     bottom: -12%;
     left: -18%;
   }
+}
+
+:root.anim-ready .hero-blob-blue {
+  will-change: transform;
+  animation: hero-drift-a 22s ease-in-out infinite alternate;
+}
+:root.anim-ready .hero-blob-green {
+  will-change: transform;
+  animation: hero-drift-b 26s ease-in-out infinite alternate;
+}
+:root.anim-ready .hero-blob-lime {
+  will-change: transform;
+  animation: hero-drift-c 30s ease-in-out infinite alternate;
 }
 
 .hero-rise {
