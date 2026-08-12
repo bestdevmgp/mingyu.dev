@@ -26,11 +26,7 @@ const SectionNav = () => {
 
   useEffect(() => {
     const ids = navItems.map(({ id }) => id);
-    const shown = window.matchMedia("(min-width: 80rem)");
-
-    let frame = 0;
-    const measure = () => {
-      frame = 0;
+    const update = () => {
       let current = "";
       for (const id of ids) {
         const el = document.getElementById(id);
@@ -44,40 +40,19 @@ const SectionNav = () => {
       }
       setActiveId(current);
     };
-    const update = () => {
-      if (!frame) frame = requestAnimationFrame(measure);
-    };
+    update();
     const release = () => {
       pendingId.current = null;
     };
-
-    let listening = false;
-    const listen = () => {
-      if (listening) return;
-      listening = true;
-      measure();
-      window.addEventListener("scroll", update, { passive: true });
-      window.addEventListener("resize", update);
-      window.addEventListener("wheel", release, { passive: true });
-      window.addEventListener("touchstart", release, { passive: true });
-    };
-    const unlisten = () => {
-      if (!listening) return;
-      listening = false;
-      if (frame) cancelAnimationFrame(frame);
-      frame = 0;
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    window.addEventListener("wheel", release, { passive: true });
+    window.addEventListener("touchstart", release, { passive: true });
+    return () => {
       window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
       window.removeEventListener("wheel", release);
       window.removeEventListener("touchstart", release);
-    };
-
-    const sync = () => (shown.matches ? listen() : unlisten());
-    sync();
-    shown.addEventListener("change", sync);
-    return () => {
-      shown.removeEventListener("change", sync);
-      unlisten();
     };
   }, []);
 
