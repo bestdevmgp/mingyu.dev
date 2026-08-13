@@ -266,7 +266,7 @@ main {
   translate: -50% -50%;
   background: radial-gradient(
     circle closest-side at center,
-    rgb(var(--blob-rgb) / calc(var(--blob-peak) * 1)) 0%,
+    rgb(var(--blob-rgb) / var(--blob-peak)) 0%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.974)) 7.14%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.8889)) 14.29%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.7752)) 21.43%,
@@ -278,7 +278,7 @@ main {
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0538)) 64.29%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0208)) 71.43%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0052)) 78.57%,
-    rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0)) 85.71%
+    rgb(var(--blob-rgb) / 0) 85.71%
   );
 }
 .hero-blob-blue {
@@ -334,7 +334,7 @@ main {
   .hero-blob {
     background: radial-gradient(
     circle closest-side at center,
-    rgb(var(--blob-rgb) / calc(var(--blob-peak) * 1)) 0%,
+    rgb(var(--blob-rgb) / var(--blob-peak)) 0%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.9649)) 7.14%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.8596)) 14.29%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.7325)) 21.43%,
@@ -345,7 +345,7 @@ main {
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0877)) 57.14%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.045)) 64.29%,
     rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0175)) 71.43%,
-    rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0)) 78.57%
+    rgb(var(--blob-rgb) / 0) 78.57%
   );
   }
   .hero-blob-blue {
