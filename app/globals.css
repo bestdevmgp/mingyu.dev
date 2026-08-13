@@ -367,6 +367,10 @@ main {
   }
 }
 
+.mobile-menu-item {
+  opacity: 0;
+}
+
 .scroll-cue-wrap {
   margin-top: -14px;
   margin-bottom: -18px;
