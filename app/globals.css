@@ -349,7 +349,7 @@ main {
   );
   }
   .hero-blob-blue {
-    --blob-size: 215.8%;
+    --blob-size: 217.87%;
     --blob-peak: 0.2861;
     --blob-dx: calc(var(--cw) * 0.038);
     --blob-dy: calc(var(--cw) * 0.0285);
@@ -357,7 +357,7 @@ main {
     top: 13.45%;
   }
   .hero-blob-green {
-    --blob-size: 209.5%;
+    --blob-size: 211.49%;
     --blob-peak: 0.266;
     --blob-dx: calc(var(--cw) * -0.0308);
     --blob-dy: calc(var(--cw) * -0.0352);
@@ -365,7 +365,7 @@ main {
     top: 39.28%;
   }
   .hero-blob-lime {
-    --blob-size: 209.5%;
+    --blob-size: 211.49%;
     --blob-peak: 0.2127;
     --blob-dx: calc(var(--cw) * 0.0264);
     --blob-dy: calc(var(--cw) * -0.02992);
