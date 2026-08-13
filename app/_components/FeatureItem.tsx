@@ -1,15 +1,21 @@
-import { motion, MotionProps } from "motion/react";
 import Image from "next/image";
 
 import richText from "@/utils/richText";
 
 import type { intro } from "@prisma/client";
 
-interface FeatureItemProps extends Omit<intro, "i18n">, MotionProps {}
+interface FeatureItemProps extends Omit<intro, "i18n"> {
+  index: number;
+}
 
-const FeatureItem = ({ id, blobUrl, title, detail, ...props }: FeatureItemProps) => {
+const FeatureItem = ({ id, blobUrl, title, detail, index }: FeatureItemProps) => {
   return (
-    <motion.li key={`intro-card-${id}`} className="flex flex-col gap-4 flex-1 indent-0 max-w-80" {...props}>
+    <li
+      key={`intro-card-${id}`}
+      data-reveal-stagger
+      style={{ "--reveal-index": index } as React.CSSProperties}
+      className="flex flex-col gap-4 flex-1 indent-0 max-w-80"
+    >
       {blobUrl && (
         <div className="relative w-full h-60 ">
           <Image
@@ -24,7 +30,7 @@ const FeatureItem = ({ id, blobUrl, title, detail, ...props }: FeatureItemProps)
         <p className="text-lg md:text-xl font-semibold">{title}</p>
         <p className="text-sm font-normal leading-normal text-foreground/60">{richText(detail)}</p>
       </div>
-    </motion.li>
+    </li>
   );
 };
 
