@@ -26,7 +26,7 @@ const ScrollCue = () => {
       className={cn(
         "scroll-cue-wrap w-full h-8 flex items-center justify-center text-foreground/55",
         "transition-opacity duration-500",
-        hidden ? "opacity-0" : "opacity-100",
+        hidden ? "scroll-cue-done opacity-0" : "opacity-100",
       )}
     >
       <div className="hero-rise" style={{ animationDelay: "2s" }}>
