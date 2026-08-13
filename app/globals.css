@@ -117,6 +117,27 @@ html[lang="ko"] {
   word-break: keep-all;
 }
 
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard-v1.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 106%;
+}
+
+.font-ko {
+  font-family:
+    "Pretendard",
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    "Noto Sans KR",
+    sans-serif;
+}
+
 .font-ja {
   font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", YuGothic, Meiryo, sans-serif;
 }
