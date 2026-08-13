@@ -1,5 +1,4 @@
 import { Inter } from "next/font/google";
-import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
@@ -72,25 +71,14 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const STRIP_IMAGES =
-  "(function(){function s(r){r.querySelectorAll?r.querySelectorAll('img').forEach(function(i){" +
-  "if(i.dataset.stripped)return;i.dataset.stripped='1';i.removeAttribute('srcset');i.removeAttribute('src')}):0}" +
-  "s(document);new MutationObserver(function(){s(document)}).observe(document.documentElement,{childList:true,subtree:true})})();";
-
 export default async function RootLayout(props: { children: React.ReactNode; modal: React.ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
 
-  const diagnostic = (await headers()).get("x-diagnostic") ?? "";
-  const off = (flag: string) => diagnostic === flag || diagnostic === "lite";
-  const noImages = off("img");
-  const noReveal = off("reveal");
-  const noAnalytics = off("an");
-
   const fontHref = webFontHref[locale];
 
   return (
-    <html lang={locale} data-d={diagnostic || undefined} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {locale === "ko" && (
           <link rel="preload" as="font" type="font/woff2" href={PRETENDARD_HREF} crossOrigin="anonymous" />
@@ -117,14 +105,11 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
         <script
           dangerouslySetInnerHTML={{
             __html:
-              (noImages ? STRIP_IMAGES : "") +
               "(function(){var d=document.documentElement,w=0;function s(){d.style.setProperty('--vh0',window.innerHeight/100+'px');w=window.innerWidth}s();addEventListener('resize',function(){if(window.innerWidth!==w)s()})})();" +
-              (noReveal
-                ? ""
-                : "(function(){var r=document.documentElement;if(!window.IntersectionObserver)return;r.classList.add('reveal-js');" +
-                  "function s(){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px -10% 0px'});" +
-                  "document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el)})}" +
-                  "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();") +
+              "(function(){var r=document.documentElement;if(!window.IntersectionObserver)return;r.classList.add('reveal-js');" +
+              "function s(){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px -10% 0px'});" +
+              "document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el)})}" +
+              "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();" +
               "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
               "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
               "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +
@@ -138,7 +123,7 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
           {props.children}
           {props.modal}
           <div id="modal-root" />
-          {!noAnalytics && <DeferredAnalytics />}
+          <DeferredAnalytics />
         </NextIntlClientProvider>
       </body>
     </html>
