@@ -29,7 +29,7 @@ const ScrollCue = () => {
         hidden ? "scroll-cue-done opacity-0" : "opacity-100",
       )}
     >
-      <div className="hero-rise" style={{ animationDelay: "2s" }}>
+      <div className="hero-rise hero-rise-4">
         <svg
           className="scroll-cue w-[26px] h-[14px]"
           viewBox="0 0 30 16"
