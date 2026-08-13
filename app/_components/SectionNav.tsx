@@ -25,34 +25,59 @@ const SectionNav = () => {
   const pendingId = useRef<string | null>(null);
 
   useEffect(() => {
-    const ids = navItems.map(({ id }) => id);
-    const update = () => {
-      let current = "";
-      for (const id of ids) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= 60) current = id;
-      }
-      const pending = pendingId.current;
-      if (pending) {
-        if (current === pending) pendingId.current = null;
-        setActiveId(pending);
-        return;
-      }
-      setActiveId(current);
+    const wide = window.matchMedia("(min-width: 80rem)");
+    let detach: (() => void) | null = null;
+
+    const attach = () => {
+      if (detach) return;
+      const ids = navItems.map(({ id }) => id);
+      let queued = false;
+      const compute = () => {
+        queued = false;
+        let current = "";
+        for (const id of ids) {
+          const el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top <= 60) current = id;
+        }
+        const pending = pendingId.current;
+        if (pending) {
+          if (current === pending) pendingId.current = null;
+          setActiveId(pending);
+          return;
+        }
+        setActiveId(current);
+      };
+      const update = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(compute);
+      };
+      const release = () => {
+        pendingId.current = null;
+      };
+      update();
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      window.addEventListener("wheel", release, { passive: true });
+      window.addEventListener("touchstart", release, { passive: true });
+      detach = () => {
+        window.removeEventListener("scroll", update);
+        window.removeEventListener("resize", update);
+        window.removeEventListener("wheel", release);
+        window.removeEventListener("touchstart", release);
+        detach = null;
+      };
     };
-    update();
-    const release = () => {
-      pendingId.current = null;
+
+    const sync = () => {
+      if (wide.matches) attach();
+      else detach?.();
     };
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    window.addEventListener("wheel", release, { passive: true });
-    window.addEventListener("touchstart", release, { passive: true });
+    sync();
+    wide.addEventListener("change", sync);
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-      window.removeEventListener("wheel", release);
-      window.removeEventListener("touchstart", release);
+      wide.removeEventListener("change", sync);
+      detach?.();
     };
   }, []);
 
