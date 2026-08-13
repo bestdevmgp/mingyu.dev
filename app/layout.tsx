@@ -107,15 +107,23 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
             __html:
               "(function(){var d=document.documentElement,w=0;function s(){d.style.setProperty('--vh0',window.innerHeight/100+'px');w=window.innerWidth}s();addEventListener('resize',function(){if(window.innerWidth!==w)s()})})();" +
               "(function(){var r=document.documentElement;if(!window.IntersectionObserver)return;r.classList.add('reveal-js');" +
-              "function s(){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px -10% 0px'});" +
-              "document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el)})}" +
-              "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();" +
+              "var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px 20% 0px'});" +
+              "function s(){document.querySelectorAll('[data-reveal]:not([data-seen])').forEach(function(el){el.setAttribute('data-seen','');io.observe(el)})}" +
+              "s();var mo=new MutationObserver(s);mo.observe(r,{childList:true,subtree:true});" +
+              "addEventListener('DOMContentLoaded',function(){s();mo.disconnect()},{once:true})})();" +
               "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
               "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
               "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +
               "if(!t||t===o){c();return}c();t.classList.add('skill-open');o=t},true);" +
               "addEventListener('scroll',c,{capture:true,passive:true});addEventListener('touchmove',c,{passive:true})})();" +
-              "addEventListener('load',function(){var r=document.documentElement,h=document.getElementById('main');r.classList.add('anim-ready');if(!h||!window.IntersectionObserver)return;new IntersectionObserver(function(e){r.classList.toggle('hero-idle',!e[0].isIntersecting)},{threshold:0}).observe(h)},{once:true})",
+              "(function(){var r=document.documentElement;" +
+              "function y(){var v=window.scrollY||window.pageYOffset||0;r.classList.toggle('scrolled',v>0);if(v>24)r.classList.add('cue-gone')}" +
+              "y();addEventListener('scroll',y,{passive:true});" +
+              "function w(){var h=document.getElementById('main');if(!h||!window.IntersectionObserver)return false;" +
+              "new IntersectionObserver(function(e){r.classList.toggle('hero-idle',!e[0].isIntersecting)},{threshold:0}).observe(h);return true}" +
+              "if(!w()){var mo=new MutationObserver(function(){if(w())mo.disconnect()});mo.observe(r,{childList:true,subtree:true});" +
+              "addEventListener('DOMContentLoaded',function(){w();mo.disconnect()},{once:true})}})();" +
+              "addEventListener('load',function(){document.documentElement.classList.add('anim-ready')},{once:true})",
           }}
         />
         <SmoothScroll />

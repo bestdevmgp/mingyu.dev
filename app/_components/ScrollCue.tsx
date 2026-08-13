@@ -1,33 +1,8 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-import cn from "classnames";
-
 const ScrollCue = () => {
-  const [hidden, setHidden] = useState(false);
-
-  useEffect(() => {
-    const target = document.querySelector("#intro .section-eyebrow");
-    if (!target) return;
-    const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setHidden(true);
-        io.disconnect();
-      }
-    });
-    io.observe(target);
-    return () => io.disconnect();
-  }, []);
-
   return (
     <div
       aria-hidden
-      className={cn(
-        "scroll-cue-wrap w-full h-8 flex items-center justify-center text-foreground/55",
-        "transition-opacity duration-500",
-        hidden ? "scroll-cue-done opacity-0" : "opacity-100",
-      )}
+      className="scroll-cue-wrap w-full h-8 flex items-center justify-center text-foreground/55 transition-opacity duration-500"
     >
       <div className="hero-rise hero-rise-4">
         <svg
