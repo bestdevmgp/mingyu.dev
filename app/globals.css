@@ -291,7 +291,7 @@ main {
   top: 24.6%;
 }
 .hero-blob-green {
-  --blob-size: 94.3%;
+  --blob-size: 105.6%;
   --blob-rgb: 0 198 118;
   --blob-peak: 0.3564;
   --blob-dx: calc(var(--cw) * -0.01575);
@@ -300,7 +300,7 @@ main {
   top: 43.5%;
 }
 .hero-blob-lime {
-  --blob-size: 100%;
+  --blob-size: 89.4%;
   --blob-rgb: 226 255 0;
   --blob-peak: 0.261;
   --blob-dx: calc(var(--cw) * 0.012);
