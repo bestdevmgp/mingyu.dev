@@ -6,6 +6,8 @@ import DeferredAnalytics from "@/_components/DeferredAnalytics";
 import SmoothScroll from "@/_components/SmoothScroll";
 import ThemeScript from "@/_components/ThemeScript";
 
+import { pretendard } from "./fonts";
+
 import type { Metadata } from "next";
 
 import "./globals.css";
@@ -23,7 +25,6 @@ const cjkFontClass: Record<string, string> = {
 };
 
 const webFontHref: Record<string, string> = {
-  ko: "/fonts/pretendard.css",
   ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
   "zh-Hans": "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap",
   "zh-Hant": "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap",
@@ -80,14 +81,8 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
     <html lang={locale} suppressHydrationWarning>
       {fontHref && (
         <head>
-          {locale === "ko" ? (
-            <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-          ) : (
-            <>
-              <link rel="preconnect" href="https://fonts.googleapis.com" />
-              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-            </>
-          )}
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link rel="preload" as="style" href={fontHref} id="webfont-css" />
           <script
             dangerouslySetInnerHTML={{
@@ -100,7 +95,7 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
           </noscript>
         </head>
       )}
-      <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko")}>
+      <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? pretendard.className)}>
         <ThemeScript />
         <script
           dangerouslySetInnerHTML={{
