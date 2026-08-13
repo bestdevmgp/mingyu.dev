@@ -229,6 +229,19 @@ html[lang="ko"] {
   animation: none !important;
   opacity: 0.25;
 }
+:root[data-d="nofilter"] .hero-blob {
+  filter: none !important;
+}
+:root[data-d="noanim"] .hero-blob {
+  animation: none !important;
+  will-change: auto !important;
+}
+:root[data-d="noblob"] .hero-bg {
+  display: none !important;
+}
+:root[data-d="halfblur"] .hero-blob {
+  filter: blur(calc(var(--cw) * 0.06)) !important;
+}
 :root[data-d="img"] img,
 :root[data-d="lite"] img {
   visibility: hidden;
