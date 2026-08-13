@@ -223,6 +223,17 @@ html[lang="ko"] {
   transition-delay: calc(0.1s + var(--reveal-index, 0) * 0.2s);
 }
 
+:root[data-d="blur"] .hero-blob,
+:root[data-d="lite"] .hero-blob {
+  filter: none;
+  animation: none !important;
+  opacity: 0.25;
+}
+:root[data-d="img"] img,
+:root[data-d="lite"] img {
+  visibility: hidden;
+}
+
 #main {
   min-height: clamp(600px, calc(var(--vh0, 1vh) * 80), 1080px);
 }
