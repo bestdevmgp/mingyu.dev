@@ -6,8 +6,6 @@ import DeferredAnalytics from "@/_components/DeferredAnalytics";
 import SmoothScroll from "@/_components/SmoothScroll";
 import ThemeScript from "@/_components/ThemeScript";
 
-import { pretendard } from "./fonts";
-
 import type { Metadata } from "next";
 
 import "./globals.css";
@@ -23,6 +21,8 @@ const cjkFontClass: Record<string, string> = {
   "zh-Hans": "font-zh-hans",
   "zh-Hant": "font-zh-hant",
 };
+
+const PRETENDARD_HREF = "/fonts/pretendard-v1.woff2";
 
 const webFontHref: Record<string, string> = {
   ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
@@ -79,23 +79,28 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      {fontHref && (
-        <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link rel="preload" as="style" href={fontHref} id="webfont-css" />
-          <script
-            dangerouslySetInnerHTML={{
-              __html:
-                "(function(){var l=document.getElementById('webfont-css');if(!l)return;var d=0;function a(){if(d)return;d=1;l.rel='stylesheet'}l.addEventListener('load',a,{once:true});addEventListener('load',a,{once:true})})()",
-            }}
-          />
-          <noscript>
-            <link rel="stylesheet" href={fontHref} />
-          </noscript>
-        </head>
-      )}
-      <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? pretendard.className)}>
+      <head>
+        {locale === "ko" && (
+          <link rel="preload" as="font" type="font/woff2" href={PRETENDARD_HREF} crossOrigin="anonymous" />
+        )}
+        {fontHref && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+            <link rel="preload" as="style" href={fontHref} id="webfont-css" />
+            <script
+              dangerouslySetInnerHTML={{
+                __html:
+                  "(function(){var l=document.getElementById('webfont-css');if(!l)return;var d=0;function a(){if(d)return;d=1;l.rel='stylesheet'}l.addEventListener('load',a,{once:true});addEventListener('load',a,{once:true})})()",
+              }}
+            />
+            <noscript>
+              <link rel="stylesheet" href={fontHref} />
+            </noscript>
+          </>
+        )}
+      </head>
+      <body className={locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko")}>
         <ThemeScript />
         <script
           dangerouslySetInnerHTML={{
