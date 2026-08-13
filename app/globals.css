@@ -539,3 +539,87 @@ html.theme-transition *::after {
     transition: none;
   }
 }
+
+/* diagnostic: blur-free aurora candidate */
+:root[data-d="grad"] .hero-blob {
+  filter: none !important;
+  translate: -50% -50%;
+  right: auto;
+  bottom: auto;
+  background: radial-gradient(circle at center, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 1)) 0%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.974)) 7.14%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.8889)) 14.29%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.7752)) 21.43%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.6241)) 28.57%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.4714)) 35.71%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.322)) 42.86%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.1979)) 50%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.1102)) 57.14%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0538)) 64.29%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0208)) 71.43%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0052)) 78.57%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0)) 85.71%) !important;
+}
+:root[data-d="grad"] .hero-blob-blue {
+  --blob-size: 97.2%;
+  --blob-rgb: 0 122 255;
+  --blob-peak: 0.2824;
+  --blob-dx: calc(var(--cw) * 0.0184);
+  --blob-dy: calc(var(--cw) * 0.0138);
+  left: 13%;
+  top: 24.6%;
+}
+:root.dark[data-d="grad"] .hero-blob-blue { --blob-peak: 0.3954; }
+:root[data-d="grad"] .hero-blob-green {
+  --blob-size: 96.2%;
+  --blob-rgb: 0 198 118;
+  --blob-peak: 0.2784;
+  --blob-dx: calc(var(--cw) * -0.01575);
+  --blob-dy: calc(var(--cw) * -0.018);
+  left: 89.5%;
+  top: 43.5%;
+}
+:root.dark[data-d="grad"] .hero-blob-green { --blob-peak: 0.3898; }
+:root[data-d="grad"] .hero-blob-lime {
+  --blob-size: 91.2%;
+  --blob-rgb: 226 255 0;
+  --blob-peak: 0.2039;
+  --blob-dx: calc(var(--cw) * 0.012);
+  --blob-dy: calc(var(--cw) * -0.0136);
+  left: 38%;
+  top: 86%;
+}
+:root.dark[data-d="grad"] .hero-blob-lime { --blob-peak: 0.3059; }
+:root[data-d="grad"].anim-ready .hero-blob-blue { animation-name: grad-drift-a; }
+:root[data-d="grad"].anim-ready .hero-blob-green { animation-name: grad-drift-b; }
+:root[data-d="grad"].anim-ready .hero-blob-lime { animation-name: grad-drift-c; }
+@keyframes grad-drift-a {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(var(--blob-dx), var(--blob-dy)) scale(1.12); }
+}
+@keyframes grad-drift-b {
+  0% { transform: translate(0, 0) scale(1.06); }
+  100% { transform: translate(var(--blob-dx), var(--blob-dy)) scale(1); }
+}
+@keyframes grad-drift-c {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(var(--blob-dx), var(--blob-dy)) scale(1.1); }
+}
+@media (max-aspect-ratio: 1/1) {
+  :root[data-d="grad"] .hero-blob { background: radial-gradient(circle at center, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 1)) 0%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.9649)) 7.14%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.8596)) 14.29%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.7325)) 21.43%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.5789)) 28.57%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.4123)) 35.71%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.2654)) 42.86%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.159)) 50%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0877)) 57.14%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.045)) 64.29%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0.0175)) 71.43%, rgb(var(--blob-rgb) / calc(var(--blob-peak) * 0)) 78.57%) !important; }
+  :root[data-d="grad"] .hero-blob-blue {
+    --blob-size: 239%;
+    --blob-peak: 0.2235;
+    --blob-dx: calc(var(--cw) * 0.038);
+    --blob-dy: calc(var(--cw) * 0.0285);
+    left: 22.5%;
+    top: 13.45%;
+  }
+  :root.dark[data-d="grad"] .hero-blob-blue { --blob-peak: 0.3129; }
+  :root[data-d="grad"] .hero-blob-green {
+    --blob-size: 232%;
+    --blob-peak: 0.2078;
+    --blob-dx: calc(var(--cw) * -0.0308);
+    --blob-dy: calc(var(--cw) * -0.0352);
+    left: 84%;
+    top: 39.28%;
+  }
+  :root.dark[data-d="grad"] .hero-blob-green { --blob-peak: 0.2909; }
+  :root[data-d="grad"] .hero-blob-lime {
+    --blob-size: 232%;
+    --blob-peak: 0.1662;
+    --blob-dx: calc(var(--cw) * 0.0264);
+    --blob-dy: calc(var(--cw) * -0.02992);
+    left: 26%;
+    top: 84.72%;
+  }
+  :root.dark[data-d="grad"] .hero-blob-lime { --blob-peak: 0.2494; }
+}
