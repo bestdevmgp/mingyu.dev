@@ -338,19 +338,75 @@ main {
 }
 
 .hero-rise {
-  animation: hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-duration: 2.6s;
+  animation-fill-mode: both;
+  animation-timing-function: linear;
+  will-change: opacity, transform;
 }
-
-@keyframes hero-rise {
-  from {
+.hero-rise-1 {
+  animation-name: hero-rise-1;
+}
+.hero-rise-2 {
+  animation-name: hero-rise-2;
+}
+.hero-rise-3 {
+  animation-name: hero-rise-3;
+}
+.hero-rise-4 {
+  animation-name: hero-rise-4;
+}
+@keyframes hero-rise-1 {
+  0%,
+  19.2308% {
     opacity: 0;
     transform: translateY(14px);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
-  to {
+  42.3077%,
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
+@keyframes hero-rise-2 {
+  0%,
+  46.1538% {
+    opacity: 0;
+    transform: translateY(14px);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  69.2308%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes hero-rise-3 {
+  0%,
+  61.5385% {
+    opacity: 0;
+    transform: translateY(14px);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  84.6154%,
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes hero-rise-4 {
+  0%,
+  76.9231% {
+    opacity: 0;
+    transform: translateY(14px);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 @keyframes hero-drift-a {
   0% {
