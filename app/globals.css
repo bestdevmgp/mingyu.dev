@@ -379,6 +379,12 @@ main {
 }
 .scroll-cue {
   animation: scroll-cue 2s ease-out infinite;
+  will-change: opacity, transform;
+}
+:root.hero-idle .scroll-cue,
+.scroll-cue-done .scroll-cue {
+  animation-play-state: paused;
+  will-change: auto;
 }
 @keyframes scroll-cue {
   0% {
