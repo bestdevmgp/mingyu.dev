@@ -110,6 +110,11 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
               "function s(){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px -10% 0px'});" +
               "document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el)})}" +
               "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();" +
+              "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
+              "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
+              "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +
+              "if(!t||t===o){c();return}c();t.classList.add('skill-open');o=t},true);" +
+              "addEventListener('scroll',c,{capture:true,passive:true});addEventListener('touchmove',c,{passive:true})})();" +
               "addEventListener('load',function(){var r=document.documentElement,h=document.getElementById('main');r.classList.add('anim-ready');if(!h||!window.IntersectionObserver)return;new IntersectionObserver(function(e){r.classList.toggle('hero-idle',!e[0].isIntersecting)},{threshold:0}).observe(h)},{once:true})",
           }}
         />
