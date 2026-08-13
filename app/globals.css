@@ -455,39 +455,10 @@ main {
   animation: scroll-cue 2s ease-out infinite;
   will-change: opacity, transform;
 }
-:root.cue-gone .scroll-cue-wrap {
-  opacity: 0;
-}
-:root.cue-gone .scroll-cue,
-:root.hero-idle .scroll-cue {
+:root.hero-idle .scroll-cue,
+.scroll-cue-done .scroll-cue {
   animation-play-state: paused;
   will-change: auto;
-}
-
-.site-header {
-  background-color: transparent;
-  transition:
-    background-color 300ms,
-    backdrop-filter 300ms;
-}
-.site-header::after {
-  background-color: transparent;
-  transition: background-color 300ms;
-}
-:root.scrolled .site-header {
-  background-color: color-mix(in oklab, var(--background) 50%, transparent);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-}
-:root.hero-idle .site-header,
-.site-header.is-expanded {
-  background-color: var(--background);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-:root.hero-idle .site-header::after,
-.site-header.is-expanded::after {
-  background-color: color-mix(in oklab, var(--foreground) 10%, transparent);
 }
 @keyframes scroll-cue {
   0% {
