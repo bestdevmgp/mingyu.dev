@@ -32,8 +32,25 @@ const SiteHeader = () => {
   const tNav = useTranslations("Nav");
   const locale = useLocale();
 
+  const [scrolled, setScrolled] = useState(false);
+  const [atTop, setAtTop] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [scope, animate] = useAnimate();
+
+  useEffect(() => {
+    const hero = document.getElementById("main");
+    if (!hero) return;
+    const observer = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting), { threshold: 0 });
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setAtTop(window.scrollY <= 0);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const didMountRef = useRef(false);
 
@@ -71,11 +88,17 @@ const SiteHeader = () => {
     <header
       ref={scope}
       className={cn(
-        "site-header fixed top-0 inset-x-0 z-50 h-14 pr-[23px] lg:pr-[22px] pl-[20px] lg:pl-[22px]",
+        "fixed top-0 inset-x-0 z-50 h-14 pr-[23px] lg:pr-[22px] pl-[20px] lg:pl-[22px]",
         "flex items-center justify-between gap-4",
 
         "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px",
-        isExpanded && "is-expanded",
+        "transition-colors duration-300 after:transition-colors after:duration-300",
+        !atTop && !scrolled && !isExpanded && "backdrop-blur-md",
+        scrolled || isExpanded
+          ? "bg-background after:bg-foreground/10"
+          : atTop
+            ? "bg-transparent after:bg-transparent"
+            : "bg-background/50 after:bg-transparent",
       )}
     >
       <Link className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0" href="#top" onClick={scrollToTop}>
