@@ -18,11 +18,11 @@ import ThemeToggle from "./ThemeToggle";
 const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "education" }] as const;
 
 const nameNudge: Record<string, string> = {
-  en: "-translate-y-px",
-  ko: "-translate-y-px",
-  ja: "-translate-y-[2.2px]",
-  "zh-Hans": "-translate-y-[2.3px]",
-  "zh-Hant": "-translate-y-[2.3px]",
+  en: "translate-y-[0.28px]",
+  ko: "translate-y-[0.44px]",
+  ja: "-translate-y-[1.55px]",
+  "zh-Hans": "-translate-y-[1.68px]",
+  "zh-Hant": "-translate-y-[1.68px]",
 };
 
 const staggerMenuItems = stagger(0.07, { startDelay: 0.1 });
