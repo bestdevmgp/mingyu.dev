@@ -36,6 +36,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
       setActiveCategory(undefined);
       activeCategoryOpacity.set(0);
     } else {
+      const appearing = activeCategory === undefined;
       setActiveCategory(category);
       activeCategoryOpacity.set(1);
       if (e.currentTarget.parentElement) {
@@ -44,8 +45,13 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
 
         const x = targetRect.x - containerRect.x - PILL_GROWTH;
         const width = targetRect.width + PILL_GROWTH * 2;
-        activeCategoryX.set(x);
-        activeCategoryWidth.set(width);
+        if (appearing) {
+          activeCategoryX.jump(x);
+          activeCategoryWidth.jump(width);
+        } else {
+          activeCategoryX.set(x);
+          activeCategoryWidth.set(width);
+        }
       }
     }
   };
