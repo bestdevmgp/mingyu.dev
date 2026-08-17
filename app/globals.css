@@ -537,7 +537,7 @@ main {
   animation: image-spinner-in 0.2s ease-out 0.15s forwards;
 }
 .image-spinner {
-  animation: image-spinner-turn 2.4s linear infinite;
+  animation: image-spinner-turn 3s linear infinite;
 }
 @keyframes image-spinner-in {
   to {
