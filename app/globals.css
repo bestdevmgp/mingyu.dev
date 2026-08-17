@@ -532,7 +532,32 @@ main {
   }
 }
 
+.image-spinner-wrap {
+  opacity: 0;
+  animation: image-spinner-in 0.2s ease-out 0.15s forwards;
+}
+.image-spinner {
+  animation: image-spinner-turn 2.4s linear infinite;
+}
+@keyframes image-spinner-in {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes image-spinner-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .image-spinner-wrap {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+  .image-spinner {
+    animation: none !important;
+  }
   :root.reveal-js [data-reveal],
   :root.reveal-js [data-reveal-stagger] {
     opacity: 1 !important;

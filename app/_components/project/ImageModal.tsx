@@ -8,6 +8,8 @@ import Image from "next/image";
 
 import useTouchPress from "@/utils/useTouchPress";
 
+import ImageSpinner from "./ImageSpinner";
+
 interface ImageModalProps {
   images: string[];
   initialIndex: number;
@@ -34,6 +36,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const [touchStartPos, setTouchStartPos] = useState({ x: 0, y: 0 });
   const [hasMoved, setHasMoved] = useState(false);
   const [aspect, setAspect] = useState<number | null>(null);
+  const [loadedIndex, setLoadedIndex] = useState<number | null>(null);
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
   const [closePressed, closePress] = useTouchPress();
   const [prevPressed, prevPress] = useTouchPress();
@@ -403,9 +406,15 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   className="w-full h-full object-contain"
                   priority
                   draggable={false}
-                  onLoad={e => setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)}
+                  onLoad={e => {
+                    setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
+                    setLoadedIndex(currentIndex);
+                  }}
+                  onError={() => setLoadedIndex(currentIndex)}
                 />
               </div>
+
+              {loadedIndex !== currentIndex && <ImageSpinner />}
             </div>
 
             {images.length > 1 && (
