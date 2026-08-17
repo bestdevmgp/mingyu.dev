@@ -1,7 +1,7 @@
 const ImageSpinner = () => (
   <div className="image-spinner-wrap absolute inset-0 flex items-center justify-center pointer-events-none">
     <svg
-      className="image-spinner w-8 h-8 text-white"
+      className="image-spinner w-[35px] h-[35px] text-white"
       viewBox="0 0 16 16"
       fill="currentColor"
       role="status"
