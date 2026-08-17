@@ -536,6 +536,15 @@ main {
   opacity: 0;
   animation: image-spinner-in 0.2s ease-out 0.15s forwards;
 }
+.image-reveal {
+  transition:
+    opacity 0.26s ease-out,
+    transform 0.26s ease-out;
+}
+.image-reveal-pending {
+  opacity: 0;
+  transform: scale(0.985);
+}
 .image-spinner {
   animation: image-spinner-turn 3s linear infinite;
 }
@@ -557,6 +566,12 @@ main {
   }
   .image-spinner {
     animation: none !important;
+  }
+  .image-reveal {
+    transition: opacity 0.26s ease-out;
+  }
+  .image-reveal-pending {
+    transform: none;
   }
   :root.reveal-js [data-reveal],
   :root.reveal-js [data-reveal-stagger] {

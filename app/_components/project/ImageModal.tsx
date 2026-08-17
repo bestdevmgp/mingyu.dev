@@ -404,7 +404,10 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   height={800}
                   sizes="100vw"
                   quality={85}
-                  className={cn("w-full h-full object-contain", loadedIndex !== currentIndex && "opacity-0")}
+                  className={cn(
+                    "w-full h-full object-contain image-reveal",
+                    loadedIndex !== currentIndex && "image-reveal-pending",
+                  )}
                   priority
                   draggable={false}
                   onLoad={e => {
@@ -416,7 +419,18 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 />
               </div>
 
-              {loadedIndex !== currentIndex && <ImageSpinner />}
+              <AnimatePresence>
+                {loadedIndex !== currentIndex && (
+                  <motion.div
+                    key="image-spinner"
+                    className="absolute inset-0"
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.14, ease: "easeOut" }}
+                  >
+                    <ImageSpinner />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {images.length > 1 && (
