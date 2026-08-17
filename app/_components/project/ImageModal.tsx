@@ -23,6 +23,7 @@ const ZOOM_STEP = 1.5;
 const WHEEL_SENSITIVITY = 0.0015;
 const FIT_RATIO = 0.7;
 const SCROLL_KEYS = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
+const MIN_SPINNER_MS = 3000;
 
 export default function ImageModal({ images, initialIndex, isOpen, onClose }: ImageModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -403,12 +404,13 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                   height={800}
                   sizes="100vw"
                   quality={85}
-                  className="w-full h-full object-contain"
+                  className={cn("w-full h-full object-contain", loadedIndex !== currentIndex && "opacity-0")}
                   priority
                   draggable={false}
                   onLoad={e => {
                     setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
-                    setLoadedIndex(currentIndex);
+                    const index = currentIndex;
+                    window.setTimeout(() => setLoadedIndex(index), MIN_SPINNER_MS);
                   }}
                   onError={() => setLoadedIndex(currentIndex)}
                 />
