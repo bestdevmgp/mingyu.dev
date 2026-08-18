@@ -559,6 +559,52 @@ main {
   }
 }
 
+.skeleton-pulse > div {
+  animation: skeleton-pulse 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.skeleton-pulse > div:nth-child(2) {
+  animation-delay: 0.09s;
+}
+.skeleton-pulse > div:nth-child(3) {
+  animation-delay: 0.18s;
+}
+.skeleton-pulse > div:nth-child(4) {
+  animation-delay: 0.27s;
+}
+.skeleton-pulse > div:nth-child(5) {
+  animation-delay: 0.36s;
+}
+.skeleton-pulse > div:nth-child(6) {
+  animation-delay: 0.45s;
+}
+.skeleton-pulse > div:nth-child(7) {
+  animation-delay: 0.54s;
+}
+.skeleton-pulse > div:nth-child(8) {
+  animation-delay: 0.63s;
+}
+.skeleton-pulse > div:nth-child(9) {
+  animation-delay: 0.72s;
+}
+.skeleton-pulse > div:nth-child(10) {
+  animation-delay: 0.81s;
+}
+.skeleton-pulse > div:nth-child(11) {
+  animation-delay: 0.90s;
+}
+.skeleton-pulse > div:nth-child(12) {
+  animation-delay: 0.99s;
+}
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .image-spinner-wrap {
     opacity: 1 !important;
@@ -572,6 +618,9 @@ main {
   }
   .image-reveal-pending {
     transform: none;
+  }
+  .skeleton-pulse > div {
+    animation: none !important;
   }
   :root.reveal-js [data-reveal],
   :root.reveal-js [data-reveal-stagger] {
