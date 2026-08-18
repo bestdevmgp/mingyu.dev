@@ -559,49 +559,24 @@ main {
   }
 }
 
-.skeleton-pulse > div {
-  animation: skeleton-pulse 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.skeleton-sweep > div {
+  position: relative;
+  overflow: hidden;
 }
-.skeleton-pulse > div:nth-child(2) {
-  animation-delay: 0.09s;
+.skeleton-sweep > div::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -320px;
+  bottom: 0;
+  left: 0;
+  opacity: 0.04;
+  background: linear-gradient(to right in oklab, transparent 0%, currentColor 50%, transparent 100%);
+  animation: skeleton-sweep 1.5s ease-in-out infinite reverse;
 }
-.skeleton-pulse > div:nth-child(3) {
-  animation-delay: 0.18s;
-}
-.skeleton-pulse > div:nth-child(4) {
-  animation-delay: 0.27s;
-}
-.skeleton-pulse > div:nth-child(5) {
-  animation-delay: 0.36s;
-}
-.skeleton-pulse > div:nth-child(6) {
-  animation-delay: 0.45s;
-}
-.skeleton-pulse > div:nth-child(7) {
-  animation-delay: 0.54s;
-}
-.skeleton-pulse > div:nth-child(8) {
-  animation-delay: 0.63s;
-}
-.skeleton-pulse > div:nth-child(9) {
-  animation-delay: 0.72s;
-}
-.skeleton-pulse > div:nth-child(10) {
-  animation-delay: 0.81s;
-}
-.skeleton-pulse > div:nth-child(11) {
-  animation-delay: 0.90s;
-}
-.skeleton-pulse > div:nth-child(12) {
-  animation-delay: 0.99s;
-}
-@keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
+@keyframes skeleton-sweep {
+  to {
+    transform: translate(-50%);
   }
 }
 
@@ -619,8 +594,9 @@ main {
   .image-reveal-pending {
     transform: none;
   }
-  .skeleton-pulse > div {
+  .skeleton-sweep > div::after {
     animation: none !important;
+    opacity: 0 !important;
   }
   :root.reveal-js [data-reveal],
   :root.reveal-js [data-reveal-stagger] {
