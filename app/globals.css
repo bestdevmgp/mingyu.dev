@@ -559,11 +559,11 @@ main {
   }
 }
 
-.skeleton-sweep > div {
+.skeleton-bar {
   position: relative;
   overflow: hidden;
 }
-.skeleton-sweep > div::after {
+.skeleton-bar::after {
   content: "";
   position: absolute;
   top: 0;
@@ -597,7 +597,7 @@ main {
   .image-reveal-pending {
     transform: none;
   }
-  .skeleton-sweep > div::after {
+  .skeleton-bar::after {
     animation: none !important;
     opacity: 0 !important;
   }
