@@ -1,3 +1,4 @@
+import RestoreProjectScroll from "@/_components/RestoreProjectScroll";
 import ScrollCue from "@/_components/ScrollCue";
 import SectionNav from "@/_components/SectionNav";
 import SiteHeader from "@/_components/SiteHeader";
@@ -13,6 +14,7 @@ import SkillSection from "@/_sections/SkillSection";
 export default function Home() {
   return (
     <>
+      <RestoreProjectScroll />
       <SiteHeader />
       <SectionNav />
       <main
