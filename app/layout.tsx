@@ -112,15 +112,7 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
               "n.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function(el){io.observe(el)})}w(document.body);" +
               "new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(w)})}).observe(document.body,{childList:true,subtree:true})}" +
               "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();" +
-              "(function(){try{var k='from-project',p=location.pathname;" +
-              "if(p.indexOf('/project/')===0){sessionStorage.setItem(k,'1');return}" +
-              "if(p!=='/')return;var d=window.__fromProject=window.__fromProject||{};" +
-              "function g(){var el=document.getElementById('projects');if(!el)return;d.ran=(d.ran||0)+1;" +
-              "if(window.__lenis)window.__lenis.scrollTo(el,{immediate:true});else el.scrollIntoView()}" +
-              "function t(){if(d.done||!sessionStorage.getItem(k))return;d.done=1;sessionStorage.removeItem(k);" +
-              "g();requestAnimationFrame(function(){requestAnimationFrame(g)});setTimeout(g,120);setTimeout(g,400)}" +
-              "addEventListener('pageshow',t);addEventListener('load',t);" +
-              "if(document.readyState==='loading')addEventListener('DOMContentLoaded',t);else t()}catch(e){}})();" +
+              "(function(){try{if(location.pathname.indexOf('/project/')===0)sessionStorage.setItem('from-project','1')}catch(e){}})();" +
               "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
               "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
               "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +
