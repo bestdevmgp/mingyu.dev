@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 
 import Shape from "@/assets/shape-sparkle-round.svg";
 import richText from "@/utils/richText";
+import useTouchPress from "@/utils/useTouchPress";
 
 import SkillItem from "./skill/SkillItem";
 
@@ -17,9 +18,10 @@ interface ExpCardProps extends Omit<experience, "skill_ids" | "i18n"> {
   skills: skill[];
 }
 
-const ExpCard = ({ id, period, is_active, title, job_title, sub_title, skills, items }: ExpCardProps) => {
+const ExpCard = ({ id, period, is_active, title, job_title, sub_title, site_url, skills, items }: ExpCardProps) => {
   const t = useTranslations("Experience");
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isPressed, pressHandlers] = useTouchPress();
 
   const toggleDetail = () => {
     setIsExpanded(!isExpanded);
@@ -35,7 +37,23 @@ const ExpCard = ({ id, period, is_active, title, job_title, sub_title, skills, i
       <div className="pl-6 sm:pl-0 sm:col-span-2 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <div className="flex flex-col gap-0.5">
-            <p className="text-base md:text-lg font-semibold">{title}</p>
+            {site_url ? (
+              <a
+                href={site_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "text-base md:text-lg font-semibold w-fit no-underline underline-offset-2 text-foreground",
+                  "mouse:hover:underline",
+                  isPressed && "underline",
+                )}
+                {...pressHandlers}
+              >
+                {title}
+              </a>
+            ) : (
+              <p className="text-base md:text-lg font-semibold">{title}</p>
+            )}
             {job_title && (
               <p className="text-[13px] md:text-[15px] font-medium text-foreground/75">{richText(job_title)}</p>
             )}

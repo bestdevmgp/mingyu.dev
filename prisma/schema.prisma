@@ -49,6 +49,7 @@ model experience {
   index     Int      @default(0)
   category  String?  @db.VarChar(100)
   skill_ids Int[]
+  site_url  String?  @db.VarChar(255)
   i18n      Json?
 }
 
