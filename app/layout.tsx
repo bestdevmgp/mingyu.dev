@@ -112,6 +112,14 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
               "n.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function(el){io.observe(el)})}w(document.body);" +
               "new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(w)})}).observe(document.body,{childList:true,subtree:true})}" +
               "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();" +
+              "(function(){try{var k='from-project',p=location.pathname;" +
+              "if(p.indexOf('/project/')===0){sessionStorage.setItem(k,'1');return}" +
+              "if(p!=='/')return;var f=sessionStorage.getItem(k);sessionStorage.removeItem(k);" +
+              "var n=performance.getEntriesByType('navigation')[0];if(!f||!n||n.type!=='back_forward')return;" +
+              "function g(){var el=document.getElementById('projects');if(!el)return;" +
+              "if(window.__lenis)window.__lenis.scrollTo(el,{immediate:true});else el.scrollIntoView()}" +
+              "if(document.readyState!=='loading')g();else addEventListener('DOMContentLoaded',g,{once:true});" +
+              "addEventListener('pageshow',function(){requestAnimationFrame(function(){requestAnimationFrame(g)})},{once:true})}catch(e){}})();" +
               "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
               "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
               "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +
