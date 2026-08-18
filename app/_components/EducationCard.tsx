@@ -1,6 +1,6 @@
 import cn from "classnames";
 
-import Shape from "@/assets/shape-sparkle.svg";
+import Shape from "@/assets/shape-sparkle-round.svg";
 import richText from "@/utils/richText";
 
 import type { education } from "@prisma/client";

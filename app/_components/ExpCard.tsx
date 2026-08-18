@@ -6,7 +6,7 @@ import { ChevronRight } from "react-feather";
 import cn from "classnames";
 import { useTranslations } from "next-intl";
 
-import Shape from "@/assets/shape-sparkle.svg";
+import Shape from "@/assets/shape-sparkle-round.svg";
 import richText from "@/utils/richText";
 
 import SkillItem from "./skill/SkillItem";
