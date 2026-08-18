@@ -8,7 +8,7 @@ import { stagger, useAnimate } from "motion/react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
-import Sparkle from "@/assets/shape-sparkle.svg";
+import Sparkle from "@/assets/shape-sparkle-round.svg";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
 import ContactMenu from "./ContactMenu";
