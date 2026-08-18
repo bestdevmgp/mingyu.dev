@@ -108,7 +108,9 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
               "(function(){var d=document.documentElement,w=0;function s(){d.style.setProperty('--vh0',window.innerHeight/100+'px');w=window.innerWidth}s();addEventListener('resize',function(){if(window.innerWidth!==w)s()})})();" +
               "(function(){var r=document.documentElement;if(!window.IntersectionObserver)return;r.classList.add('reveal-js');" +
               "function s(){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px -9% 0px'});" +
-              "document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el)})}" +
+              "function w(n){if(n.nodeType!==1)return;if(n.matches('[data-reveal]')&&!n.classList.contains('is-revealed'))io.observe(n);" +
+              "n.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function(el){io.observe(el)})}w(document.body);" +
+              "new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(w)})}).observe(document.body,{childList:true,subtree:true})}" +
               "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();" +
               "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
               "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
