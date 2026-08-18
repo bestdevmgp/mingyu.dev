@@ -1,6 +1,6 @@
 export default function ProjectModalLoading() {
   return (
-    <div className="skeleton-pulse">
+    <div className="skeleton-sweep">
       <div className="w-8 h-8 md:w-12 md:h-12 bg-foreground/10 rounded-sm mb-3 md:mb-4" />
 
       <div className="w-64 md:w-96 h-5 md:h-6 bg-foreground/10 rounded-sm mb-1 md:mb-2" />
