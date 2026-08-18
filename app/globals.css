@@ -570,7 +570,7 @@ main {
   right: -320px;
   bottom: 0;
   left: 0;
-  opacity: 0.04;
+  opacity: 0.06;
   background: linear-gradient(to right in oklab, transparent 0%, currentColor 50%, transparent 100%);
   animation: skeleton-sweep 1.5s ease-in-out infinite reverse;
 }
