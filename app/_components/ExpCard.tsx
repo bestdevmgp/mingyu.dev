@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight } from "react-feather";
+import { ArrowUpRight, ChevronRight } from "react-feather";
 
 import cn from "classnames";
 import { useTranslations } from "next-intl";
@@ -14,11 +14,23 @@ import SkillItem from "./skill/SkillItem";
 
 import type { experience, skill } from "@prisma/client";
 
-interface ExpCardProps extends Omit<experience, "skill_ids" | "i18n"> {
+interface ExpCardProps extends Omit<experience, "skill_ids" | "i18n" | "links"> {
   skills: skill[];
+  links: Array<{ href: string; label: string }>;
 }
 
-const ExpCard = ({ id, period, is_active, title, job_title, sub_title, site_url, skills, items }: ExpCardProps) => {
+const ExpCard = ({
+  id,
+  period,
+  is_active,
+  title,
+  job_title,
+  sub_title,
+  site_url,
+  links,
+  skills,
+  items,
+}: ExpCardProps) => {
   const t = useTranslations("Experience");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPressed, pressHandlers] = useTouchPress();
@@ -62,6 +74,23 @@ const ExpCard = ({ id, period, is_active, title, job_title, sub_title, site_url,
             <p className="text-xs md:text-sm font-normal text-foreground/60 whitespace-pre-wrap">
               {richText(sub_title)}
             </p>
+          )}
+
+          {links.length > 0 && (
+            <div className="flex gap-4 flex-wrap mt-1.5">
+              {links.map(({ href, label }) => (
+                <a
+                  key={`exp-${id}-link-${label}`}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="no-underline text-primary inline-flex items-center gap-1 transition-opacity mouse:hover:opacity-70"
+                >
+                  <span className="underline underline-offset-2 text-xs md:text-sm">{label}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                </a>
+              ))}
+            </div>
           )}
         </div>
 
