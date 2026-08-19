@@ -37,8 +37,6 @@ const SCROLL_KEYS = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "Arrow
 const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
 const TOUCH_TIMING = { open: 560, close: 430, fade: 280 };
-/* TEST ONLY — forces a slow image load so the loading state can be inspected */
-const TEST_LOAD_DELAY_MS = 3000;
 
 export default function ImageModal({ images, initialIndex, isOpen, onClose, getThumbnail }: ImageModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -69,8 +67,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
   const flipRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
   const isClosingRef = useRef(false);
-  /* TEST ONLY */
-  const testLoadTimerRef = useRef(0);
 
   const measureVisualBox = useCallback((): Box | null => {
     const wrapper = flipRef.current;
@@ -154,9 +150,6 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
     isClosingRef.current = false;
     setCurrentIndex(initialIndex);
     resetZoom();
-    /* TEST ONLY */
-    window.clearTimeout(testLoadTimerRef.current);
-    setLoadedIndex(null);
 
     const thumbnail = getThumbnail?.(initialIndex) ?? null;
     setOriginSrc(thumbnail?.currentSrc || null);
@@ -512,11 +505,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                     draggable={false}
                     onLoad={e => {
                       setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
-                      /* TEST ONLY — remove this block and restore setLoadedIndex(currentIndex) */
-                      const index = currentIndex;
-                      window.clearTimeout(testLoadTimerRef.current);
-                      testLoadTimerRef.current = window.setTimeout(() => setLoadedIndex(index), TEST_LOAD_DELAY_MS);
-                      /* TEST ONLY END */
+                      setLoadedIndex(currentIndex);
                     }}
                     onError={() => setLoadedIndex(currentIndex)}
                   />
