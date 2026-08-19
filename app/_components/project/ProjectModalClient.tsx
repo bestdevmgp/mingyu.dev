@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ArrowUpRight } from "react-feather";
 
 import cn from "classnames";
@@ -38,14 +38,22 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState(0);
+  const thumbnails = useRef(new Map<string, HTMLImageElement>());
 
   const { title, sub_title, member, period, skills, links, items } = projectData;
 
-  const handleImageClick = (images: string[], imageIndex: number) => {
+  const handleImageClick = (images: string[], imageIndex: number, groupIndex: number) => {
     setSelectedImages(images);
     setSelectedImageIndex(imageIndex);
+    setSelectedGroup(groupIndex);
     setIsImageModalOpen(true);
   };
+
+  const getThumbnail = useCallback(
+    (imageIndex: number) => thumbnails.current.get(`${selectedGroup}-${imageIndex}`) ?? null,
+    [selectedGroup],
+  );
 
   const skillsElement = (
     <ul className="p-0 flex gap-2 list-none flex-wrap">
@@ -135,13 +143,20 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
                       className={cn("cursor-pointer", item.image_ratio === "PORTRAIT" ? "flex-1 min-w-0" : "w-full")}
                     >
                       <Image
+                        ref={element => {
+                          const key = `${index}-${imgIndex}`;
+                          if (element) thumbnails.current.set(key, element);
+                          return () => {
+                            thumbnails.current.delete(key);
+                          };
+                        }}
                         className="w-full h-auto object-contain hover:opacity-80 transition-opacity"
                         src={imageUrl}
                         alt={`${item.title} ${imgIndex + 1}`}
                         width={800}
                         height={600}
                         style={{ maxWidth: "100%", height: "auto" }}
-                        onClick={() => handleImageClick(item.blobUrls!, imgIndex)}
+                        onClick={() => handleImageClick(item.blobUrls!, imgIndex, index)}
                       />
                     </div>
                   ))}
@@ -157,6 +172,7 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
         initialIndex={selectedImageIndex}
         isOpen={isImageModalOpen}
         onClose={() => setIsImageModalOpen(false)}
+        getThumbnail={getThumbnail}
       />
     </>
   );

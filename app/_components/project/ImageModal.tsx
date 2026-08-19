@@ -1,11 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 
+import {
+  flipFrom,
+  flipTo,
+  getFlipTransform,
+  getVisibleImageBox,
+  prefersReducedMotion,
+  type Box,
+} from "@/utils/imageFlip";
 import useTouchPress from "@/utils/useTouchPress";
 
 import ImageSpinner from "./ImageSpinner";
@@ -15,6 +23,7 @@ interface ImageModalProps {
   initialIndex: number;
   isOpen: boolean;
   onClose: () => void;
+  getThumbnail?: (index: number) => HTMLImageElement | null;
 }
 
 const MIN_ZOOM = 0.5;
@@ -23,8 +32,11 @@ const ZOOM_STEP = 1.5;
 const WHEEL_SENSITIVITY = 0.0015;
 const FIT_RATIO = 0.7;
 const SCROLL_KEYS = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
+const OPEN_MS = 420;
+const CLOSE_MS = 320;
+const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
-export default function ImageModal({ images, initialIndex, isOpen, onClose }: ImageModalProps) {
+export default function ImageModal({ images, initialIndex, isOpen, onClose, getThumbnail }: ImageModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -38,6 +50,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const [aspect, setAspect] = useState<number | null>(null);
   const [loadedIndex, setLoadedIndex] = useState<number | null>(null);
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
+  const [originSrc, setOriginSrc] = useState<string | null>(null);
   const [closePressed, closePress] = useTouchPress();
   const [prevPressed, prevPress] = useTouchPress();
   const [nextPressed, nextPress] = useTouchPress();
@@ -48,7 +61,28 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
   const overlayRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const imageContentRef = useRef<HTMLDivElement>(null);
+  const flipRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
+
+  const measureContentBox = useCallback((): Box | null => {
+    const content = imageContentRef.current;
+    if (!content) return null;
+
+    const restore = content.style.transform;
+    content.style.transform = "none";
+    const rect = content.getBoundingClientRect();
+    content.style.transform = restore;
+
+    return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+  }, []);
+
+  const fitToPane = useCallback((ratio: number) => {
+    const pane = imageRef.current;
+    if (!pane) return null;
+
+    const width = Math.min(pane.offsetWidth, pane.offsetHeight * ratio) * FIT_RATIO;
+    return { width, height: width / ratio };
+  }, []);
 
   const resetZoom = useCallback(() => {
     setZoom(1);
@@ -69,19 +103,70 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     }
   }, [currentIndex, resetZoom]);
 
+  const requestClose = useCallback(() => {
+    const wrapper = flipRef.current;
+    const thumbnail = getThumbnail?.(currentIndex) ?? null;
+    const origin = thumbnail ? getVisibleImageBox(thumbnail) : null;
+    const target = measureContentBox();
+    const transform = origin && target ? getFlipTransform(origin, target) : null;
+
+    if (wrapper && transform && !prefersReducedMotion()) {
+      resetZoom();
+      flipTo(wrapper, transform, CLOSE_MS, FLIP_EASING);
+    }
+
+    onClose();
+  }, [currentIndex, getThumbnail, measureContentBox, resetZoom, onClose]);
+
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setCurrentIndex(initialIndex);
     resetZoom();
   }, [initialIndex, isOpen, resetZoom]);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow || "";
+    };
+  }, [isOpen]);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+
+    const thumbnail = getThumbnail?.(initialIndex) ?? null;
+    setOriginSrc(thumbnail?.currentSrc || null);
+    if (!thumbnail) return;
+
+    const ratio = thumbnail.naturalWidth / thumbnail.naturalHeight;
+    if (!Number.isFinite(ratio) || ratio <= 0) return;
+
+    const size = fitToPane(ratio);
+    setAspect(ratio);
+    setFitted(size);
+
+    const wrapper = flipRef.current;
+    const content = imageContentRef.current;
+    const origin = getVisibleImageBox(thumbnail);
+    if (!wrapper || !content || !size || !origin || prefersReducedMotion()) return;
+
+    content.style.width = `${size.width}px`;
+    content.style.height = `${size.height}px`;
+    wrapper.style.transform = "none";
+
+    const target = measureContentBox();
+    const transform = target && getFlipTransform(origin, target);
+    if (transform) flipFrom(wrapper, transform, OPEN_MS, FLIP_EASING);
+  }, [isOpen, initialIndex, getThumbnail, fitToPane, measureContentBox]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
-
-      document.body.style.overflow = "hidden";
-
       const preventScroll = (e: TouchEvent) => {
         const target = e.target as Element;
         if (target?.closest(".image-modal-container")) {
@@ -92,10 +177,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
       document.addEventListener("touchmove", preventScroll, { passive: false });
 
-      return () => {
-        document.body.style.overflow = originalOverflow || "";
-        document.removeEventListener("touchmove", preventScroll);
-      };
+      return () => document.removeEventListener("touchmove", preventScroll);
     }
   }, [isOpen]);
 
@@ -113,7 +195,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
         e.preventDefault();
         e.stopPropagation();
 
-        if (e.key === "Escape") onClose();
+        if (e.key === "Escape") requestClose();
         else if (e.key === "ArrowLeft") goToPrevious();
         else goToNext();
         return;
@@ -124,22 +206,19 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
     window.addEventListener("keydown", handleKeyDown, { capture: true });
     return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
-  }, [isOpen, onClose, goToPrevious, goToNext]);
+  }, [isOpen, requestClose, goToPrevious, goToNext]);
 
   useEffect(() => {
     const pane = imageRef.current;
     if (!isOpen || !pane || !aspect) return;
 
-    const fit = () => {
-      const fittedWidth = Math.min(pane.offsetWidth, pane.offsetHeight * aspect) * FIT_RATIO;
-      setFitted({ width: fittedWidth, height: fittedWidth / aspect });
-    };
+    const fit = () => setFitted(fitToPane(aspect));
 
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(pane);
     return () => observer.disconnect();
-  }, [isOpen, aspect]);
+  }, [isOpen, aspect, fitToPane]);
 
   const constrainPosition = (newX: number, newY: number, currentZoom: number) => {
     const container = imageRef.current;
@@ -218,7 +297,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
 
     const movedFromDown = Math.hypot(e.clientX - mouseDownPosRef.current.x, e.clientY - mouseDownPosRef.current.y);
     if (movedFromDown < 10 && isOutsideImage(e.clientX, e.clientY)) {
-      onClose();
+      requestClose();
     }
   };
 
@@ -304,7 +383,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     if (e.touches.length === 0) {
       if (!hasMoved && !isPinching && isOutsideImage(touchStartPos.x, touchStartPos.y)) {
         e.stopPropagation();
-        onClose();
+        requestClose();
       }
 
       setIsDragging(false);
@@ -323,6 +402,8 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
     }
   };
 
+  const showOrigin = Boolean(originSrc) && currentIndex === initialIndex;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -332,15 +413,10 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
           className="fixed inset-0 bg-black/90 backdrop-blur-xs z-50 flex items-center justify-center select-none image-modal-container"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.25 } }}
+          exit={{ opacity: 0, transition: { duration: CLOSE_MS / 1000, ease: "easeIn" } }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
         >
-          <motion.div
-            className="relative w-full h-full flex items-center justify-center p-2 md:p-4"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.9, transition: { duration: 0.25, ease: "easeIn" } }}
-            transition={{ type: "spring", bounce: 0.15, duration: 0.35 }}
-          >
+          <div className="relative w-full h-full flex items-center justify-center p-2 md:p-4">
             <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
               {images.length > 1 && (
                 <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm pointer-events-auto">
@@ -352,7 +428,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 <button
                   onClick={e => {
                     e.stopPropagation();
-                    onClose();
+                    requestClose();
                   }}
                   {...closePress}
                   className={cn(
@@ -385,40 +461,53 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 cursor: isDragging ? "grabbing" : "default",
               }}
             >
-              <div
-                ref={imageContentRef}
-                className={cn("transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
-                style={{
-                  width: fitted ? `${fitted.width}px` : "100%",
-                  height: fitted ? `${fitted.height}px` : "100%",
-                  transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
-                  willChange: isDragging || isPinching ? "transform" : "auto",
-                  cursor: isDragging ? "grabbing" : "grab",
-                }}
-              >
-                <Image
-                  src={images[currentIndex]}
-                  alt={`Image ${currentIndex + 1}`}
-                  width={1200}
-                  height={800}
-                  sizes="100vw"
-                  quality={85}
-                  className={cn(
-                    "w-full h-full object-contain image-reveal",
-                    loadedIndex !== currentIndex && "image-reveal-pending",
-                  )}
-                  priority
-                  draggable={false}
-                  onLoad={e => {
-                    setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
-                    setLoadedIndex(currentIndex);
+              <div ref={flipRef} className="flex items-center justify-center will-change-transform">
+                <div
+                  ref={imageContentRef}
+                  className={cn("relative transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
+                  style={{
+                    width: fitted ? `${fitted.width}px` : "100%",
+                    height: fitted ? `${fitted.height}px` : "100%",
+                    transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+                    willChange: isDragging || isPinching ? "transform" : "auto",
+                    cursor: isDragging ? "grabbing" : "grab",
                   }}
-                  onError={() => setLoadedIndex(currentIndex)}
-                />
+                >
+                  {showOrigin && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={originSrc!}
+                      alt=""
+                      aria-hidden
+                      draggable={false}
+                      className="absolute inset-0 w-full h-full object-contain"
+                    />
+                  )}
+
+                  <Image
+                    src={images[currentIndex]}
+                    alt={`Image ${currentIndex + 1}`}
+                    width={1200}
+                    height={800}
+                    sizes="100vw"
+                    quality={85}
+                    className={cn(
+                      "relative w-full h-full object-contain image-reveal",
+                      loadedIndex !== currentIndex && !showOrigin && "image-reveal-pending",
+                    )}
+                    priority
+                    draggable={false}
+                    onLoad={e => {
+                      setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
+                      setLoadedIndex(currentIndex);
+                    }}
+                    onError={() => setLoadedIndex(currentIndex)}
+                  />
+                </div>
               </div>
 
               <AnimatePresence>
-                {loadedIndex !== currentIndex && (
+                {loadedIndex !== currentIndex && !showOrigin && (
                   <motion.div
                     key="image-spinner"
                     className="absolute inset-0"
@@ -542,7 +631,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose }: Im
                 </svg>
               </button>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
