@@ -177,19 +177,12 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
-    if (isOpen) {
-      const preventScroll = (e: TouchEvent) => {
-        const target = e.target as Element;
-        if (target?.closest(".image-modal-container")) {
-          return;
-        }
-        e.preventDefault();
-      };
+    if (!isOpen) return;
 
-      document.addEventListener("touchmove", preventScroll, { passive: false });
+    const preventScroll = (e: TouchEvent) => e.preventDefault();
 
-      return () => document.removeEventListener("touchmove", preventScroll);
-    }
+    document.addEventListener("touchmove", preventScroll, { passive: false });
+    return () => document.removeEventListener("touchmove", preventScroll);
   }, [isOpen]);
 
   useEffect(() => {
@@ -421,7 +414,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
         <motion.div
           key="image-modal"
           ref={overlayRef}
-          className="fixed inset-0 z-50 flex items-center justify-center select-none image-modal-container"
+          className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none image-modal-container"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: timing.close / 1000, ease: "easeIn" } }}
