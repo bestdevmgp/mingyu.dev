@@ -24,7 +24,9 @@ async function getExperience(locale: string) {
   );
 
   return expWithSkills.map(({ links, ...res }) => ({
-    links: links.map(link => parsePrismaJSON<{ href: string; label: string }>(link)),
+    links: links
+      .map(link => parsePrismaJSON<Partial<{ href: string; label: string }>>(link))
+      .filter((link): link is { href: string; label: string } => Boolean(link?.href && link?.label)),
     ...res,
   }));
 }
