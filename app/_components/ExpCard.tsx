@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, ChevronRight } from "react-feather";
+import { ChevronRight } from "react-feather";
 
 import cn from "classnames";
 import { useTranslations } from "next-intl";
@@ -10,6 +10,7 @@ import Shape from "@/assets/shape-sparkle-round.svg";
 import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
 
+import ReferenceLink from "./ReferenceLink";
 import SkillItem from "./skill/SkillItem";
 
 import type { experience, skill } from "@prisma/client";
@@ -79,16 +80,12 @@ const ExpCard = ({
           {links.length > 0 && (
             <div className="flex gap-4 flex-wrap mt-1.5">
               {links.map(({ href, label }) => (
-                <a
+                <ReferenceLink
                   key={`exp-${id}-link-${label}`}
                   href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="no-underline text-primary inline-flex items-center gap-1 transition-opacity mouse:hover:opacity-70"
-                >
-                  <span className="underline underline-offset-2 text-xs md:text-sm">{label}</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                </a>
+                  label={label}
+                  labelClassName="text-xs md:text-sm"
+                />
               ))}
             </div>
           )}

@@ -1,16 +1,15 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { ArrowUpRight } from "react-feather";
 
 import cn from "classnames";
 import Image from "next/image";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import richText from "@/utils/richText";
 
 import ImageModal from "./ImageModal";
+import ReferenceLink from "../ReferenceLink";
 import SkillItem from "../skill/SkillItem";
 
 interface ProjectData {
@@ -68,16 +67,7 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
   const linksElement = (
     <div className="flex gap-4 flex-wrap">
       {links.map(({ href, label }) => (
-        <Link
-          key={`link-${label}`}
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="no-underline text-primary inline-flex items-center gap-1 hover:opacity-70 transition-opacity"
-        >
-          <span className="underline underline-offset-2">{label}</span>
-          <ArrowUpRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-        </Link>
+        <ReferenceLink key={`link-${label}`} href={href} label={label} />
       ))}
     </div>
   );
