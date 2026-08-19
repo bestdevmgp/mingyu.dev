@@ -19,7 +19,7 @@ const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: 
 
 const nameNudge: Record<string, string> = {
   en: "-translate-y-px",
-  ko: "-translate-y-px",
+  ko: "-translate-y-[2px]",
   ja: "-translate-y-[2.2px]",
   "zh-Hans": "-translate-y-[2.3px]",
   "zh-Hant": "-translate-y-[2.3px]",
