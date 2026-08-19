@@ -9,9 +9,11 @@ import Image from "next/image";
 import {
   flipFrom,
   flipTo,
+  getCenteredBox,
   getFlipTransform,
   getVisibleImageBox,
   prefersReducedMotion,
+  prefersSlowerMotion,
   type Box,
 } from "@/utils/imageFlip";
 import useTouchPress from "@/utils/useTouchPress";
@@ -32,9 +34,9 @@ const ZOOM_STEP = 1.5;
 const WHEEL_SENSITIVITY = 0.0015;
 const FIT_RATIO = 0.7;
 const SCROLL_KEYS = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
-const OPEN_MS = 420;
-const CLOSE_MS = 320;
 const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
+const TOUCH_TIMING = { open: 560, close: 430, fade: 280 };
 
 export default function ImageModal({ images, initialIndex, isOpen, onClose, getThumbnail }: ImageModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -51,6 +53,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
   const [loadedIndex, setLoadedIndex] = useState<number | null>(null);
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
   const [originSrc, setOriginSrc] = useState<string | null>(null);
+  const [timing, setTiming] = useState(POINTER_TIMING);
   const [closePressed, closePress] = useTouchPress();
   const [prevPressed, prevPress] = useTouchPress();
   const [nextPressed, nextPress] = useTouchPress();
@@ -63,15 +66,22 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
   const imageContentRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
+  const isClosingRef = useRef(false);
 
-  const measureContentBox = useCallback((): Box | null => {
+  const measureVisualBox = useCallback((): Box | null => {
+    const wrapper = flipRef.current;
     const content = imageContentRef.current;
-    if (!content) return null;
+    if (!wrapper || !content) return null;
 
-    const restore = content.style.transform;
-    content.style.transform = "none";
+    const inFlight = getComputedStyle(wrapper).transform;
+    const transition = wrapper.style.transition;
+
+    wrapper.style.transition = "none";
+    wrapper.style.transform = "none";
     const rect = content.getBoundingClientRect();
-    content.style.transform = restore;
+    wrapper.style.transform = inFlight === "none" ? "" : inFlight;
+    void wrapper.offsetWidth;
+    wrapper.style.transition = transition;
 
     return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
   }, []);
@@ -104,25 +114,24 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
   }, [currentIndex, resetZoom]);
 
   const requestClose = useCallback(() => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+
     const wrapper = flipRef.current;
     const thumbnail = getThumbnail?.(currentIndex) ?? null;
     const origin = thumbnail ? getVisibleImageBox(thumbnail) : null;
-    const target = measureContentBox();
+    const target = measureVisualBox();
     const transform = origin && target ? getFlipTransform(origin, target) : null;
 
-    if (wrapper && transform && !prefersReducedMotion()) {
-      resetZoom();
-      flipTo(wrapper, transform, CLOSE_MS, FLIP_EASING);
-    }
+    if (wrapper && transform && !prefersReducedMotion()) flipTo(wrapper, transform, timing.close, FLIP_EASING);
 
     onClose();
-  }, [currentIndex, getThumbnail, measureContentBox, resetZoom, onClose]);
+  }, [currentIndex, getThumbnail, measureVisualBox, timing.close, onClose]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    setCurrentIndex(initialIndex);
-    resetZoom();
-  }, [initialIndex, isOpen, resetZoom]);
+    if (prefersSlowerMotion()) setTiming(TOUCH_TIMING);
+  }, []);
 
   useLayoutEffect(() => {
     if (!isOpen) return;
@@ -138,6 +147,9 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
 
   useLayoutEffect(() => {
     if (!isOpen) return;
+    isClosingRef.current = false;
+    setCurrentIndex(initialIndex);
+    resetZoom();
 
     const thumbnail = getThumbnail?.(initialIndex) ?? null;
     setOriginSrc(thumbnail?.currentSrc || null);
@@ -150,19 +162,18 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
     setAspect(ratio);
     setFitted(size);
 
+    const pane = imageRef.current;
     const wrapper = flipRef.current;
     const content = imageContentRef.current;
     const origin = getVisibleImageBox(thumbnail);
-    if (!wrapper || !content || !size || !origin || prefersReducedMotion()) return;
+    if (!pane || !wrapper || !content || !size || !origin || prefersReducedMotion()) return;
 
     content.style.width = `${size.width}px`;
     content.style.height = `${size.height}px`;
-    wrapper.style.transform = "none";
 
-    const target = measureContentBox();
-    const transform = target && getFlipTransform(origin, target);
-    if (transform) flipFrom(wrapper, transform, OPEN_MS, FLIP_EASING);
-  }, [isOpen, initialIndex, getThumbnail, fitToPane, measureContentBox]);
+    const transform = getFlipTransform(origin, getCenteredBox(pane, size));
+    if (transform) flipFrom(wrapper, transform, timing.open, FLIP_EASING);
+  }, [isOpen, initialIndex, getThumbnail, fitToPane, resetZoom, timing.open]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
@@ -402,7 +413,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
     }
   };
 
-  const showOrigin = Boolean(originSrc) && currentIndex === initialIndex;
+  const showOrigin = Boolean(originSrc) && currentIndex === initialIndex && loadedIndex !== currentIndex;
 
   return (
     <AnimatePresence>
@@ -410,12 +421,14 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
         <motion.div
           key="image-modal"
           ref={overlayRef}
-          className="fixed inset-0 bg-black/90 backdrop-blur-xs z-50 flex items-center justify-center select-none image-modal-container"
+          className="fixed inset-0 z-50 flex items-center justify-center select-none image-modal-container"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: CLOSE_MS / 1000, ease: "easeIn" } }}
-          transition={{ duration: 0.22, ease: "easeOut" }}
+          exit={{ opacity: 0, transition: { duration: timing.close / 1000, ease: "easeIn" } }}
+          transition={{ duration: timing.fade / 1000, ease: "easeOut" }}
         >
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-xs" />
+
           <div className="relative w-full h-full flex items-center justify-center p-2 md:p-4">
             <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
               {images.length > 1 && (
@@ -461,7 +474,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                 cursor: isDragging ? "grabbing" : "default",
               }}
             >
-              <div ref={flipRef} className="flex items-center justify-center will-change-transform">
+              <div ref={flipRef} data-image-flip className="flex items-center justify-center">
                 <div
                   ref={imageContentRef}
                   className={cn("relative transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
