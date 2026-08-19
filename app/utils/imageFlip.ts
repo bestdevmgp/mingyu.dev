@@ -34,6 +34,16 @@ export const getVisibleImageBox = (image: HTMLImageElement): Box | null => {
   };
 };
 
+export const getCenteredBox = (container: HTMLElement, size: { width: number; height: number }): Box => {
+  const rect = container.getBoundingClientRect();
+  return {
+    left: rect.left + (rect.width - size.width) / 2,
+    top: rect.top + (rect.height - size.height) / 2,
+    width: size.width,
+    height: size.height,
+  };
+};
+
 export const getFlipTransform = (from: Box, to: Box): FlipTransform | null => {
   if (!to.width || !from.width) return null;
   return {
@@ -45,18 +55,34 @@ export const getFlipTransform = (from: Box, to: Box): FlipTransform | null => {
 
 const toCss = (transform: FlipTransform) => `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`;
 
+const releaseAfterFlight = (element: HTMLElement) => {
+  const done = (event: TransitionEvent) => {
+    if (event.target !== element || event.propertyName !== "transform") return;
+    element.style.willChange = "";
+    element.removeEventListener("transitionend", done);
+  };
+  element.addEventListener("transitionend", done);
+};
+
 export const flipFrom = (element: HTMLElement, from: FlipTransform, duration: number, easing: string) => {
+  element.style.willChange = "transform";
   element.style.transition = "none";
   element.style.transform = toCss(from);
   void element.offsetWidth;
   element.style.transition = `transform ${duration}ms ${easing}`;
   element.style.transform = "translate(0px, 0px) scale(1)";
+  releaseAfterFlight(element);
 };
 
 export const flipTo = (element: HTMLElement, to: FlipTransform, duration: number, easing: string) => {
+  element.style.willChange = "transform";
   element.style.transition = `transform ${duration}ms ${easing}`;
   element.style.transform = toCss(to);
+  releaseAfterFlight(element);
 };
 
 export const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+export const prefersSlowerMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
