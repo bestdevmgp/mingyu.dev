@@ -552,7 +552,7 @@ main {
   transform: scale(0.985);
 }
 .image-spinner,
-.site-loader-mark {
+:root.loader-showing .site-loader-mark {
   animation: image-spinner-turn 1.8s cubic-bezier(0.593, 0.14, 0.407, 0.86) infinite;
 }
 @keyframes image-spinner-in {
@@ -607,6 +607,18 @@ main {
     -webkit-backdrop-filter 0.22s ease-out,
     backdrop-filter 0.22s ease-out,
     visibility 0s;
+}
+:root.loader-done .site-loader {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition:
+    opacity 0.35s ease-out,
+    -webkit-backdrop-filter 0.35s ease-out,
+    backdrop-filter 0.35s ease-out,
+    visibility 0s linear 0.35s;
 }
 :root:not(.loader-js) .site-loader,
 :root.loader-gone .site-loader {

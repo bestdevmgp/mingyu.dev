@@ -109,7 +109,7 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
               "(function(){var r=document.documentElement,SHOW=400,MIN=300,SOFT=800,CAP=5000,FADE=400,shown=0,done=0,at=0,t=0;" +
               "r.classList.add('loader-js');" +
               "function gone(){r.classList.add('loader-gone')}" +
-              "function hide(){r.classList.remove('loader-showing');r.classList.add('loader-done');setTimeout(gone,FADE)}" +
+              "function hide(){r.classList.add('loader-done');setTimeout(gone,FADE)}" +
               "function finish(){if(done)return;done=1;clearTimeout(t);if(!shown)return hide();" +
               "var left=MIN-(performance.now()-at);if(left>0)setTimeout(hide,left);else hide()}" +
               "function show(){if(done)return;shown=1;at=performance.now();r.classList.add('loader-showing')}" +
