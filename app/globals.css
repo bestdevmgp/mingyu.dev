@@ -546,7 +546,7 @@ main {
   transform: scale(0.985);
 }
 .image-spinner {
-  animation: image-spinner-turn 1.88s cubic-bezier(0.605, 0.13, 0.395, 0.87) infinite;
+  animation: image-spinner-turn 1.8s cubic-bezier(0.593, 0.14, 0.407, 0.86) infinite;
 }
 @keyframes image-spinner-in {
   to {
