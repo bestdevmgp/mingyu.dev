@@ -102,10 +102,10 @@ const SiteHeader = () => {
       )}
     >
       <Link className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0" href="#top" onClick={scrollToTop}>
-        <Sparkle className="shrink-0 text-lime" aria-hidden="true" />
+        <Sparkle className="header-mark shrink-0 text-lime" aria-hidden="true" />
         <p
           className={cn(
-            "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate py-1",
+            "header-name text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate py-1",
 
             nameNudge[locale] ?? "translate-y-0",
           )}
@@ -115,7 +115,7 @@ const SiteHeader = () => {
         </p>
       </Link>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="header-controls flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-3.5">
           <LanguageSwitcher />
           <ThemeToggle />
