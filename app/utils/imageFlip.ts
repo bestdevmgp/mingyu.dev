@@ -7,7 +7,7 @@ export interface Box {
   height: number;
 }
 
-export interface FlipTransform {
+interface FlipTransform {
   x: number;
   y: number;
   scale: number;
