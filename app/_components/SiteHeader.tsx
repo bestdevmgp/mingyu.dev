@@ -18,11 +18,11 @@ import ThemeToggle from "./ThemeToggle";
 const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "education" }] as const;
 
 const nameNudge: Record<string, string> = {
-  en: "-translate-y-[1.25px]",
-  ko: "-translate-y-[1.75px]",
-  ja: "-translate-y-[1.95px]",
-  "zh-Hans": "-translate-y-[1.8px]",
-  "zh-Hant": "-translate-y-[1.8px]",
+  en: "-translate-y-[0.8px]",
+  ko: "translate-y-0",
+  ja: "-translate-y-[0.9px]",
+  "zh-Hans": "-translate-y-[1px]",
+  "zh-Hant": "-translate-y-[1px]",
 };
 
 const staggerMenuItems = stagger(0.07, { startDelay: 0.1 });
@@ -102,12 +102,12 @@ const SiteHeader = () => {
       )}
     >
       <Link className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0" href="#top" onClick={scrollToTop}>
-        <Sparkle className="w-[18px] h-[18px] shrink-0 text-lime" aria-hidden="true" />
+        <Sparkle className="shrink-0 text-lime" aria-hidden="true" />
         <p
           className={cn(
             "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate py-1",
 
-            nameNudge[locale] ?? "-translate-y-px",
+            nameNudge[locale] ?? "translate-y-0",
           )}
         >
           <span className="font-extrabold text-foreground">{t("name")}</span>
