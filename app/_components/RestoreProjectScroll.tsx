@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 const WAIT_LIMIT = 8000;
 const RETRY_INTERVAL = 100;
-const LANDED_TOLERANCE = 4;
+const SETTLED_TOLERANCE = 2;
 
 const RestoreProjectScroll = () => {
   useEffect(() => {
@@ -26,12 +26,6 @@ const RestoreProjectScroll = () => {
       window.removeEventListener("keydown", finish);
     };
 
-    const pull = (target: HTMLElement) => {
-      window.__lenis?.resize?.();
-      if (window.__lenis) window.__lenis.scrollTo(target, { immediate: true });
-      else target.scrollIntoView();
-    };
-
     const step = () => {
       if (finished) return;
       if (Date.now() - started > WAIT_LIMIT) return finish();
@@ -42,8 +36,13 @@ const RestoreProjectScroll = () => {
       observer?.disconnect();
       observer = null;
 
-      if (Math.abs(target.getBoundingClientRect().top) <= LANDED_TOLERANCE) return finish();
-      pull(target);
+      const before = window.scrollY;
+      window.__lenis?.resize?.();
+      if (window.__lenis) window.__lenis.scrollTo(target, { immediate: true });
+      else target.scrollIntoView();
+
+      const reached = target.getBoundingClientRect().top < window.innerHeight / 2;
+      if (reached && Math.abs(window.scrollY - before) < SETTLED_TOLERANCE) finish();
     };
 
     step();
