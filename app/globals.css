@@ -402,6 +402,12 @@ main {
   animation-timing-function: linear;
   will-change: opacity, transform;
 }
+:root.loader-js .hero-rise {
+  animation-play-state: paused;
+}
+:root.loader-done .hero-rise {
+  animation-play-state: running;
+}
 .hero-rise-1 {
   animation-name: hero-rise-1;
 }
@@ -545,7 +551,8 @@ main {
   opacity: 0;
   transform: scale(0.985);
 }
-.image-spinner {
+.image-spinner,
+.site-loader-mark {
   animation: image-spinner-turn 1.8s cubic-bezier(0.593, 0.14, 0.407, 0.86) infinite;
 }
 @keyframes image-spinner-in {
@@ -556,6 +563,65 @@ main {
 @keyframes image-spinner-turn {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.site-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  transition:
+    opacity 0.35s ease-out,
+    -webkit-backdrop-filter 0.35s ease-out,
+    backdrop-filter 0.35s ease-out,
+    visibility 0s linear 0.35s;
+}
+.site-loader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--background);
+  opacity: 0.58;
+}
+.site-loader-mark {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  color: var(--foreground);
+  opacity: 0.5;
+}
+:root.loader-showing .site-loader {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition:
+    opacity 0.22s ease-out,
+    -webkit-backdrop-filter 0.22s ease-out,
+    backdrop-filter 0.22s ease-out,
+    visibility 0s;
+}
+:root:not(.loader-js) .site-loader,
+:root.loader-gone .site-loader {
+  display: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-loader::before {
+    opacity: 0.9;
+  }
+}
+@media print {
+  .site-loader {
+    display: none;
   }
 }
 
@@ -588,7 +654,8 @@ main {
     opacity: 1 !important;
     animation: none !important;
   }
-  .image-spinner {
+  .image-spinner,
+  .site-loader-mark {
     animation: none !important;
   }
   .image-reveal {
