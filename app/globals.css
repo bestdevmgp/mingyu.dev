@@ -555,6 +555,9 @@ main {
 :root.loader-showing .site-loader-mark {
   animation: image-spinner-turn 1.8s cubic-bezier(0.593, 0.14, 0.407, 0.86) infinite;
 }
+.image-spinner {
+  animation-delay: 0.15s;
+}
 @keyframes image-spinner-in {
   to {
     opacity: 1;
