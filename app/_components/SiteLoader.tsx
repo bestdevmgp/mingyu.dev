@@ -2,7 +2,7 @@ import SpinnerMark from "@/_components/SpinnerMark";
 
 const SiteLoader = () => (
   <div className="site-loader">
-    <SpinnerMark className="site-loader-mark" />
+    <SpinnerMark className="site-loader-mark text-lime" />
   </div>
 );
 
