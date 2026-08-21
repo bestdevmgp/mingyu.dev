@@ -1,6 +1,8 @@
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+
+import { locales } from "@i18n/config";
 
 import DeferredAnalytics from "@/_components/DeferredAnalytics";
 import SiteLoader from "@/_components/SiteLoader";
@@ -9,7 +11,7 @@ import ThemeScript from "@/_components/ThemeScript";
 
 import type { Metadata } from "next";
 
-import "./globals.css";
+import "../globals.css";
 
 const inter = Inter({
   weight: ["400", "500", "600", "700", "800"],
@@ -39,9 +41,15 @@ const OG_LOCALE: Record<string, string> = {
   "zh-Hant": "zh_TW",
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const t = await getTranslations("Meta");
+type LocaleParams = { params: Promise<{ locale: string }> };
+
+export function generateStaticParams() {
+  return locales.map(locale => ({ locale }));
+}
+
+export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
   const title = t("title");
   const description = t("description");
 
@@ -72,9 +80,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RootLayout(props: { children: React.ReactNode; modal: React.ReactNode }) {
-  const locale = await getLocale();
-  const messages = await getMessages();
+export default async function RootLayout(props: { children: React.ReactNode; modal: React.ReactNode } & LocaleParams) {
+  const { locale } = await props.params;
+  setRequestLocale(locale);
+  const messages = await getMessages({ locale });
 
   const fontHref = webFontHref[locale];
 
