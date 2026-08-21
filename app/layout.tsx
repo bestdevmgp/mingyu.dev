@@ -112,9 +112,8 @@ export default async function RootLayout(props: { children: React.ReactNode; mod
               "function hide(){r.classList.add('loader-done');setTimeout(gone,FADE)}" +
               "function finish(){if(done)return;done=1;clearTimeout(t);if(!shown)return hide();" +
               "var left=MIN-(performance.now()-at);if(left>0)setTimeout(hide,left);else hide()}" +
-              "function painted(){try{return performance.getEntriesByType('paint').length>0}catch(e){return false}}" +
-              "function show(){if(done||shown||painted())return;shown=1;at=performance.now();r.classList.add('loader-showing')}" +
-              "var late=SHOW-performance.now();if(late<=0)show();else t=setTimeout(show,late);setTimeout(finish,CAP);" +
+              "function show(){if(done)return;shown=1;at=performance.now();r.classList.add('loader-showing')}" +
+              "t=setTimeout(show,Math.max(0,SHOW-performance.now()));setTimeout(finish,CAP);" +
               "function ready(){var p=document.fonts&&document.fonts.ready;setTimeout(finish,SOFT);" +
               "if(p&&p.then)p.then(function(){requestAnimationFrame(finish)},finish);else requestAnimationFrame(finish)}" +
               "if(document.readyState==='loading')addEventListener('DOMContentLoaded',ready,{once:true});else ready()})();" +
