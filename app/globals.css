@@ -576,11 +576,13 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
   visibility: hidden;
   pointer-events: none;
   -webkit-backdrop-filter: blur(0px);
   backdrop-filter: blur(0px);
   transition:
+    opacity 0.35s ease-out,
     -webkit-backdrop-filter 0.35s ease-out,
     backdrop-filter 0.35s ease-out,
     visibility 0s linear 0.35s;
@@ -590,87 +592,43 @@ main {
   position: absolute;
   inset: 0;
   background: var(--background);
-  opacity: 0;
-  transition: opacity 0.35s ease-out;
+  opacity: 0.58;
 }
 .site-loader-mark {
   position: relative;
   width: 34px;
   height: 34px;
-  opacity: 0;
-  transition: opacity 0.35s ease-out;
 }
 :root.loader-showing .site-loader {
+  opacity: 1;
   visibility: visible;
   pointer-events: auto;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   transition:
+    opacity 0.22s ease-out,
     -webkit-backdrop-filter 0.22s ease-out,
     backdrop-filter 0.22s ease-out,
     visibility 0s;
 }
-:root.loader-showing .site-loader::before {
-  opacity: 0.58;
-  transition: opacity 0.22s ease-out;
-}
-:root.loader-showing .site-loader-mark {
-  opacity: 1;
-  transition: opacity 0.22s ease-out;
-}
 :root.loader-done .site-loader {
+  opacity: 0;
   visibility: hidden;
   pointer-events: none;
   -webkit-backdrop-filter: blur(0px);
   backdrop-filter: blur(0px);
   transition:
+    opacity 0.35s ease-out,
     -webkit-backdrop-filter 0.35s ease-out,
     backdrop-filter 0.35s ease-out,
     visibility 0s linear 0.35s;
-}
-:root.loader-done .site-loader::before {
-  opacity: 0;
-  transition: opacity 0.35s ease-out;
-}
-:root.loader-done .site-loader-mark {
-  opacity: 0;
-  transition: opacity 0.35s ease-out;
-}
-:root.loader-landing .site-loader {
-  visibility: visible;
-  transition:
-    -webkit-backdrop-filter 0.85s ease-out,
-    backdrop-filter 0.85s ease-out,
-    visibility 0s;
-}
-:root.loader-landing .site-loader::before {
-  opacity: 0;
-  transition: opacity 0.85s ease-out;
-}
-:root.loader-landing .site-loader-mark {
-  opacity: 1;
-  animation: none;
-  transition: none;
-}
-:root.loader-js:not(.header-in) .header-mark {
-  opacity: 0;
-  pointer-events: none;
-}
-:root.loader-js:not(.header-text-in) .header-name,
-:root.loader-js:not(.header-text-in) .header-controls {
-  opacity: 0;
-  pointer-events: none;
-}
-:root.header-text-in .header-name,
-:root.header-text-in .header-controls {
-  transition: opacity 0.5s ease-out;
 }
 :root:not(.loader-js) .site-loader,
 :root.loader-gone .site-loader {
   display: none;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :root.loader-showing .site-loader::before {
+  .site-loader::before {
     opacity: 0.9;
   }
 }
