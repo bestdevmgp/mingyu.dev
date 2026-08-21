@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
 import Sparkle from "@/assets/shape-sparkle-round.svg";
+import { isLocaleSwitching } from "@/utils/localeSwitch";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
 import ContactMenu from "./ContactMenu";
@@ -27,6 +28,8 @@ const nameNudge: Record<string, string> = {
 
 const staggerMenuItems = stagger(0.07, { startDelay: 0.1 });
 
+let carriedMenu = false;
+
 const SiteHeader = () => {
   const t = useTranslations("Header");
   const tNav = useTranslations("Nav");
@@ -34,8 +37,14 @@ const SiteHeader = () => {
 
   const [scrolled, setScrolled] = useState(false);
   const [atTop, setAtTop] = useState(true);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [carriedOpen] = useState(() => carriedMenu && isLocaleSwitching());
+  const [isExpanded, setIsExpanded] = useState(carriedOpen);
   const [scope, animate] = useAnimate();
+  const initialClip = carriedOpen ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)";
+
+  useEffect(() => {
+    carriedMenu = isExpanded;
+  }, [isExpanded]);
 
   useEffect(() => {
     const hero = document.getElementById("main");
@@ -143,7 +152,7 @@ const SiteHeader = () => {
           "bg-background border-b-[2px] border-foreground/10 shadow-sm",
           isExpanded ? "pointer-events-auto" : "pointer-events-none",
         )}
-        style={{ clipPath: "inset(0% 0% 100% 0%)" }}
+        style={{ clipPath: initialClip }}
       >
         <ul className="flex flex-col list-none p-0 m-0 indent-0">
           {navItems.map(({ id }) => (
