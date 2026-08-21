@@ -1,6 +1,6 @@
 const SCRIPT = `(function () {
   var r = document.documentElement;
-  var SHOW = 400, MIN = 300, SOFT = 800, CAP = 5000, FADE = 400, FLY = 620;
+  var SHOW = 400, MIN = 300, SOFT = 800, CAP = 5000, FADE = 400, FLY = 1250;
   var shown = 0, done = 0, at = 0, t = 0;
   r.classList.add('loader-js');
 

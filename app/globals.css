@@ -639,13 +639,13 @@ main {
 :root.loader-landing .site-loader {
   visibility: visible;
   transition:
-    -webkit-backdrop-filter 0.42s ease-out,
-    backdrop-filter 0.42s ease-out,
+    -webkit-backdrop-filter 0.85s ease-out,
+    backdrop-filter 0.85s ease-out,
     visibility 0s;
 }
 :root.loader-landing .site-loader::before {
   opacity: 0;
-  transition: opacity 0.42s ease-out;
+  transition: opacity 0.85s ease-out;
 }
 :root.loader-landing .site-loader-mark {
   opacity: 1;
