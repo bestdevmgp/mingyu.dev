@@ -10,9 +10,6 @@ const LOCALE_PATH = new RegExp(`^/(${locales.join("|")})(/.*)?$`);
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 정적 자산은 그대로 통과시킨다
-  if (pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
-
   // 언어가 붙은 주소로 들어오면 주소를 정리하고 그 언어를 기억한다
   const direct = LOCALE_PATH.exec(pathname);
   if (direct) {
@@ -36,5 +33,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/:path*"],
+  matcher: ["/((?!_next|fonts/|assets/|favicon|opengraph).*)"],
 };
