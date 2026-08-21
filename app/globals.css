@@ -552,8 +552,7 @@ main {
   transform: scale(0.985);
 }
 .image-spinner,
-:root.loader-showing .site-loader-mark,
-:root .site-loader.locale-veil .site-loader-mark {
+:root.loader-showing .site-loader-mark {
   animation: image-spinner-turn 1.8s cubic-bezier(0.593, 0.14, 0.407, 0.86) infinite;
 }
 .image-spinner {
@@ -627,35 +626,6 @@ main {
 :root:not(.loader-js) .site-loader,
 :root.loader-gone .site-loader {
   display: none;
-}
-:root .site-loader.locale-veil {
-  display: flex;
-}
-:root .site-loader.locale-veil::before {
-  opacity: 0;
-  transition: opacity 0.35s ease-out;
-}
-:root .site-loader.locale-veil .site-loader-mark {
-  opacity: 0;
-  transition: opacity 0.35s ease-out;
-}
-:root .site-loader.locale-veil.locale-veil-in {
-  visibility: visible;
-  pointer-events: auto;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  transition:
-    -webkit-backdrop-filter 0.22s ease-out,
-    backdrop-filter 0.22s ease-out,
-    visibility 0s;
-}
-:root .site-loader.locale-veil.locale-veil-in::before {
-  opacity: 0.58;
-  transition: opacity 0.22s ease-out;
-}
-:root .site-loader.locale-veil.locale-veil-in .site-loader-mark {
-  opacity: 1;
-  transition: opacity 0.22s ease-out;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .site-loader::before {

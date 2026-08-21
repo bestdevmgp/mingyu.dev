@@ -10,7 +10,6 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { LOCALE_COOKIE, locales, type Locale } from "@i18n/config";
 
-import { startLocaleSwitch } from "@/utils/localeSwitchLoader";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
 type SvgProps = React.SVGProps<SVGSVGElement>;
@@ -61,7 +60,6 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
     if (nextLocale === displayLocale) return;
     setPendingLocale(nextLocale);
     setLocaleCookie(nextLocale);
-    startLocaleSwitch(nextLocale);
     router.refresh();
   };
 
