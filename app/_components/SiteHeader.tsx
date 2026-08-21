@@ -41,6 +41,7 @@ const SiteHeader = () => {
   const [isExpanded, setIsExpanded] = useState(carriedOpen);
   const [scope, animate] = useAnimate();
   const initialClip = carriedOpen ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)";
+  const initialItemStyle = carriedOpen ? { opacity: 1 } : undefined;
 
   useEffect(() => {
     carriedMenu = isExpanded;
@@ -160,6 +161,7 @@ const SiteHeader = () => {
               key={`header-item-m-${id}`}
               href={`#${id}`}
               className={cn("mobile-menu-item", "no-underline")}
+              style={initialItemStyle}
               onClick={() => setIsExpanded(false)}
             >
               <li className="py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80">{tNav(id)}</li>
@@ -167,7 +169,10 @@ const SiteHeader = () => {
           ))}
         </ul>
 
-        <div className="mobile-menu-item flex items-center justify-between gap-3 h-11 mt-2 border-t border-foreground/10">
+        <div
+          className="mobile-menu-item flex items-center justify-between gap-3 h-11 mt-2 border-t border-foreground/10"
+          style={initialItemStyle}
+        >
           <ContactMenu variant="inline" />
           <div className="flex items-center gap-3">
             <span aria-hidden className="w-px h-[22px] bg-foreground/15 shrink-0" />
@@ -175,7 +180,11 @@ const SiteHeader = () => {
           </div>
         </div>
 
-        <LanguageSwitcher variant="inline" className="mobile-menu-item py-2.5 border-t border-foreground/10" />
+        <LanguageSwitcher
+          variant="inline"
+          className="mobile-menu-item py-2.5 border-t border-foreground/10"
+          style={initialItemStyle}
+        />
       </div>
     </header>
   );
