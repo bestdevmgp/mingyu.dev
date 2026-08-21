@@ -1,11 +1,12 @@
 const SCRIPT = `(function () {
   var r = document.documentElement;
-  var SHOW = 400, MIN = 300, SOFT = 800, CAP = 5000, FADE = 400, FLY = 1250;
+  var SHOW = 400, MIN = 300, SOFT = 800, CAP = 5000, FADE = 400, FLY = 1250, TEXT = 500;
   var shown = 0, done = 0, at = 0, t = 0;
   r.classList.add('loader-js');
 
   function gone() { r.classList.add('loader-gone'); }
-  function reveal() { r.classList.add('header-in'); }
+  function revealText() { r.classList.add('header-text-in'); }
+  function reveal() { revealText(); r.classList.add('header-in'); }
 
   function angle(m) {
     var p = /matrix\\(([^)]+)\\)/.exec(m || '');
@@ -45,6 +46,7 @@ const SCRIPT = `(function () {
         gone();
         reveal();
       }
+      setTimeout(revealText, Math.max(0, FLY - TEXT));
       anim.onfinish = settle;
       setTimeout(settle, FLY + 260);
       return 1;

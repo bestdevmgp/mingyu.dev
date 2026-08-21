@@ -652,15 +652,18 @@ main {
   animation: none;
   transition: none;
 }
-:root.loader-js:not(.header-in) .header-mark,
-:root.loader-js:not(.header-in) .header-name,
-:root.loader-js:not(.header-in) .header-controls {
+:root.loader-js:not(.header-in) .header-mark {
   opacity: 0;
   pointer-events: none;
 }
-:root.header-in .header-name,
-:root.header-in .header-controls {
-  transition: opacity 0.5s ease-out 0.06s;
+:root.loader-js:not(.header-text-in) .header-name,
+:root.loader-js:not(.header-text-in) .header-controls {
+  opacity: 0;
+  pointer-events: none;
+}
+:root.header-text-in .header-name,
+:root.header-text-in .header-controls {
+  transition: opacity 0.5s ease-out;
 }
 :root:not(.loader-js) .site-loader,
 :root.loader-gone .site-loader {
