@@ -113,7 +113,7 @@ body {
   overflow-x: clip;
 }
 
-html[lang="ko"] {
+[lang="ko"] {
   word-break: keep-all;
 }
 
@@ -221,6 +221,16 @@ html[lang="ko"] {
     opacity 0.6s ease-out,
     transform 0.6s ease-out;
   transition-delay: calc(0.1s + var(--reveal-index, 0) * 0.2s);
+}
+:root.locale-switching [data-reveal],
+:root.locale-switching [data-reveal-stagger] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+:root.locale-switching,
+:root.locale-switching body {
+  overflow-anchor: none;
 }
 
 #main {
