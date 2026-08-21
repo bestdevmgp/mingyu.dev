@@ -11,3 +11,8 @@ export async function getSkills(ids: number[]) {
   const wanted = new Set(ids);
   return (await getSkillTable()).filter(skill => wanted.has(skill.id));
 }
+
+export const getProjectIds = cache(async () => {
+  const rows = await prisma.project.findMany({ select: { id: true }, cacheStrategy: CACHE_STRATEGY });
+  return rows.map(row => String(row.id));
+});

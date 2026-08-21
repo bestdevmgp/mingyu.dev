@@ -1,3 +1,5 @@
+import { setRequestLocale } from "next-intl/server";
+
 import RestoreProjectScroll from "@/_components/RestoreProjectScroll";
 import ScrollCue from "@/_components/ScrollCue";
 import SectionNav from "@/_components/SectionNav";
@@ -11,7 +13,12 @@ import OutroSection from "@/_sections/OutroSection";
 import ProjectSection from "@/_sections/ProjectSection";
 import SkillSection from "@/_sections/SkillSection";
 
-export default function Home() {
+export const revalidate = 3600;
+
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <>
       <RestoreProjectScroll />
