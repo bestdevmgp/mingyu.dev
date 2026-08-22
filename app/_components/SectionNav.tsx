@@ -5,14 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import cn from "classnames";
 import { useTranslations } from "next-intl";
 
+import useCarriedState from "@/utils/useCarriedState";
+
 const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "education" }] as const;
 
 const SectionNav = () => {
   const t = useTranslations("Nav");
   const tHeader = useTranslations("Header");
 
-  const [activeId, setActiveId] = useState("");
-  const [isVisible, setIsVisible] = useState(false);
+  const [activeId, setActiveId] = useCarriedState("nav.activeId", "");
+  const [isVisible, setIsVisible] = useCarriedState("nav.visible", false);
 
   useEffect(() => {
     const hero = document.getElementById("main");
@@ -20,7 +22,7 @@ const SectionNav = () => {
     const observer = new IntersectionObserver(([entry]) => setIsVisible(!entry.isIntersecting), { threshold: 0 });
     observer.observe(hero);
     return () => observer.disconnect();
-  }, []);
+  }, [setIsVisible]);
 
   const pendingId = useRef<string | null>(null);
 
@@ -79,7 +81,7 @@ const SectionNav = () => {
       wide.removeEventListener("change", sync);
       detach?.();
     };
-  }, []);
+  }, [setActiveId]);
 
   const handleNavClick = (id: string) => {
     pendingId.current = id;

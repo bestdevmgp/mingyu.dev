@@ -9,11 +9,12 @@ let detach: (() => void) | null = null;
 let capTimer = 0;
 
 const captureAnchor = () => {
+  anchorIndex = -1;
+  if (window.scrollY <= 0) return;
+
   const nodes = document.querySelectorAll(ANCHOR);
   const limit = window.innerHeight;
   let above = -1;
-
-  anchorIndex = -1;
   for (let i = 0; i < nodes.length; i++) {
     const top = nodes[i].getBoundingClientRect().top;
     if (top >= 0) {
