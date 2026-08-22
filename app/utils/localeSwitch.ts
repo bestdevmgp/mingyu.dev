@@ -50,7 +50,7 @@ export const beginLocaleSwitch = () => {
   active = true;
   fallbackY = window.scrollY;
   captureAnchor();
-  document.documentElement.classList.add("locale-switching");
+  document.documentElement.classList.add("locale-switching", "locale-switched");
 
   let frame = requestAnimationFrame(function loop() {
     if (!active) return;
