@@ -1,7 +1,7 @@
 import cn from "classnames";
 import Image from "next/image";
 
-type Size = "xs" | "sm" | "md";
+type Size = "xs" | "md";
 interface SkillItemProps {
   size?: Size;
   label: string;
@@ -26,7 +26,6 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
         canTap && "cursor-pointer",
 
         size === "md" && "w-12 h-12",
-        size === "sm" && "w-9 h-9",
         size === "xs" && "w-7 h-7",
         !isActive && "opacity-15 blur-md",
       )}
@@ -38,8 +37,8 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
             "pointer-events-none",
             isRawImage ? cn("object-cover w-full h-full", rounded) : "object-contain",
           )}
-          width={size === "md" ? 36 : size === "sm" ? 34 : 26}
-          height={size === "md" ? 36 : size === "sm" ? 34 : 26}
+          width={size === "md" ? 36 : 26}
+          height={size === "md" ? 36 : 26}
           src={imageUrl}
           alt={label}
         />
@@ -48,7 +47,7 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
           aria-hidden
           className={cn(
             "pointer-events-none font-semibold text-gray-400 select-none",
-            size === "md" ? "text-base" : size === "sm" ? "text-sm" : "text-[11px]",
+            size === "md" ? "text-base" : "text-[11px]",
           )}
         >
           {label.charAt(0).toUpperCase()}
