@@ -1,24 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import cn from "classnames";
 
+import { isLocaleSwitching } from "@/utils/localeSwitch";
+import useCarriedState from "@/utils/useCarriedState";
+
 const ScrollCue = () => {
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useCarriedState("cue.hidden", false);
 
   useEffect(() => {
     const target = document.querySelector("#intro .section-eyebrow");
     if (!target) return;
     const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setHidden(true);
-        io.disconnect();
-      }
+      if (!entry.isIntersecting || isLocaleSwitching()) return;
+      setHidden(true);
+      io.disconnect();
     });
     io.observe(target);
     return () => io.disconnect();
-  }, []);
+  }, [setHidden]);
 
   return (
     <div
