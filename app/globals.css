@@ -418,6 +418,10 @@ main {
 :root.loader-done .hero-rise {
   animation-play-state: running;
 }
+:root.locale-switched .hero-rise {
+  animation: none;
+  opacity: 1;
+}
 .hero-rise-1 {
   animation-name: hero-rise-1;
 }
