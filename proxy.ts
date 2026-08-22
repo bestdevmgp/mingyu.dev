@@ -26,6 +26,7 @@ export function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
   url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
   const response = NextResponse.rewrite(url);
+  response.headers.set("Content-Language", locale);
   if (!remembered) response.cookies.set(LOCALE_COOKIE, locale, COOKIE_OPTIONS);
   return response;
 }
