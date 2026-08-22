@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
 import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
@@ -12,10 +13,10 @@ interface ProjectModalProps {
 }
 
 async function getProjectById(id: number, locale: string) {
-  const responseProject = applyLocale(
-    await prisma.project.findUniqueOrThrow({ where: { id }, cacheStrategy: CACHE_STRATEGY }),
-    locale,
-  );
+  const project = await prisma.project.findUnique({ where: { id }, cacheStrategy: CACHE_STRATEGY });
+  if (!project) notFound();
+
+  const responseProject = applyLocale(project, locale);
   const responseItems = applyLocaleAll(
     await prisma.projectItem.findMany({
       where: { projectId: id },
@@ -37,6 +38,8 @@ async function getProjectById(id: number, locale: string) {
 }
 
 export default async function ProjectModal({ id }: ProjectModalProps) {
+  if (!Number.isSafeInteger(id) || id <= 0) notFound();
+
   const projectData = await getProjectById(id, await getLocale());
 
   return <ProjectModalClient id={id} projectData={projectData} />;
