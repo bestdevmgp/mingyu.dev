@@ -414,7 +414,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
         <motion.div
           key="image-modal"
           ref={overlayRef}
-          className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none image-modal-container"
+          className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: timing.close / 1000, ease: "easeIn" } }}
@@ -467,7 +467,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                 cursor: isDragging ? "grabbing" : "default",
               }}
             >
-              <div ref={flipRef} data-image-flip className="flex items-center justify-center">
+              <div ref={flipRef} className="flex items-center justify-center">
                 <div
                   ref={imageContentRef}
                   className={cn("relative transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
