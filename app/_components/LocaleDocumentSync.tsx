@@ -6,7 +6,7 @@ import { endLocaleSwitch } from "@/utils/localeSwitch";
 
 const LocaleDocumentSync = ({ locale }: { locale: string }) => {
   useLayoutEffect(() => {
-    document.documentElement.lang = locale;
+    if (document.documentElement.lang !== locale) document.documentElement.lang = locale;
 
     let middle = 0;
     let inner = 0;
