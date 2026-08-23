@@ -20,10 +20,10 @@ const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: 
 
 const nameNudge: Record<string, string> = {
   en: "-translate-y-[0.8px]",
-  ko: "translate-y-0",
+  ko: "-translate-y-[0.2px]",
   ja: "-translate-y-[0.9px]",
-  "zh-Hans": "-translate-y-[1px]",
-  "zh-Hant": "-translate-y-[1px]",
+  "zh-Hans": "-translate-y-[0.9px]",
+  "zh-Hant": "-translate-y-[0.9px]",
 };
 
 const staggerMenuItems = stagger(0.07, { startDelay: 0.1 });
