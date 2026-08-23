@@ -19,8 +19,8 @@ import ThemeToggle from "./ThemeToggle";
 const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "education" }] as const;
 
 const nameNudge: Record<string, string> = {
-  en: "-translate-y-[0.8px]",
-  ko: "-translate-y-[0.7px]",
+  en: "-translate-y-[0.7px]",
+  ko: "-translate-y-[0.6px]",
   ja: "-translate-y-[0.9px]",
   "zh-Hans": "-translate-y-[0.4px]",
   "zh-Hant": "-translate-y-[0.4px]",
