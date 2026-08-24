@@ -32,5 +32,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|fonts/|assets/|favicon|opengraph|robots.txt|sitemap.xml).*)"],
+  matcher: ["/((?!_next|fonts/|assets/|favicon|opengraph|robots.txt|sitemap.xml|llms.txt).*)"],
 };
