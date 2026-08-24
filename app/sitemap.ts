@@ -1,6 +1,6 @@
-import type { MetadataRoute } from "next";
-
 import { getProjectIds } from "@/utils/api";
+
+import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const ids = await getProjectIds();
