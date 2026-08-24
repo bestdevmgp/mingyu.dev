@@ -6,6 +6,7 @@ import { getProjectIds } from "@/utils/api";
 import HomeButton from "./HomeButton";
 
 export const revalidate = 3600;
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   return (await getProjectIds()).map(id => ({ id }));
