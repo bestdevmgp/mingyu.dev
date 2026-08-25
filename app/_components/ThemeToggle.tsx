@@ -37,8 +37,8 @@ const ThemeToggle = ({ className, ...props }: ThemeToggleProps) => {
       className={cn("text-foreground/55 hover:text-foreground transition-colors", className)}
       {...props}
     >
-      <Sun className="w-[18px] h-[18px] dark:hidden" strokeWidth={2} />
-      <Moon className="w-[18px] h-[18px] hidden dark:block" strokeWidth={2} />
+      <Sun className="w-[18px] h-[18px] dark:hidden" strokeWidth={2.3} />
+      <Moon className="w-[18px] h-[18px] hidden dark:block" strokeWidth={2.3} />
     </button>
   );
 };
