@@ -168,7 +168,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <ContactTriggerIcon className="w-[19px] h-[19px] [stroke-width:2.25]" />
+        <ContactTriggerIcon className="w-[19px] h-[19px] [stroke-width:2.5]" />
       </button>
 
       <AnimatePresence>
