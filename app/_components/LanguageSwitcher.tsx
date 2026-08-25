@@ -17,14 +17,17 @@ type SvgProps = React.SVGProps<SVGSVGElement>;
 
 const GlobeSimpleIcon = (props: SvgProps) => (
   <svg
-    viewBox="0 0 256 256"
-    fill="currentColor"
+    viewBox="0 0 24 24"
+    fill="none"
     stroke="currentColor"
-    strokeWidth={2.4}
+    strokeWidth={1.725}
+    strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
-    <path d="M128 24a104 104 0 1 0 104 104A104.12 104.12 0 0 0 128 24m87.62 96h-39.83c-1.79-36.51-15.85-62.33-27.38-77.6a88.19 88.19 0 0 1 67.22 77.6ZM96.23 136h63.54c-2.31 41.61-22.23 67.11-31.77 77c-9.55-9.9-29.46-35.4-31.77-77m0-16c2.31-41.61 22.23-67.11 31.77-77c9.55 9.93 29.46 35.43 31.77 77Zm11.36-77.6C96.06 57.67 82 83.49 80.21 120H40.37a88.19 88.19 0 0 1 67.22-77.6M40.37 136h39.84c1.82 36.51 15.85 62.33 27.38 77.6A88.19 88.19 0 0 1 40.37 136m108 77.6c11.53-15.27 25.56-41.09 27.38-77.6h39.84a88.19 88.19 0 0 1-67.18 77.6Z" />
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+    <path d="M2 12h20" />
   </svg>
 );
 
@@ -117,7 +120,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <GlobeSimpleIcon className="w-[22.5px] h-[22.5px] [stroke-width:5.14]" aria-hidden="true" />
+        <GlobeSimpleIcon className="w-[22.5px] h-[22.5px] [stroke-width:1.982]" aria-hidden="true" />
         <span className={cn("hidden md:inline text-xs font-semibold", labelNudge[activeLocale])}>
           {LOCALE_LABELS[activeLocale]}
         </span>
