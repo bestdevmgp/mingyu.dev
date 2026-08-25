@@ -93,9 +93,9 @@ const ContactTriggerIcon = ({ className }: { className?: string }) => (
     className={className}
     aria-hidden="true"
   >
-    <path d="M17.925 20.056a6 6 0 0 0-11.851.001" />
-    <circle cx="12" cy="11" r="4" />
     <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="10" r="4" />
+    <path d="M18 20a6 6 0 0 0-12 0" />
   </svg>
 );
 
@@ -168,7 +168,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <ContactTriggerIcon className="w-[20.75px] h-[20.75px] [stroke-width:2.29]" />
+        <ContactTriggerIcon className="w-[19px] h-[19px] [stroke-width:2.25]" />
       </button>
 
       <AnimatePresence>
