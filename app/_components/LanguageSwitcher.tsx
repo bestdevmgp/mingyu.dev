@@ -117,7 +117,10 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <GlobeSimpleIcon className="w-[20.5px] h-[20.5px] [stroke-width:4.8]" aria-hidden="true" />
+        <GlobeSimpleIcon
+          className="w-[21.113px] h-[21.113px] [stroke-width:4.197] translate-y-[0.5px]"
+          aria-hidden="true"
+        />
         <span className={cn("hidden md:inline text-xs font-semibold", labelNudge[activeLocale])}>
           {LOCALE_LABELS[activeLocale]}
         </span>
