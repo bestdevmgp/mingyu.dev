@@ -37,11 +37,11 @@ const LOCALE_LABELS: Record<Locale, string> = {
 };
 
 const labelNudge: Record<string, string> = {
-  ko: "relative top-[0.1px]",
-  en: "relative top-[-0.15px]",
-  ja: "relative top-[-0.4px]",
-  "zh-Hans": "relative top-[-0.4px]",
-  "zh-Hant": "relative top-[-0.4px]",
+  ko: "relative translate-y-[0.95px]",
+  en: "relative translate-y-[0.5px]",
+  ja: "relative translate-y-0",
+  "zh-Hans": "relative translate-y-[0.3px]",
+  "zh-Hant": "relative translate-y-[0.3px]",
 };
 
 const setLocaleCookie = (locale: Locale) => {
