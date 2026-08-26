@@ -122,7 +122,7 @@ const SiteHeader = () => {
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-3.5">
           <LanguageSwitcher />
-          <ThemeToggle className="[&_svg]:[stroke-width:2.6] [&_svg]:translate-y-[0.25px] [&_svg:last-child]:w-[18.6px] [&_svg:last-child]:h-[18.6px]" />
+          <ThemeToggle className="[&_svg]:[stroke-width:2.6] [&_svg]:translate-y-[0.45px] [&_svg:last-child]:w-[18.85px] [&_svg:last-child]:h-[18.85px] [&_svg:last-child]:translate-y-[0.7px]" />
           <ContactMenu />
         </div>
 
