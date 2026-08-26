@@ -40,8 +40,8 @@ const labelNudge: Record<string, string> = {
   ko: "relative translate-y-[1px]",
   en: "relative translate-y-[0.5px]",
   ja: "relative translate-y-[0.2px]",
-  "zh-Hans": "relative translate-y-[0.35px]",
-  "zh-Hant": "relative translate-y-[0.35px]",
+  "zh-Hans": "relative translate-y-[0.3px]",
+  "zh-Hant": "relative translate-y-[0.3px]",
 };
 
 const setLocaleCookie = (locale: Locale) => {
