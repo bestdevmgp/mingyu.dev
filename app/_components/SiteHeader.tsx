@@ -22,8 +22,8 @@ const nameNudge: Record<string, string> = {
   en: "-translate-y-[0.6px] md:translate-y-0",
   ko: "-translate-y-[0.7px] md:-translate-y-[0.2px]",
   ja: "-translate-y-[0.9px] md:-translate-y-[1.2px]",
-  "zh-Hans": "-translate-y-[0.4px] md:-translate-y-[1px]",
-  "zh-Hant": "-translate-y-[0.4px] md:-translate-y-[1px]",
+  "zh-Hans": "-translate-y-[0.4px] md:-translate-y-[1.2px]",
+  "zh-Hant": "-translate-y-[0.4px] md:-translate-y-[1.2px]",
 };
 
 const staggerMenuItems = stagger(0.07, { startDelay: 0.1 });
@@ -122,7 +122,7 @@ const SiteHeader = () => {
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-3.5">
           <LanguageSwitcher />
-          <ThemeToggle className="[&_svg]:[stroke-width:2.6]" />
+          <ThemeToggle className="[&_svg]:[stroke-width:2.6] [&_svg]:translate-y-[0.375px]" />
           <ContactMenu />
         </div>
 
