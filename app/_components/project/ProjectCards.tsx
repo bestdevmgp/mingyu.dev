@@ -63,7 +63,7 @@ const ProjectCards = ({ projects }: ProjectCardsProps) => {
 
       {hasNext && (
         <div className="flex justify-center pt-6 md:pt-8">
-          <CTAButton label={t("showMore")} onClick={showMore} />
+          <CTAButton label={t("showMore")} onClick={showMore} data-analytics="projects_show_more" />
         </div>
       )}
     </div>

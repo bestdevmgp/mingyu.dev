@@ -9,6 +9,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { phoneDisplay, phoneHref } from "@/utils/phone";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
+import { track } from "./analytics/posthog";
+
 type SvgProps = React.SVGProps<SVGSVGElement>;
 
 const MailIcon = (props: SvgProps) => (
@@ -100,13 +102,16 @@ const ContactTriggerIcon = ({ className }: { className?: string }) => (
 );
 
 const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () => void }) => {
-  const { label, value, href, external, Icon } = contact;
+  const { id, label, value, href, external, Icon } = contact;
   return (
     <a
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
-      onClick={onClick}
+      onClick={() => {
+        track("contact_click", { channel: id, variant: "dropdown" });
+        onClick?.();
+      }}
       className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors hover:bg-foreground/5"
     >
       <Icon className="w-[18px] h-[18px] shrink-0 text-foreground/60" />
@@ -144,6 +149,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
               href={href}
               target={external ? "_blank" : undefined}
               rel={external ? "noopener noreferrer" : undefined}
+              onClick={() => track("contact_click", { channel: id, variant: "inline" })}
               className="px-1.5 py-1 rounded-md text-sm font-normal whitespace-nowrap no-underline
                 text-foreground/55 hover:text-foreground transition-colors"
             >

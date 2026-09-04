@@ -29,7 +29,12 @@ const MainSection = async () => {
       </p>
 
       <div className="hero-rise hero-rise-3 relative z-10">
-        <CTAButton label={t("cta")} prefix={<ExternalLink className="w-4 h-4" />} link="https://cv.mingyu.dev" />
+        <CTAButton
+          label={t("cta")}
+          prefix={<ExternalLink className="w-4 h-4" />}
+          link="https://cv.mingyu.dev"
+          data-analytics="cv_cta"
+        />
       </div>
     </div>
   );

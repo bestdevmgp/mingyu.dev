@@ -4,6 +4,7 @@ import RestoreProjectScroll from "@/_components/RestoreProjectScroll";
 import ScrollCue from "@/_components/ScrollCue";
 import SectionNav from "@/_components/SectionNav";
 import SiteHeader from "@/_components/SiteHeader";
+import SectionTracker from "@/_components/analytics/SectionTracker";
 import BlogSection from "@/_sections/BlogSection";
 import EducationSection from "@/_sections/EducationSection";
 import ExperienceSection from "@/_sections/ExperienceSection";
@@ -22,6 +23,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   return (
     <>
       <RestoreProjectScroll />
+      <SectionTracker />
       <SiteHeader />
       <SectionNav />
       <main

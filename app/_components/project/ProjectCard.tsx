@@ -7,6 +7,7 @@ import Link from "next/link";
 import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
 
+import { track } from "../analytics/posthog";
 import SkillItem from "../skill/SkillItem";
 
 import type { skill } from "@prisma/client";
@@ -26,8 +27,13 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
     window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
   };
 
+  const onOpen = () => {
+    dropSectionHash();
+    track("project_opened", { project_id: id, project_title: title.replace(/<[^>]+>/g, "") });
+  };
+
   return (
-    <Link className="no-underline" href={`/project/${id}`} passHref scroll={false} onClick={dropSectionHash}>
+    <Link className="no-underline" href={`/project/${id}`} passHref scroll={false} onClick={onOpen}>
       <div
         id={`project-card-${id}`}
         {...pressHandlers}
