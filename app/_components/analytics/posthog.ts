@@ -16,6 +16,22 @@ const isLocalhost = () =>
 
 export const isAnalyticsEnabled = () => Boolean(KEY) && !isLocalhost();
 
+const VISIT_TOTAL = "mg_visits";
+const VISIT_COUNTED = "mg_visit_counted";
+
+const nextVisitCount = () => {
+  try {
+    const total = Number(localStorage.getItem(VISIT_TOTAL)) || 0;
+    if (sessionStorage.getItem(VISIT_COUNTED)) return total || 1;
+    const next = total + 1;
+    localStorage.setItem(VISIT_TOTAL, String(next));
+    sessionStorage.setItem(VISIT_COUNTED, "1");
+    return next;
+  } catch {
+    return null;
+  }
+};
+
 export function track(name: string, props?: Props) {
   if (!isAnalyticsEnabled()) return;
   if (client) {
@@ -43,7 +59,11 @@ export async function bootPostHog() {
     persistence: "localStorage+cookie",
   });
 
-  posthog.register({ locale: document.documentElement.lang || "ko" });
+  const visits = nextVisitCount();
+  posthog.register({
+    locale: document.documentElement.lang || "ko",
+    ...(visits === null ? {} : { visit_count: visits }),
+  });
 
   client = posthog;
   for (const event of queue.splice(0)) posthog.capture(event.name, event.props);
