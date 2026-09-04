@@ -13,6 +13,8 @@ import { LOCALE_COOKIE, locales, type Locale } from "@i18n/config";
 import { beginLocaleSwitch } from "@/utils/localeSwitch";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
+import { setLocale, track } from "./analytics/posthog";
+
 type SvgProps = React.SVGProps<SVGSVGElement>;
 
 const GlobeSimpleIcon = (props: SvgProps) => (
@@ -69,6 +71,8 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
     if (nextLocale === displayLocale) return;
     setPendingLocale(nextLocale);
     setLocaleCookie(nextLocale);
+    track("locale_changed", { from: displayLocale, to: nextLocale });
+    setLocale(nextLocale);
     beginLocaleSwitch();
     router.refresh();
   };
