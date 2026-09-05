@@ -22,6 +22,7 @@ const SectionTracker = () => {
     if (!targets.length) return;
 
     const orderOf = new Map(targets.map(t => [t.id, t.order]));
+    const rankOf = (id: string) => orderOf.get(id) ?? 0;
     const dwell = new Map<string, number>();
     const reported = new Map<string, number>();
     const seen = new Set<string>();
@@ -43,8 +44,22 @@ const SectionTracker = () => {
       return current;
     };
 
+    const scrollPct = () => {
+      const height = document.documentElement.scrollHeight;
+      if (height <= 0) return 0;
+      return Math.min(100, ((window.scrollY + window.innerHeight) / height) * 100);
+    };
+
     let active = currentSection();
     let activeSince = engagedFrom;
+    let deepest = active;
+
+    const sample = () => {
+      maxScroll = Math.max(maxScroll, scrollPct());
+      const id = currentSection();
+      if (rankOf(id) > rankOf(deepest)) deepest = id;
+      return id;
+    };
 
     const bank = (now: number) => {
       if (activeSince) dwell.set(active, (dwell.get(active) ?? 0) + (now - activeSince));
@@ -52,18 +67,13 @@ const SectionTracker = () => {
     };
 
     const resume = (now: number) => {
-      active = currentSection();
+      active = sample();
       activeSince = now;
-    };
-
-    const scrollPct = () => {
-      const height = document.documentElement.scrollHeight;
-      if (height <= 0) return 0;
-      return Math.min(100, ((window.scrollY + window.innerHeight) / height) * 100);
     };
 
     const flush = () => {
       const now = performance.now();
+      sample();
       bank(now);
       if (engagedFrom) {
         engagedBase += now - engagedFrom;
@@ -83,7 +93,8 @@ const SectionTracker = () => {
       });
 
       const leave = {
-        last_section: currentSection(),
+        max_section: deepest,
+        max_section_order: rankOf(deepest),
         max_scroll_pct: Math.round(maxScroll),
         engaged_ms: Math.round(engagedBase),
       };
@@ -116,8 +127,7 @@ const SectionTracker = () => {
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
         rafId = 0;
-        maxScroll = Math.max(maxScroll, scrollPct());
-        const next = currentSection();
+        const next = sample();
         if (next === active || !activeSince) return;
         const now = performance.now();
         bank(now);
@@ -144,7 +154,7 @@ const SectionTracker = () => {
       if (name) track(name, { section: currentSection() });
     };
 
-    maxScroll = scrollPct();
+    sample();
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pagehide", onPageHide);
