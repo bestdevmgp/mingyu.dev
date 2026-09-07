@@ -1,7 +1,9 @@
 import type { PostHog } from "posthog-js";
 
 const KEY = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? process.env.NEXT_PUBLIC_POSTHOG_KEY;
-const HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
+const HOST =
+  process.env.NEXT_PUBLIC_POSTHOG_PROXY_HOST ?? process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
+const UI_HOST = "https://eu.posthog.com";
 
 type Props = Record<string, unknown>;
 
@@ -53,6 +55,7 @@ export async function bootPostHog() {
 
   posthog.init(KEY, {
     api_host: HOST,
+    ui_host: UI_HOST,
     capture_pageview: "history_change",
     person_profiles: "identified_only",
     disable_capture_url_hashes: true,
