@@ -47,7 +47,7 @@ const labelNudge: Record<string, string> = {
 };
 
 const setLocaleCookie = (locale: Locale) => {
-  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax`;
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax; secure`;
 };
 
 interface LanguageSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {

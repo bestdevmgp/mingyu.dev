@@ -151,15 +151,15 @@ const SiteHeader = () => {
       >
         <ul className="flex flex-col list-none p-0 m-0 indent-0">
           {navItems.map(({ id }) => (
-            <a
-              key={`header-item-m-${id}`}
-              href={`#${id}`}
-              className={cn("mobile-menu-item", "no-underline")}
-              style={initialItemStyle}
-              onClick={() => setIsExpanded(false)}
-            >
-              <li className="py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80">{tNav(id)}</li>
-            </a>
+            <li key={`header-item-m-${id}`} className="mobile-menu-item" style={initialItemStyle}>
+              <a
+                href={`#${id}`}
+                className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80"
+                onClick={() => setIsExpanded(false)}
+              >
+                {tNav(id)}
+              </a>
+            </li>
           ))}
         </ul>
 
