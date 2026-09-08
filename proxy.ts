@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isSupportedLocale, locales, LOCALE_COOKIE } from "@i18n/config";
 import { negotiateLocale } from "@i18n/negotiateLocale";
 
-const COOKIE_OPTIONS = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" } as const;
+const COOKIE_OPTIONS = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax", secure: true } as const;
 
 const LOCALE_PATH = new RegExp(`^/(${locales.join("|")})(/.*)?$`);
 
