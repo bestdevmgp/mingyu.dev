@@ -18,7 +18,7 @@ const MailIcon = (props: SvgProps) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth={2}
+    strokeWidth={2.192}
     strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
@@ -33,7 +33,7 @@ const PhoneIcon = (props: SvgProps) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth={2}
+    strokeWidth={2.192}
     strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
@@ -60,18 +60,34 @@ interface ContactItem {
   value: string;
   href: string;
   external?: boolean;
+  iconClass: string;
   Icon: (props: SvgProps) => React.ReactElement;
 }
 
 const CONTACTS: ContactItem[] = [
-  { id: "email", label: "Email", value: "me@mingyu.dev", href: "mailto:me@mingyu.dev", Icon: MailIcon },
-  { id: "phone", label: "Phone", value: "010-3672-3858", href: "tel:01036723858", Icon: PhoneIcon },
+  {
+    id: "email",
+    label: "Email",
+    value: "me@mingyu.dev",
+    href: "mailto:me@mingyu.dev",
+    iconClass: "w-[19.5px] h-[19.5px]",
+    Icon: MailIcon,
+  },
+  {
+    id: "phone",
+    label: "Phone",
+    value: "010-3672-3858",
+    href: "tel:01036723858",
+    iconClass: "w-[19.5px] h-[19.5px]",
+    Icon: PhoneIcon,
+  },
   {
     id: "github",
     label: "GitHub",
     value: "github.com/bestdevmgp",
     href: "https://github.com/bestdevmgp",
     external: true,
+    iconClass: "w-[18.75px] h-[18.75px]",
     Icon: GitHubIcon,
   },
   {
@@ -80,6 +96,7 @@ const CONTACTS: ContactItem[] = [
     value: "linkedin.com/in/min-gyu",
     href: "https://linkedin.com/in/min-gyu",
     external: true,
+    iconClass: "w-[18px] h-[18px]",
     Icon: LinkedInIcon,
   },
 ];
@@ -102,7 +119,7 @@ const ContactTriggerIcon = ({ className }: { className?: string }) => (
 );
 
 const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () => void }) => {
-  const { id, label, value, href, external, Icon } = contact;
+  const { id, label, value, href, external, iconClass, Icon } = contact;
   return (
     <a
       href={href}
@@ -114,7 +131,7 @@ const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () =
       }}
       className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors hover:bg-foreground/5"
     >
-      <Icon className="w-[18px] h-[18px] shrink-0 text-foreground/60" />
+      <Icon className={cn(iconClass, "shrink-0 text-foreground opacity-60")} />
       <span className="flex flex-col min-w-0">
         <span className="text-[13px] font-medium leading-tight text-foreground">{label}</span>
         <span className="text-[11px] leading-tight text-foreground/50 truncate">{value}</span>
