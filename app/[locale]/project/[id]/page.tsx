@@ -1,5 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 
+import { defaultLocale } from "@i18n/config";
+
 import ProjectModal from "@/_components/project/ProjectModal";
 import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
 import { getProjectIds } from "@/utils/api";
@@ -28,7 +30,7 @@ export async function generateMetadata({ params }: ProjectParams): Promise<Metad
   const { title, sub_title } = applyLocale(row, locale);
   const name = plain(title);
   const summary = plain(sub_title);
-  const canonical = `/project/${id}`;
+  const canonical = locale === defaultLocale ? `/project/${id}` : `/${locale}/project/${id}`;
 
   return {
     title: name,

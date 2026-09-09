@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 
-import { locales } from "@i18n/config";
+import { defaultLocale, locales } from "@i18n/config";
 
 import LocaleDocumentSync from "@/_components/LocaleDocumentSync";
 
@@ -23,6 +23,16 @@ const cjkFontClass: Record<string, string> = {
 const PRETENDARD_HREF = "/fonts/pretendard-core-v2.woff2";
 
 const SITE_URL = "https://mingyu.dev";
+
+const HREFLANG: Record<string, string> = {
+  ko: "ko-KR",
+  en: "en",
+  ja: "ja-JP",
+  "zh-Hans": "zh-Hans",
+  "zh-Hant": "zh-Hant",
+};
+
+const localePath = (locale: string, path = "") => (locale === defaultLocale ? path || "/" : `/${locale}${path}`);
 
 const PROFILES = ["https://github.com/bestdevmgp", "https://linkedin.com/in/min-gyu"];
 
@@ -90,7 +100,8 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
       type: "website",
     },
     alternates: {
-      canonical: "/",
+      canonical: localePath(locale),
+      languages: Object.fromEntries([...locales.map(code => [HREFLANG[code], localePath(code)]), ["x-default", "/"]]),
     },
   };
 }
