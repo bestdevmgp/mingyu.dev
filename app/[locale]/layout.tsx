@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 
   return {
     metadataBase: new URL("https://mingyu.dev"),
-    title,
+    title: { default: title, template: `%s - ${title}` },
     description,
     keywords: ["백엔드", "백엔드 개발자", "백엔드 개발자 포트폴리오", "backend developer", "portfolio"],
     openGraph: {
