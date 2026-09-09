@@ -1,6 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 
-import { defaultLocale } from "@i18n/config";
+import { languageAlternates, localePath } from "@i18n/config";
 
 import ProjectModal from "@/_components/project/ProjectModal";
 import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
@@ -30,13 +30,13 @@ export async function generateMetadata({ params }: ProjectParams): Promise<Metad
   const { title, sub_title } = applyLocale(row, locale);
   const name = plain(title);
   const summary = plain(sub_title);
-  const canonical = locale === defaultLocale ? `/project/${id}` : `/${locale}/project/${id}`;
+  const path = `/project/${id}`;
 
   return {
     title: name,
     description: summary,
-    alternates: { canonical },
-    openGraph: { title: name, description: summary, url: canonical },
+    alternates: { canonical: localePath(locale, path), languages: languageAlternates(path) },
+    openGraph: { title: name, description: summary, url: localePath(locale, path) },
   };
 }
 
