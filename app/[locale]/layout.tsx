@@ -20,7 +20,7 @@ const cjkFontClass: Record<string, string> = {
   "zh-Hant": "font-zh-hant",
 };
 
-const PRETENDARD_HREF = "/fonts/pretendard-core-v1.woff2";
+const PRETENDARD_HREF = "/fonts/pretendard-core-v2.woff2";
 
 const webFontHref: Record<string, string> = {
   ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
