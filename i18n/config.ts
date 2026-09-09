@@ -8,7 +8,7 @@ export const LOCALE_COOKIE = "NEXT_LOCALE";
 export const isSupportedLocale = (value: string | null | undefined): value is Locale =>
   !!value && (locales as readonly string[]).includes(value);
 
-export const HREFLANG: Record<Locale, string> = {
+const HREFLANG: Record<Locale, string> = {
   ko: "ko-KR",
   en: "en",
   ja: "ja-JP",
