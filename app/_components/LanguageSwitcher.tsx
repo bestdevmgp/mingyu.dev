@@ -5,7 +5,7 @@ import { Check } from "react-feather";
 
 import cn from "classnames";
 import { AnimatePresence, motion } from "motion/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import { LOCALE_COOKIE, locales, type Locale } from "@i18n/config";
@@ -46,6 +46,8 @@ const labelNudge: Record<string, string> = {
   "zh-Hant": "relative translate-y-[0.3px]",
 };
 
+const LOCALE_PREFIX = new RegExp(`^/(?:${locales.join("|")})(?=/|$)`);
+
 const setLocaleCookie = (locale: Locale) => {
   document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax; secure`;
 };
@@ -58,6 +60,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
   const t = useTranslations("Header");
   const activeLocale = useLocale() as Locale;
   const router = useRouter();
+  const pathname = usePathname();
 
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -74,7 +77,9 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
     track("locale_changed", { from: displayLocale, to: nextLocale });
     setLocale(nextLocale);
     beginLocaleSwitch();
-    router.refresh();
+    const rootPath = pathname.replace(LOCALE_PREFIX, "") || "/";
+    if (rootPath !== pathname) router.replace(rootPath);
+    else router.refresh();
   };
 
   if (variant === "inline") {

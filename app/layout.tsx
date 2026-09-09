@@ -24,7 +24,7 @@ const BOOT_SCRIPT =
   "n.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function(el){io.observe(el)})}w(document.body);" +
   "new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(w)})}).observe(document.body,{childList:true,subtree:true})}" +
   "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();" +
-  "(function(){try{if(location.pathname.indexOf('/project/')===0)sessionStorage.setItem('from-project','1')}catch(e){}})();" +
+  "(function(){try{if(/^(?:\\/[\\w-]+)?\\/project\\//.test(location.pathname))sessionStorage.setItem('from-project','1')}catch(e){}})();" +
   "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
   "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
   "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { isSupportedLocale, locales, LOCALE_COOKIE } from "@i18n/config";
+import { defaultLocale, isSupportedLocale, locales, LOCALE_COOKIE } from "@i18n/config";
 import { negotiateLocale } from "@i18n/negotiateLocale";
 
 const COOKIE_OPTIONS = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax", secure: true } as const;
@@ -12,10 +12,17 @@ export function proxy(request: NextRequest) {
 
   const direct = LOCALE_PATH.exec(pathname);
   if (direct) {
-    const url = request.nextUrl.clone();
-    url.pathname = direct[2] || "/";
-    const response = NextResponse.redirect(url, 308);
-    response.cookies.set(LOCALE_COOKIE, direct[1], COOKIE_OPTIONS);
+    const [, prefix, rest] = direct;
+    if (prefix === defaultLocale) {
+      const url = request.nextUrl.clone();
+      url.pathname = rest || "/";
+      const response = NextResponse.redirect(url, 308);
+      response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
+      return response;
+    }
+    const response = NextResponse.next();
+    response.headers.set("Content-Language", prefix);
+    response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
     return response;
   }
 
