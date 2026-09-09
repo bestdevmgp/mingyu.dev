@@ -93,6 +93,9 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
       canonical: localePath(locale),
       languages: languageAlternates(),
     },
+    verification: {
+      other: { "naver-site-verification": "e715244d4f7e93562c29744794fe9b90bdb443fa" },
+    },
   };
 }
 
