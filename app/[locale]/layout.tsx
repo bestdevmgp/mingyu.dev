@@ -22,6 +22,26 @@ const cjkFontClass: Record<string, string> = {
 
 const PRETENDARD_HREF = "/fonts/pretendard-core-v2.woff2";
 
+const SITE_URL = "https://mingyu.dev";
+
+const PROFILES = ["https://github.com/bestdevmgp", "https://linkedin.com/in/min-gyu"];
+
+const NAME_VARIANTS = ["박민규", "Mingyu Park", "パク・ミンギュ", "朴珉圭"];
+
+const personSchema = (name: string, jobTitle: string, description: string) =>
+  JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name,
+    alternateName: NAME_VARIANTS.filter(variant => variant !== name),
+    jobTitle,
+    description,
+    url: SITE_URL,
+    image: `${SITE_URL}/opengraph-image.jpg`,
+    email: "mailto:me@mingyu.dev",
+    sameAs: PROFILES,
+  }).replace(/</g, "\\u003c");
+
 const webFontHref: Record<string, string> = {
   ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
   "zh-Hans": "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap",
@@ -84,10 +104,15 @@ export default async function LocaleLayout(
 
   const fontHref = webFontHref[locale];
   const fontClass = locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko");
+  const t = await getTranslations({ locale, namespace: "Meta" });
 
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang=${JSON.stringify(locale)}` }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: personSchema(t("name"), t("jobTitle"), t("description")) }}
+      />
       {locale === "ko" && (
         <link rel="preload" as="font" type="font/woff2" href={PRETENDARD_HREF} crossOrigin="anonymous" />
       )}
