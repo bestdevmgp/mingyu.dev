@@ -39,5 +39,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|fonts/|assets/|favicon|opengraph|robots.txt|sitemap.xml|llms.txt).*)"],
+  matcher: ["/((?!_next|fonts/|assets/|favicon|opengraph|[^/]+\\.(?:txt|xml)).*)"],
 };
