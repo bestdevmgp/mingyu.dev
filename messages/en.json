@@ -64,7 +64,10 @@
   "Meta": {
     "title": "Mingyu Park | Backend Developer",
     "name": "Mingyu Park",
-    "jobTitle": "Developer",
+    "jobTitle": [
+      "Developer",
+      "Backend Developer"
+    ],
     "description": "I'm Mingyu Park, a backend developer. I design and build web application servers centered on Spring Boot."
   }
 }

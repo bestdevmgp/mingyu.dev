@@ -28,7 +28,7 @@ const PROFILES = ["https://github.com/bestdevmgp", "https://linkedin.com/in/min-
 
 const NAME_VARIANTS = ["박민규", "Mingyu Park", "パク・ミンギュ", "朴珉圭"];
 
-const personSchema = (name: string, jobTitle: string, description: string) =>
+const personSchema = (name: string, jobTitle: string | string[], description: string) =>
   JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Person",
@@ -111,7 +111,7 @@ export default async function LocaleLayout(
       <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang=${JSON.stringify(locale)}` }} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: personSchema(t("name"), t("jobTitle"), t("description")) }}
+        dangerouslySetInnerHTML={{ __html: personSchema(t("name"), t.raw("jobTitle"), t("description")) }}
       />
       {locale === "ko" && (
         <link rel="preload" as="font" type="font/woff2" href={PRETENDARD_HREF} crossOrigin="anonymous" />
