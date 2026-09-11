@@ -28,6 +28,14 @@ const PROFILES = ["https://github.com/bestdevmgp", "https://linkedin.com/in/min-
 
 const NAME_VARIANTS = ["박민규", "Mingyu Park", "パク・ミンギュ", "朴珉圭"];
 
+const siteSchema = (name: string) =>
+  JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name,
+    url: SITE_URL,
+  }).replace(/</g, "\\u003c");
+
 const personSchema = (name: string, jobTitle: string | string[], description: string) =>
   JSON.stringify({
     "@context": "https://schema.org",
@@ -66,6 +74,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Meta" });
   const title = t("title");
+  const name = t("name");
   const description = t("description");
 
   return {
@@ -77,7 +86,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
       title,
       description,
       url: "https://mingyu.dev",
-      siteName: title,
+      siteName: name,
       images: [
         {
           url: "/opengraph-image.jpg",
@@ -113,6 +122,7 @@ export default async function LocaleLayout(
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang=${JSON.stringify(locale)}` }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteSchema(t("name")) }} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: personSchema(t("name"), t.raw("jobTitle"), t("description")) }}
