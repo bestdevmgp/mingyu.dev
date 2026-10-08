@@ -64,7 +64,7 @@ const NotFoundView = () => {
         </p>
         <CTAButton
           label={t("cta")}
-          prefix={<Home className="w-4 h-4" />}
+          prefix={<Home className="w-4 h-4" strokeWidth={2.25} />}
           link="/"
           newTab={false}
           className="hero-rise hero-rise-3 mt-8"

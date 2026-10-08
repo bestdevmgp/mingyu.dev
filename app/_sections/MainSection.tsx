@@ -31,7 +31,7 @@ const MainSection = async () => {
       <div className="hero-rise hero-rise-3 relative z-10">
         <CTAButton
           label={t("cta")}
-          prefix={<ExternalLink className="w-4 h-4" />}
+          prefix={<ExternalLink className="w-4 h-4" strokeWidth={2.25} />}
           link="https://cv.mingyu.dev"
           data-analytics="cv_cta"
         />
