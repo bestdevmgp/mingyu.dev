@@ -62,7 +62,7 @@
     "backToProjects": "返回專案列表"
   },
   "NotFound": {
-    "description": "抱歉，找不到您要尋找的頁面。",
+    "description": "找不到您要尋找的頁面。",
     "cta": "返回首頁"
   },
   "Meta": {

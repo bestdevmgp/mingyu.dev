@@ -62,7 +62,7 @@
     "backToProjects": "プロジェクト一覧に戻る"
   },
   "NotFound": {
-    "description": "申し訳ありません。お探しのページは見つかりません。",
+    "description": "お探しのページは見つかりません。",
     "cta": "ホームに戻る"
   },
   "Meta": {
