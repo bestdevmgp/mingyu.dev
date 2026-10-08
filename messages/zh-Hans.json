@@ -62,7 +62,7 @@
     "backToProjects": "返回项目列表"
   },
   "NotFound": {
-    "description": "抱歉，您要找的页面不存在。",
+    "description": "抱歉，找不到您要寻找的页面。",
     "cta": "返回首页"
   },
   "Meta": {
