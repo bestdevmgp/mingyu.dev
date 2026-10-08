@@ -31,7 +31,7 @@ const ctaClassName = (prefix: React.ReactNode, suffix: React.ReactNode, classNam
 const CTAContent = ({ label, prefix, suffix }: CTAContentProps) => (
   <>
     {prefix && <span className="text-foreground opacity-60">{prefix}</span>}
-    <p className="text-foreground/65 font-semibold text-base md:text-sm tracking-tight">{label}</p>
+    <span className="text-foreground/65 font-semibold text-base md:text-sm tracking-tight">{label}</span>
     {suffix && <span className="text-foreground opacity-60">{suffix}</span>}
   </>
 );

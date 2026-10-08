@@ -103,7 +103,7 @@ const ExpCard = ({
           <>
             <button className="text-primary/75 flex items-center gap-1 mt-2" onClick={toggleDetail}>
               <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
-              <p className="text-left text-xs md:text-sm">{isExpanded ? t("hideDetails") : t("showDetails")}</p>
+              <span className="text-left text-xs md:text-sm">{isExpanded ? t("hideDetails") : t("showDetails")}</span>
             </button>
             <div
               className={cn(
