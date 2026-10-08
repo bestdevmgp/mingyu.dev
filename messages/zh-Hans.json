@@ -61,6 +61,10 @@
   "Common": {
     "backToProjects": "返回项目列表"
   },
+  "NotFound": {
+    "description": "抱歉，您要找的页面不存在。",
+    "cta": "返回首页"
+  },
   "Meta": {
     "title": "朴珉圭 | 后端开发者",
     "name": "朴珉圭",

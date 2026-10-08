@@ -28,7 +28,12 @@ const nameNudge: Record<string, string> = {
 
 const staggerMenuItems = stagger(0.07, { startDelay: 0.1 });
 
-const SiteHeader = () => {
+interface SiteHeaderProps {
+  homeHref?: string;
+}
+
+const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
+  const HomeLink = homeHref ? "a" : Link;
   const t = useTranslations("Header");
   const tNav = useTranslations("Nav");
   const locale = useLocale();
@@ -36,6 +41,7 @@ const SiteHeader = () => {
   const [scrolled, setScrolled] = useCarriedState("header.scrolled", false);
   const [atTop, setAtTop] = useCarriedState("header.atTop", true);
   const [isExpanded, setIsExpanded] = useCarriedState("header.menu", false);
+  const solid = scrolled || isExpanded || homeHref !== undefined;
   const [carriedOpen] = useState(isExpanded);
   const [scope, animate] = useAnimate();
   const initialClip = carriedOpen ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)";
@@ -97,15 +103,19 @@ const SiteHeader = () => {
 
         "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px",
         "transition-colors duration-300 after:transition-colors after:duration-300",
-        !atTop && !scrolled && !isExpanded && "backdrop-blur-md",
-        scrolled || isExpanded
+        !atTop && !solid && "backdrop-blur-md",
+        solid
           ? "bg-background after:bg-foreground/10"
           : atTop
             ? "bg-transparent after:bg-transparent"
             : "bg-background/50 after:bg-transparent",
       )}
     >
-      <Link className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0" href="#top" onClick={scrollToTop}>
+      <HomeLink
+        className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0"
+        href={homeHref ?? "#top"}
+        onClick={homeHref ? undefined : scrollToTop}
+      >
         <Sparkle className="shrink-0 text-lime" aria-hidden="true" />
         <p
           className={cn(
@@ -117,7 +127,7 @@ const SiteHeader = () => {
           <span className="font-extrabold text-foreground">{t("name")}</span>
           <span className="font-normal text-foreground/45"> | {t("role")}</span>
         </p>
-      </Link>
+      </HomeLink>
 
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-3.5">
@@ -153,7 +163,7 @@ const SiteHeader = () => {
           {navItems.map(({ id }) => (
             <li key={`header-item-m-${id}`} className="mobile-menu-item" style={initialItemStyle}>
               <a
-                href={`#${id}`}
+                href={`${homeHref ?? ""}#${id}`}
                 className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80"
                 onClick={() => setIsExpanded(false)}
               >

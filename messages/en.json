@@ -61,6 +61,10 @@
   "Common": {
     "backToProjects": "Back to projects"
   },
+  "NotFound": {
+    "description": "Sorry, the page you're looking for was not found.",
+    "cta": "Back to Home"
+  },
   "Meta": {
     "title": "Mingyu Park | Backend Developer",
     "name": "Mingyu Park",

@@ -7,6 +7,12 @@ const COOKIE_OPTIONS = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax",
 
 const LOCALE_PATH = new RegExp(`^/(${locales.join("|")})(/.*)?$`);
 
+const forwardLocale = (request: NextRequest, locale: string) => {
+  const headers = new Headers(request.headers);
+  headers.set("X-NEXT-INTL-LOCALE", locale);
+  return { request: { headers } };
+};
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -20,7 +26,7 @@ export function proxy(request: NextRequest) {
       response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
       return response;
     }
-    const response = NextResponse.next();
+    const response = NextResponse.next(forwardLocale(request, prefix));
     response.headers.set("Content-Language", prefix);
     response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
     return response;
@@ -32,7 +38,7 @@ export function proxy(request: NextRequest) {
 
   const url = request.nextUrl.clone();
   url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
-  const response = NextResponse.rewrite(url);
+  const response = NextResponse.rewrite(url, forwardLocale(request, locale));
   response.headers.set("Content-Language", locale);
   if (!remembered) response.cookies.set(LOCALE_COOKIE, locale, COOKIE_OPTIONS);
   return response;

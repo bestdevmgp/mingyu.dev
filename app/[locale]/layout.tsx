@@ -1,26 +1,10 @@
-import { Inter } from "next/font/google";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { languageAlternates, locales, localePath } from "@i18n/config";
 
-import LocaleDocumentSync from "@/_components/LocaleDocumentSync";
+import LocaleShell from "@/_components/LocaleShell";
 
 import type { Metadata } from "next";
-
-const inter = Inter({
-  weight: ["400", "500", "600", "700", "800"],
-  subsets: ["latin"],
-  preload: false,
-});
-
-const cjkFontClass: Record<string, string> = {
-  ja: "font-ja",
-  "zh-Hans": "font-zh-hans",
-  "zh-Hant": "font-zh-hant",
-};
-
-const PRETENDARD_HREF = "/fonts/pretendard-core-v2.woff2";
 
 const SITE_URL = "https://mingyu.dev";
 
@@ -49,12 +33,6 @@ const personSchema = (name: string, jobTitle: string | string[], description: st
     email: "mailto:me@mingyu.dev",
     sameAs: PROFILES,
   }).replace(/</g, "\\u003c");
-
-const webFontHref: Record<string, string> = {
-  ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
-  "zh-Hans": "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap",
-  "zh-Hant": "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap",
-};
 
 const OG_LOCALE: Record<string, string> = {
   ko: "ko_KR",
@@ -113,46 +91,23 @@ export default async function LocaleLayout(
 ) {
   const { locale } = await props.params;
   setRequestLocale(locale);
-  const messages = await getMessages({ locale });
-
-  const fontHref = webFontHref[locale];
-  const fontClass = locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko");
   const t = await getTranslations({ locale, namespace: "Meta" });
 
   return (
-    <>
-      <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang=${JSON.stringify(locale)}` }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteSchema(t("name")) }} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: personSchema(t("name"), t.raw("jobTitle"), t("description")) }}
-      />
-      {locale === "ko" && (
-        <link rel="preload" as="font" type="font/woff2" href={PRETENDARD_HREF} crossOrigin="anonymous" />
-      )}
-      {fontHref && (
+    <LocaleShell
+      locale={locale}
+      structuredData={
         <>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link rel="preload" as="style" href={fontHref} id="webfont-css" />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: siteSchema(t("name")) }} />
           <script
-            dangerouslySetInnerHTML={{
-              __html:
-                "(function(){var l=document.getElementById('webfont-css');if(!l)return;var d=0;function a(){if(d)return;d=1;l.rel='stylesheet'}l.addEventListener('load',a,{once:true});addEventListener('load',a,{once:true})})()",
-            }}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: personSchema(t("name"), t.raw("jobTitle"), t("description")) }}
           />
-          <noscript>
-            <link rel="stylesheet" href={fontHref} />
-          </noscript>
         </>
-      )}
-      <div className={`contents ${fontClass}`} lang={locale}>
-        <LocaleDocumentSync locale={locale} />
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          {props.children}
-          {props.modal}
-        </NextIntlClientProvider>
-      </div>
-    </>
+      }
+    >
+      {props.children}
+      {props.modal}
+    </LocaleShell>
   );
 }

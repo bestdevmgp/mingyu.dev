@@ -61,6 +61,10 @@
   "Common": {
     "backToProjects": "프로젝트 목록으로 돌아가기"
   },
+  "NotFound": {
+    "description": "요청하신 페이지가 존재하지 않습니다.",
+    "cta": "메인으로 돌아가기"
+  },
   "Meta": {
     "title": "박민규 | 백엔드 개발자",
     "name": "박민규",

@@ -4,6 +4,9 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig = {
   poweredByHeader: false,
+  experimental: {
+    globalNotFound: true,
+  },
   turbopack: {
     rules: {
       "*.svg": {
