@@ -39,8 +39,8 @@ const NotFoundView = () => {
   return (
     <>
       <SiteHeader homeHref="/" />
-      <main className="flex flex-col items-center justify-center px-5 pt-14 pb-[calc(var(--vh0,1vh)*12)]">
-        <div className="hero-rise hero-rise-1 flex flex-col md:flex-row items-center gap-4 md:gap-7">
+      <main className="flex flex-col items-center justify-center px-5 pt-14 pb-[calc(var(--vh0,1vh)*12)] [@media(max-height:500px)]:pb-0">
+        <div className="hero-rise hero-rise-1 flex flex-col md:flex-row [@media(max-height:500px)]:flex-row items-center gap-4 md:gap-7">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={animated ? monocle.src : monocleStill.src}
