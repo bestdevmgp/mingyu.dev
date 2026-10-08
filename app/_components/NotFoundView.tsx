@@ -62,10 +62,13 @@ const NotFoundView = () => {
         <p className="hero-rise hero-rise-2 mt-6 md:mt-8 text-center text-balance text-base text-foreground/70">
           {t("description")}
         </p>
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-        <a href="/" className="hero-rise hero-rise-3 mt-8 no-underline">
-          <CTAButton label={t("cta")} prefix={<Home className="w-4 h-4" />} tabIndex={-1} />
-        </a>
+        <CTAButton
+          label={t("cta")}
+          prefix={<Home className="w-4 h-4" />}
+          link="/"
+          newTab={false}
+          className="hero-rise hero-rise-3 mt-8"
+        />
       </main>
     </>
   );
