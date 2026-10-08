@@ -62,7 +62,7 @@
     "backToProjects": "Back to projects"
   },
   "NotFound": {
-    "description": "Sorry, the page you're looking for was not found.",
+    "description": "Sorry, the page you're looking for can't be found.",
     "cta": "Back to Home"
   },
   "Meta": {
