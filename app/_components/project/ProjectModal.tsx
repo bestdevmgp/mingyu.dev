@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
-import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
-import { getSkills } from "@/utils/api";
+import { getProject, getSkills, getSkillTable } from "@/utils/api";
 import { applyLocale, applyLocaleAll } from "@/utils/localize";
 import { parsePrismaJSON } from "@/utils/parsePrisma";
 
@@ -13,20 +12,11 @@ interface ProjectModalProps {
 }
 
 async function getProjectById(id: number, locale: string) {
-  const project = await prisma.project.findUnique({ where: { id }, cacheStrategy: CACHE_STRATEGY });
+  const [project] = await Promise.all([getProject(id), getSkillTable()]);
   if (!project) notFound();
 
-  const responseProject = applyLocale(project, locale);
-  const responseItems = applyLocaleAll(
-    await prisma.projectItem.findMany({
-      where: { projectId: id },
-      orderBy: { row_number: "asc" },
-      cacheStrategy: CACHE_STRATEGY,
-    }),
-    locale,
-  );
-
-  const { links, skill_ids, ...res } = responseProject;
+  const { ProjectItem: items, links, skill_ids, ...res } = applyLocale(project, locale);
+  const responseItems = applyLocaleAll(items, locale);
   const responseSkills = await getSkills(skill_ids);
 
   return {
