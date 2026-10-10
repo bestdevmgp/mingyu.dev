@@ -4,8 +4,8 @@ import { getProjectIds } from "@/utils/api";
 
 import type { MetadataRoute } from "next";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const ids = await getProjectIds();
+export default function sitemap(): MetadataRoute.Sitemap {
+  const ids = getProjectIds();
   const paths = ["", ...ids.map(id => `/project/${id}`)];
   return locales.flatMap(locale =>
     paths.map(path => ({

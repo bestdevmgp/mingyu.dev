@@ -3,41 +3,27 @@ import { getLocale, getTranslations } from "next-intl/server";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import ProjectCards from "@/_components/project/ProjectCards";
-import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
-import { getSkills } from "@/utils/api";
+import { getProjectsInOrder, getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 
-async function getProjects(locale: string) {
+function getProjects(locale: string) {
   const projects = applyLocaleAll(
-    await prisma.project.findMany({
-      select: {
-        id: true,
-        title: true,
-        sub_title: true,
-        skill_ids: true,
-        i18n: true,
-      },
-      orderBy: {
-        row_number: "asc",
-      },
-      cacheStrategy: CACHE_STRATEGY,
-    }),
+    getProjectsInOrder().map(({ id, title, sub_title, skill_ids, i18n }) => ({
+      id,
+      title,
+      sub_title,
+      skill_ids,
+      i18n,
+    })),
     locale,
   );
 
-  const projectsWithSkills = await Promise.all(
-    projects.map(async ({ skill_ids, ...project }) => {
-      const skills = await getSkills(skill_ids);
-      return { ...project, skills };
-    }),
-  );
-
-  return projectsWithSkills;
+  return projects.map(({ skill_ids, ...project }) => ({ ...project, skills: getSkills(skill_ids) }));
 }
 
 export default async function ProjectSection() {
   const t = await getTranslations("Project");
-  const projects = await getProjects(await getLocale());
+  const projects = getProjects(await getLocale());
 
   return (
     <SectionWatcher id="projects">

@@ -3,21 +3,13 @@ import { getLocale, getTranslations } from "next-intl/server";
 import EducationCard from "@/_components/EducationCard";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
-import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
+import content from "@/lib/content";
 import { applyLocaleAll } from "@/utils/localize";
-
-async function getEducations() {
-  const response = await prisma.education.findMany({
-    orderBy: { id: "asc" },
-    cacheStrategy: CACHE_STRATEGY,
-  });
-  return response;
-}
 
 export default async function EducationSection() {
   const locale = await getLocale();
   const t = await getTranslations("Education");
-  const data = applyLocaleAll(await getEducations(), locale);
+  const data = applyLocaleAll(content.education, locale);
 
   const educations = data.filter(d => d.category === "EDUCATION");
   const certifications = data.filter(d => d.category === "CERTIFICATION");

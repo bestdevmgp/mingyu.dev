@@ -6,7 +6,7 @@ import SkillItems from "@/_components/skill/SkillItems";
 import { getSkillTable } from "@/utils/api";
 
 export default async function SkillSection() {
-  const allSkills = (await getSkillTable()).filter(skill => !skill.hidden);
+  const allSkills = getSkillTable().filter(skill => !skill.hidden);
   const t = await getTranslations("Skill");
 
   return (

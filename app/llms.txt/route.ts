@@ -1,18 +1,14 @@
 import { defaultLocale, localePath, locales } from "@i18n/config";
 
-import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
+import { getProjectsInOrder } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 
-export const revalidate = 3600;
+export const dynamic = "force-static";
 
 const languageName = new Intl.DisplayNames(["en"], { type: "language" });
 
-export async function GET() {
-  const rows = await prisma.project.findMany({
-    select: { id: true, title: true, sub_title: true, i18n: true },
-    orderBy: { row_number: "asc" },
-    cacheStrategy: CACHE_STRATEGY,
-  });
+export function GET() {
+  const rows = getProjectsInOrder().map(({ id, title, sub_title, i18n }) => ({ id, title, sub_title, i18n }));
   const ko = applyLocaleAll(rows, "ko");
   const en = applyLocaleAll(rows, "en");
 
