@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
 import ProjectCard from "./ProjectCard";
+import ProjectModalHost from "./ProjectModalHost";
 import CTAButton from "../buttons/CTAButton";
 
 import type { project, skill } from "@prisma/client";
@@ -66,6 +67,8 @@ const ProjectCards = ({ projects }: ProjectCardsProps) => {
           <CTAButton label={t("showMore")} onClick={showMore} data-analytics="projects_show_more" />
         </div>
       )}
+
+      <ProjectModalHost />
     </div>
   );
 };

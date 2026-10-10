@@ -14,7 +14,6 @@ import OutroSection from "@/_sections/OutroSection";
 import ProjectSection from "@/_sections/ProjectSection";
 import SkillSection from "@/_sections/SkillSection";
 
-export const revalidate = 3600;
 export const dynamicParams = false;
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {

@@ -1,27 +1,31 @@
-import { cache } from "react";
+import content from "@/lib/content";
 
-import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
-
-import type { Prisma } from "@prisma/client";
-
-export const getSkillTable = cache(async () => {
-  return await prisma.skill.findMany({ orderBy: { order: "asc" }, cacheStrategy: CACHE_STRATEGY });
-});
-
-export async function getSkills(ids: number[]) {
-  if (!ids.length) return [];
-  const wanted = new Set(ids);
-  return (await getSkillTable()).filter(skill => wanted.has(skill.id));
+export function getSkillTable() {
+  return content.skill;
 }
 
-const WITH_ITEMS = { ProjectItem: { orderBy: { row_number: "asc" } } } satisfies Prisma.projectInclude;
+export function getSkills(ids: number[]) {
+  if (!ids.length) return [];
+  const wanted = new Set(ids);
+  return content.skill.filter(skill => wanted.has(skill.id));
+}
 
-export const getProject = cache(async (id: number) => {
-  const row = await prisma.project.findUnique({ where: { id }, include: WITH_ITEMS, cacheStrategy: CACHE_STRATEGY });
-  return row as Prisma.projectGetPayload<{ include: typeof WITH_ITEMS }> | null;
-});
+export function getImageSizes(urls: string[]) {
+  return Object.fromEntries(
+    urls.filter(url => Object.hasOwn(content.imageSizes, url)).map(url => [url, content.imageSizes[url]]),
+  );
+}
 
-export const getProjectIds = cache(async () => {
-  const rows = await prisma.project.findMany({ select: { id: true }, cacheStrategy: CACHE_STRATEGY });
-  return rows.map(row => String(row.id));
-});
+export function getProject(id: number) {
+  return content.project.find(project => project.id === id) ?? null;
+}
+
+export function getProjectIds() {
+  return content.project.map(project => String(project.id));
+}
+
+export function getProjectsInOrder() {
+  return [...content.project].sort(
+    (a, b) => (a.row_number ?? Number.POSITIVE_INFINITY) - (b.row_number ?? Number.POSITIVE_INFINITY),
+  );
+}

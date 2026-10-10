@@ -14,16 +14,15 @@ const plain = (value: string) => value.replace(/<[^>]+>/g, "").trim();
 
 type ProjectParams = { params: Promise<{ id: string; locale: string }> };
 
-export const revalidate = 3600;
 export const dynamicParams = false;
 
-export async function generateStaticParams() {
-  return (await getProjectIds()).map(id => ({ id }));
+export function generateStaticParams() {
+  return getProjectIds().map(id => ({ id }));
 }
 
 export async function generateMetadata({ params }: ProjectParams, parent: ResolvingMetadata): Promise<Metadata> {
   const { id, locale } = await params;
-  const row = await getProject(Number(id));
+  const row = getProject(Number(id));
   if (!row) return {};
 
   const { title, sub_title, ProjectItem: items } = applyLocale(row, locale);

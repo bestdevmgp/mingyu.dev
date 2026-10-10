@@ -86,9 +86,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   };
 }
 
-export default async function LocaleLayout(
-  props: { children: React.ReactNode; modal: React.ReactNode } & LocaleParams,
-) {
+export default async function LocaleLayout(props: { children: React.ReactNode } & LocaleParams) {
   const { locale } = await props.params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "Meta" });
@@ -107,7 +105,6 @@ export default async function LocaleLayout(
       }
     >
       {props.children}
-      {props.modal}
     </LocaleShell>
   );
 }

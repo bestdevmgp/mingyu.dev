@@ -2,11 +2,11 @@
 
 import cn from "classnames";
 import Image from "next/image";
-import Link from "next/link";
 
 import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
 
+import { markProjectPush } from "./projectHistory";
 import { track } from "../analytics/posthog";
 import SkillItem from "../skill/SkillItem";
 
@@ -19,6 +19,9 @@ interface ProjectCardProps {
   skills: skill[];
 }
 
+const isModifiedClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+  event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
+
 const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   const [isPressed, pressHandlers] = useTouchPress();
 
@@ -27,13 +30,19 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
     window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
   };
 
-  const onOpen = () => {
+  const onOpen = (event: React.MouseEvent<HTMLAnchorElement>) => {
     dropSectionHash();
     track("project_opened", { project_id: id, project_title: title.replace(/<[^>]+>/g, "") });
+    if (event.defaultPrevented || isModifiedClick(event)) return;
+    event.preventDefault();
+    const path = `/project/${id}`;
+    if (window.location.pathname === path) return;
+    markProjectPush();
+    window.history.pushState(null, "", path);
   };
 
   return (
-    <Link className="no-underline" href={`/project/${id}`} passHref scroll={false} onClick={onOpen}>
+    <a className="no-underline" href={`/project/${id}`} onClick={onOpen}>
       <div
         id={`project-card-${id}`}
         {...pressHandlers}
@@ -73,7 +82,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
           ))}
         </ul>
       </div>
-    </Link>
+    </a>
   );
 };
 

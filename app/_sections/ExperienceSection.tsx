@@ -5,23 +5,16 @@ import { getLocale, getTranslations } from "next-intl/server";
 import ExpCard from "@/_components/ExpCard";
 import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
-import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
+import content from "@/lib/content";
 import { getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 import { parsePrismaJSON } from "@/utils/parsePrisma";
 
-async function getExperience(locale: string) {
-  const experiences = applyLocaleAll(
-    await prisma.experience.findMany({ orderBy: { index: "asc" }, cacheStrategy: CACHE_STRATEGY }),
-    locale,
-  );
-
-  const expWithSkills = await Promise.all(
-    experiences.map(async ({ skill_ids, ...exp }) => {
-      const skills = await getSkills(skill_ids);
-      return { ...exp, skills };
-    }),
-  );
+function getExperience(locale: string) {
+  const expWithSkills = applyLocaleAll(content.experience, locale).map(({ skill_ids, ...exp }) => ({
+    ...exp,
+    skills: getSkills(skill_ids),
+  }));
 
   return expWithSkills.map(({ links, ...res }) => ({
     links: links.map(link => parsePrismaJSON<{ href: string; label: string }>(link)),
@@ -31,7 +24,7 @@ async function getExperience(locale: string) {
 
 export default async function ExperienceSection() {
   const t = await getTranslations("Experience");
-  const data = await getExperience(await getLocale());
+  const data = getExperience(await getLocale());
 
   const interns = data.filter(({ category }) => category === "INTERN");
   const activities = data.filter(({ category }) => category === "ACTIVITY");

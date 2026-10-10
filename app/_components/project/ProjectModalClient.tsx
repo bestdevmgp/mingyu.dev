@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import richText from "@/utils/richText";
 
 import ImageModal from "./ImageModal";
+import ProjectImage from "./ProjectImage";
 import ReferenceLink from "../ReferenceLink";
 import SkillItem from "../skill/SkillItem";
 
@@ -25,14 +26,16 @@ interface ProjectData {
     blobUrls: string[] | null;
     image_ratio: "PORTRAIT" | "LANDSCAPE" | "SQUARE" | null;
   }>;
+  imageSizes: Record<string, [number, number]>;
 }
 
 interface ProjectModalClientProps {
   id: number;
   projectData: ProjectData;
+  revealImages?: boolean;
 }
 
-export default function ProjectModalClient({ id, projectData }: ProjectModalClientProps) {
+export default function ProjectModalClient({ id, projectData, revealImages = false }: ProjectModalClientProps) {
   const t = useTranslations("Project");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -40,7 +43,7 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
   const [selectedGroup, setSelectedGroup] = useState(0);
   const thumbnails = useRef(new Map<string, HTMLImageElement>());
 
-  const { title, sub_title, member, period, skills, links, items } = projectData;
+  const { title, sub_title, member, period, skills, links, items, imageSizes } = projectData;
 
   const handleImageClick = (images: string[], imageIndex: number, groupIndex: number) => {
     setSelectedImages(images);
@@ -128,27 +131,22 @@ export default function ProjectModalClient({ id, projectData }: ProjectModalClie
                   )}
                 >
                   {item.blobUrls.map((imageUrl, imgIndex) => (
-                    <div
+                    <ProjectImage
                       key={`project-image-${index}-${imgIndex}`}
+                      ref={element => {
+                        const key = `${index}-${imgIndex}`;
+                        if (element) thumbnails.current.set(key, element);
+                        return () => {
+                          thumbnails.current.delete(key);
+                        };
+                      }}
                       className={cn("cursor-pointer", item.image_ratio === "PORTRAIT" ? "flex-1 min-w-0" : "w-full")}
-                    >
-                      <Image
-                        ref={element => {
-                          const key = `${index}-${imgIndex}`;
-                          if (element) thumbnails.current.set(key, element);
-                          return () => {
-                            thumbnails.current.delete(key);
-                          };
-                        }}
-                        className="w-full h-auto object-contain hover:opacity-80 transition-opacity"
-                        src={imageUrl}
-                        alt={`${item.title} ${imgIndex + 1}`}
-                        width={800}
-                        height={600}
-                        style={{ maxWidth: "100%", height: "auto" }}
-                        onClick={() => handleImageClick(item.blobUrls!, imgIndex, index)}
-                      />
-                    </div>
+                      src={imageUrl}
+                      alt={`${item.title} ${imgIndex + 1}`}
+                      size={imageSizes[imageUrl]}
+                      reveal={revealImages}
+                      onClick={() => handleImageClick(item.blobUrls!, imgIndex, index)}
+                    />
                   ))}
                 </div>
               )}

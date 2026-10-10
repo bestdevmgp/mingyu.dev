@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "npx prisma generate && npx prisma migrate deploy && next build",
+    "dev": "node scripts/snapshot.mjs && next dev",
+    "build": "npx prisma generate && npx prisma migrate deploy && node scripts/snapshot.mjs && next build",
+    "snapshot": "node scripts/snapshot.mjs",
     "start": "next start",
     "lint": "eslint .",
     "prisma:generate": "prisma generate",
