@@ -3,14 +3,22 @@
 import { useEffect, useState } from "react";
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 
 import { bootPostHog } from "./analytics/posthog";
 
+import type { SpeedInsightsProps } from "@vercel/speed-insights";
+
 const Analytics = dynamic(() => import("@vercel/analytics/react").then(m => m.Analytics));
-const SpeedInsights = dynamic(() => import("@vercel/speed-insights/next").then(m => m.SpeedInsights));
+const SpeedInsights = dynamic<SpeedInsightsProps>(() =>
+  import("@vercel/speed-insights/next").then(m => m.SpeedInsights),
+);
+
+const PROJECT_PATH = /^\/project\/\d+$/;
 
 const DeferredAnalytics = () => {
   const [ready, setReady] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     let idleId = 0;
@@ -38,7 +46,7 @@ const DeferredAnalytics = () => {
   return (
     <>
       <Analytics />
-      <SpeedInsights />
+      <SpeedInsights {...(PROJECT_PATH.test(pathname) ? { route: "/project/[id]" } : {})} />
     </>
   );
 };
