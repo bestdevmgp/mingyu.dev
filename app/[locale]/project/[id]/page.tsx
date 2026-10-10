@@ -3,8 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { languageAlternates, localePath } from "@i18n/config";
 
 import ProjectModal from "@/_components/project/ProjectModal";
-import prisma, { CACHE_STRATEGY } from "@/lib/prisma";
-import { getProjectIds } from "@/utils/api";
+import { getProject, getProjectIds } from "@/utils/api";
 import { applyLocale, applyLocaleAll } from "@/utils/localize";
 
 import HomeButton from "./HomeButton";
@@ -12,19 +11,6 @@ import HomeButton from "./HomeButton";
 import type { Metadata, ResolvingMetadata } from "next";
 
 const plain = (value: string) => value.replace(/<[^>]+>/g, "").trim();
-
-async function getFirstPhoto(projectId: number, locale: string) {
-  const items = applyLocaleAll(
-    await prisma.projectItem.findMany({
-      where: { projectId },
-      orderBy: { row_number: "asc" },
-      select: { blobUrls: true, i18n: true },
-      cacheStrategy: CACHE_STRATEGY,
-    }),
-    locale,
-  );
-  return items.find(item => item.blobUrls?.length)?.blobUrls[0];
-}
 
 type ProjectParams = { params: Promise<{ id: string; locale: string }> };
 
@@ -37,14 +23,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: ProjectParams, parent: ResolvingMetadata): Promise<Metadata> {
   const { id, locale } = await params;
-  const row = await prisma.project.findUnique({ where: { id: Number(id) }, cacheStrategy: CACHE_STRATEGY });
+  const row = await getProject(Number(id));
   if (!row) return {};
 
-  const { title, sub_title } = applyLocale(row, locale);
+  const { title, sub_title, ProjectItem: items } = applyLocale(row, locale);
   const name = plain(title);
   const summary = plain(sub_title);
   const path = `/project/${id}`;
-  const photo = await getFirstPhoto(row.id, locale);
+  const photo = applyLocaleAll(items, locale).find(item => item.blobUrls?.length)?.blobUrls[0];
   const { openGraph: site } = await parent;
   const t = await getTranslations({ locale, namespace: "Meta" });
 
