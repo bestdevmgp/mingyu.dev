@@ -7,6 +7,13 @@ const COOKIE_OPTIONS = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax",
 
 const LOCALE_PATH = new RegExp(`^/(${locales.join("|")})(/.*)?$`);
 
+const FIRST_SEGMENT = /^\/([^/]+)(\/.*)?$/;
+
+const CANONICAL_PREFIX = new Map<string, string>([
+  ...locales.map((locale): [string, string] => [locale.toLowerCase(), locale]),
+  ["zh", "zh-Hans"],
+]);
+
 const forwardLocale = (request: NextRequest, locale: string) => {
   const headers = new Headers(request.headers);
   headers.set("X-NEXT-INTL-LOCALE", locale);
@@ -15,6 +22,17 @@ const forwardLocale = (request: NextRequest, locale: string) => {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const first = FIRST_SEGMENT.exec(pathname);
+  if (first) {
+    const [, segment, rest = ""] = first;
+    const canonical = CANONICAL_PREFIX.get(segment.toLowerCase());
+    if (canonical && canonical !== segment) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${canonical}${rest}`;
+      return NextResponse.redirect(url, 308);
+    }
+  }
 
   const direct = LOCALE_PATH.exec(pathname);
   if (direct) {
