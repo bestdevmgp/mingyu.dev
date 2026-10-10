@@ -34,12 +34,15 @@ const Modal = ({ children }: ModalProps) => {
     const outer = contentRef.current;
     const inner = innerRef.current;
     if (!outer || !inner) return;
+    const shrinkable = getComputedStyle(outer).getPropertyValue("scrollbar-gutter") === "stable";
     let seen = false;
     let last = -1;
     const measure = () => {
       const maxH = window.innerHeight - (window.matchMedia("(min-width: 768px)").matches ? 64 : 28);
       const borderY = outer.offsetHeight - outer.clientHeight;
-      const h = Math.min(outer.scrollHeight + borderY, maxH);
+      const { paddingTop, paddingBottom } = getComputedStyle(outer);
+      const fits = inner.offsetHeight + parseFloat(paddingTop) + parseFloat(paddingBottom);
+      const h = Math.min((shrinkable && fits < outer.clientHeight ? fits : outer.scrollHeight) + borderY, maxH);
       if (h === last) return;
       last = h;
       setBox({ h, animate: seen });
