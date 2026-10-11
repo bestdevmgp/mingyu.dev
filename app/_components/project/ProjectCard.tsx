@@ -6,7 +6,7 @@ import Image from "next/image";
 import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
 
-import { markProjectPush } from "./projectHistory";
+import { markProjectPush, projectClosing } from "./projectHistory";
 import { track } from "../analytics/posthog";
 import SkillItem from "../skill/SkillItem";
 
@@ -31,6 +31,10 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   };
 
   const onOpen = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (projectClosing() && !isModifiedClick(event)) {
+      event.preventDefault();
+      return;
+    }
     dropSectionHash();
     track("project_opened", { project_id: id, project_title: title.replace(/<[^>]+>/g, "") });
     if (event.defaultPrevented || isModifiedClick(event)) return;

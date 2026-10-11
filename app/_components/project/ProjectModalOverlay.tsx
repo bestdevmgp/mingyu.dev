@@ -1,6 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
+
 import ProjectModalLoader from "./ProjectModalLoader";
+import { markProjectClose, settleProjectClose } from "./projectHistory";
 import Modal from "../Modal";
 
 interface ProjectModalOverlayProps {
@@ -9,8 +12,10 @@ interface ProjectModalOverlayProps {
 }
 
 export default function ProjectModalOverlay({ id, locale }: ProjectModalOverlayProps) {
+  useEffect(() => settleProjectClose, []);
+
   return (
-    <Modal>
+    <Modal onClose={markProjectClose}>
       <ProjectModalLoader id={id} locale={locale} />
     </Modal>
   );
