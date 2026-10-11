@@ -29,6 +29,7 @@ const SmoothScroll = () => {
           duration: 0.8,
           easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           smoothWheel: true,
+          respectReducedMotion: false,
         });
         lenis = instance;
         window.__lenis = instance;

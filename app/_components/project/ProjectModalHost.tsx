@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 
 import { localePath } from "@i18n/config";
+
+import { pushedProjectPath, settleProjectPush, subscribeProjectPush } from "./projectHistory";
 
 type ProjectModalOverlayType = typeof import("./ProjectModalOverlay").default;
 
@@ -49,11 +51,17 @@ const afterPageLoad = (task: () => void) => {
 const PROJECT_PATH = /^\/project\/(\d+)$/;
 
 const ProjectModalHost = () => {
-  const id = PROJECT_PATH.exec(usePathname())?.[1];
+  const pathname = usePathname();
+  const pushedPath = useSyncExternalStore(subscribeProjectPush, pushedProjectPath, () => null);
+  const id = PROJECT_PATH.exec(pushedPath ?? pathname)?.[1];
   const locale = useLocale();
   const [, setOverlayLoaded] = useState(false);
 
   useEffect(() => afterPageLoad(preloadModalCode), []);
+
+  useEffect(() => {
+    if (pushedPath !== null && pathname === pushedPath) settleProjectPush();
+  }, [pathname, pushedPath]);
 
   useEffect(() => {
     if (!id || ProjectModalOverlay) return;

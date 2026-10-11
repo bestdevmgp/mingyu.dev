@@ -37,7 +37,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
     event.preventDefault();
     const path = `/project/${id}`;
     if (window.location.pathname === path) return;
-    markProjectPush();
+    markProjectPush(path);
     window.history.pushState(null, "", path);
   };
 
