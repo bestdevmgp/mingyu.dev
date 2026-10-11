@@ -22,6 +22,8 @@ const forwardLocale = (request: NextRequest, locale: string) => {
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const fetchDest = request.headers.get("sec-fetch-dest");
+  const isBackgroundRequest = fetchDest !== null && fetchDest !== "document";
 
   const first = FIRST_SEGMENT.exec(pathname);
   if (first) {
@@ -41,12 +43,12 @@ export function proxy(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = rest || "/";
       const response = NextResponse.redirect(url, 308);
-      response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
+      if (!isBackgroundRequest) response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
       return response;
     }
     const response = NextResponse.next(forwardLocale(request, prefix));
     response.headers.set("Content-Language", prefix);
-    response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
+    if (!isBackgroundRequest) response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
     return response;
   }
 
