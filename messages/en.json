@@ -13,7 +13,7 @@
     "skills": "Skills",
     "career": "Career",
     "projects": "Projects",
-    "education": "Education"
+    "qualifications": "Qualifications"
   },
   "Main": {
     "heading": "Hello,<br></br>I'm <em>Mingyu Park</em>,<br></br>a Backend Developer.",
@@ -52,7 +52,7 @@
     "links": "Links",
     "detail": "Details"
   },
-  "Education": {
+  "Qualification": {
     "eyebrow": "Education & Certifications"
   },
   "Outro": {

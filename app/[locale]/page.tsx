@@ -6,12 +6,12 @@ import SectionNav from "@/_components/SectionNav";
 import SiteHeader from "@/_components/SiteHeader";
 import SectionTracker from "@/_components/analytics/SectionTracker";
 import BlogSection from "@/_sections/BlogSection";
-import EducationSection from "@/_sections/EducationSection";
 import ExperienceSection from "@/_sections/ExperienceSection";
 import IntroSection from "@/_sections/IntroSection";
 import MainSection from "@/_sections/MainSection";
 import OutroSection from "@/_sections/OutroSection";
 import ProjectSection from "@/_sections/ProjectSection";
+import QualificationSection from "@/_sections/QualificationSection";
 import SkillSection from "@/_sections/SkillSection";
 
 export const dynamicParams = false;
@@ -40,7 +40,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <ExperienceSection />
         <ProjectSection />
         <BlogSection />
-        <EducationSection />
+        <QualificationSection />
         <OutroSection />
       </main>
     </>

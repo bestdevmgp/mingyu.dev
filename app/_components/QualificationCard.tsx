@@ -5,11 +5,11 @@ import richText from "@/utils/richText";
 
 import type { education } from "@prisma/client";
 
-interface EducationCardProps extends Omit<education, "i18n"> {}
+interface QualificationCardProps extends Omit<education, "i18n"> {}
 
-const EducationCard = ({ id, period, title, sub_title, items, is_active }: EducationCardProps) => {
+const QualificationCard = ({ id, period, title, sub_title, items, is_active }: QualificationCardProps) => {
   return (
-    <div key={`edu-card-${id}`} className="grid sm:grid-cols-3 sm:gap-x-10 sm:items-start">
+    <div key={`qualification-card-${id}`} className="grid sm:grid-cols-3 sm:gap-x-10 sm:items-start">
       <div className="flex gap-2.5 sm:justify-end items-center mb-3">
         <Shape className={cn(is_active ? "text-primary" : "text-foreground/30")} />
         <p className="text-sm md:text-base font-normal text-foreground/60">{period}</p>
@@ -25,7 +25,7 @@ const EducationCard = ({ id, period, title, sub_title, items, is_active }: Educa
           <ul className="list-disc list-inside -indent-4 md:-indent-5 pl-4 md:pl-5">
             {items.map((item, index) => (
               <li
-                key={`edu-card-item-${index}`}
+                key={`qualification-card-item-${index}`}
                 className="text-xs md:text-sm font-normal mb-1 last:mb-0 text-foreground/80 leading-normal"
               >
                 {richText(item)}
@@ -38,4 +38,4 @@ const EducationCard = ({ id, period, title, sub_title, items, is_active }: Educa
   );
 };
 
-export default EducationCard;
+export default QualificationCard;

@@ -13,7 +13,7 @@
     "skills": "スキル",
     "career": "経歴",
     "projects": "プロジェクト",
-    "education": "教育"
+    "qualifications": "資格"
   },
   "Main": {
     "heading": "こんにちは、<br></br>バックエンド開発者<br></br><em>パク・ミンギュ</em>です。",
@@ -52,8 +52,8 @@
     "links": "関連リンク",
     "detail": "詳細"
   },
-  "Education": {
-    "eyebrow": "教育・資格"
+  "Qualification": {
+    "eyebrow": "学歴・資格"
   },
   "Outro": {
     "heading": "ありがとうございます。<br></br>もっと知りたいことがあれば<br></br>お気軽にご連絡ください。"

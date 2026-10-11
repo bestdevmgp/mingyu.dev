@@ -13,7 +13,7 @@
     "skills": "기술",
     "career": "경력",
     "projects": "프로젝트",
-    "education": "교육"
+    "qualifications": "자격"
   },
   "Main": {
     "heading": "안녕하세요,<br></br>백엔드 개발자<br></br><em>박민규</em>입니다.",
@@ -52,8 +52,8 @@
     "links": "관련 링크",
     "detail": "상세 내용"
   },
-  "Education": {
-    "eyebrow": "교육 및 자격증"
+  "Qualification": {
+    "eyebrow": "학력 및 자격증"
   },
   "Outro": {
     "heading": "감사합니다.<br></br>더 궁금한 점이 있다면<br></br>편하게 연락주세요."
