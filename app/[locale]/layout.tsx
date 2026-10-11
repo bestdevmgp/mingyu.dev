@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
     openGraph: {
       title,
       description,
-      url: "https://mingyu.dev",
+      url: localePath(locale),
       siteName: name,
       images: [
         {
