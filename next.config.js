@@ -6,6 +6,7 @@ const nextConfig = {
   poweredByHeader: false,
   experimental: {
     globalNotFound: true,
+    prefetchInlining: false,
   },
   turbopack: {
     rules: {
