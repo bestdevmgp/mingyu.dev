@@ -30,6 +30,9 @@ const BOOT_SCRIPT =
   "(function(){try{if(/" +
   PROJECT_PATH +
   "/.test(location.pathname))sessionStorage.setItem('from-project','1')}catch(e){}})();" +
+  "(function(){try{var h=history,s=h.state,n={},k;if(s&&s.projectModal){for(k in s)if(k!=='projectModal')n[k]=s[k];h.replaceState(n,'')}" +
+  "addEventListener('pagehide',function(){h.scrollRestoration=h.state&&h.state.projectModal?'manual':'auto'});" +
+  "addEventListener('pageshow',function(e){if(e.persisted)h.scrollRestoration='auto'})}catch(e){}})();" +
   "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
   "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
   "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +

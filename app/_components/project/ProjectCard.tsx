@@ -42,7 +42,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
     const path = `/project/${id}`;
     if (window.location.pathname === path) return;
     markProjectPush(path);
-    window.history.pushState(null, "", path);
+    window.history.pushState({ projectModal: true }, "", path);
   };
 
   return (
