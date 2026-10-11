@@ -10,9 +10,11 @@ import { useRouter } from "next/navigation";
 
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
-interface ModalProps extends React.PropsWithChildren {}
+interface ModalProps extends React.PropsWithChildren {
+  onClose?: () => void;
+}
 
-const Modal = ({ children }: ModalProps) => {
+const Modal = ({ children, onClose }: ModalProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
 
@@ -74,10 +76,11 @@ const Modal = ({ children }: ModalProps) => {
   }, []);
 
   useEffect(() => {
-    if (isOpen === false) {
-      setTimeout(exit, 200);
-    }
-  }, [isOpen, exit]);
+    if (isOpen) return;
+    onClose?.();
+    const timer = setTimeout(exit, 200);
+    return () => clearTimeout(timer);
+  }, [isOpen, exit, onClose]);
 
   return createPortal(
     <AnimatePresence>

@@ -1,4 +1,5 @@
 let traversed = false;
+let closing = false;
 let pushedPath: string | null = null;
 const listeners = new Set<() => void>();
 
@@ -11,6 +12,7 @@ const setPushedPath = (path: string | null) => {
 if (typeof window !== "undefined") {
   window.addEventListener("popstate", () => {
     traversed = true;
+    closing = false;
     setPushedPath(null);
   });
 }
@@ -32,3 +34,13 @@ export const subscribeProjectPush = (listener: () => void) => {
 export const pushedProjectPath = () => pushedPath;
 
 export const openedFromHistory = () => traversed;
+
+export const markProjectClose = () => {
+  closing = true;
+};
+
+export const settleProjectClose = () => {
+  closing = false;
+};
+
+export const projectClosing = () => closing;
