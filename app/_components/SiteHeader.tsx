@@ -138,7 +138,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
 
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-3.5">
-          <LanguageSwitcher />
+          <LanguageSwitcher hardNavigation={homeHref !== undefined} />
           <ThemeToggle className="[&_svg]:[stroke-width:2.6] [&_svg]:translate-y-[0.45px] [&_svg:last-child]:w-[18.85px] [&_svg:last-child]:h-[18.85px] [&_svg:last-child]:translate-y-[0.85px]" />
           <ContactMenu />
         </div>
@@ -194,6 +194,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
 
         <LanguageSwitcher
           variant="inline"
+          hardNavigation={homeHref !== undefined}
           className="mobile-menu-item py-2.5 border-t border-foreground/10"
           style={initialItemStyle}
         />
