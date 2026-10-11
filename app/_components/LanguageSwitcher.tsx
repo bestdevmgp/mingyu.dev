@@ -55,9 +55,15 @@ const setLocaleCookie = (locale: Locale) => {
 
 interface LanguageSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "dropdown" | "inline";
+  hardNavigation?: boolean;
 }
 
-const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: LanguageSwitcherProps) => {
+const LanguageSwitcher = ({
+  variant = "dropdown",
+  hardNavigation = false,
+  className,
+  ...props
+}: LanguageSwitcherProps) => {
   const t = useTranslations("Header");
   const activeLocale = useLocale() as Locale;
   const router = useRouter();
@@ -85,7 +91,8 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
     setLocale(nextLocale);
     beginLocaleSwitch();
     const rootPath = pathname.replace(LOCALE_PREFIX, "") || "/";
-    if (rootPath !== pathname) router.replace(rootPath);
+    if (hardNavigation) window.location.replace(rootPath);
+    else if (rootPath !== pathname) router.replace(rootPath);
     else router.refresh();
   };
 
