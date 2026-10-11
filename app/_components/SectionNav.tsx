@@ -91,6 +91,7 @@ const SectionNav = () => {
   return (
     <nav
       aria-label={tHeader("sectionNav")}
+      inert={!isVisible}
       className={cn(
         "fixed right-6 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col gap-3.5",
         "transition-opacity duration-200",
