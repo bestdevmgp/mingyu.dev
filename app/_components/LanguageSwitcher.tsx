@@ -12,6 +12,7 @@ import { LOCALE_COOKIE, locales, type Locale } from "@i18n/config";
 
 import { beginLocaleSwitch } from "@/utils/localeSwitch";
 import useOnClickOutside from "@/utils/useOnClickOutside";
+import useOnEscape from "@/utils/useOnEscape";
 
 import { setLocale, track } from "./analytics/posthog";
 
@@ -64,7 +65,13 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
 
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   useOnClickOutside(ref, () => setIsOpen(false));
+  useOnEscape(isOpen, () => {
+    const hadFocus = ref.current?.contains(document.activeElement) ?? false;
+    setIsOpen(false);
+    if (hadFocus) toggleRef.current?.focus();
+  });
 
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const displayLocale = pendingLocale ?? activeLocale;
@@ -117,6 +124,7 @@ const LanguageSwitcher = ({ variant = "dropdown", className, ...props }: Languag
   return (
     <div className={cn("relative", className)} ref={ref} {...props}>
       <button
+        ref={toggleRef}
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
         aria-label={t("changeLanguage")}
