@@ -16,6 +16,7 @@ const captureAnchor = () => {
   const limit = window.innerHeight;
   let above = -1;
   for (let i = 0; i < nodes.length; i++) {
+    if (!nodes[i].getClientRects().length) continue;
     const top = nodes[i].getBoundingClientRect().top;
     if (top >= 0) {
       if (top < limit) {
