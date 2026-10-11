@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Sparkle from "@/assets/shape-sparkle-round.svg";
 import useCarriedState from "@/utils/useCarriedState";
 import useOnClickOutside from "@/utils/useOnClickOutside";
+import useOnEscape from "@/utils/useOnEscape";
 
 import ContactMenu from "./ContactMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -83,7 +84,13 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
     ]);
   }, [isExpanded, animate]);
 
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   useOnClickOutside(scope, () => setIsExpanded(false));
+  useOnEscape(isExpanded, () => {
+    const hadFocus = scope.current?.contains(document.activeElement) ?? false;
+    setIsExpanded(false);
+    if (hadFocus) menuButtonRef.current?.focus();
+  });
 
   const scrollToTop = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -137,6 +144,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         </div>
 
         <button
+          ref={menuButtonRef}
           type="button"
           className="block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1"
           onClick={() => setIsExpanded(prev => !prev)}

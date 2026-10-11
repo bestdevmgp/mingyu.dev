@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { phoneDisplay, phoneHref } from "@/utils/phone";
 import useOnClickOutside from "@/utils/useOnClickOutside";
+import useOnEscape from "@/utils/useOnEscape";
 
 import { track } from "./analytics/posthog";
 
@@ -149,7 +150,13 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
   const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   useOnClickOutside(ref, () => setIsOpen(false));
+  useOnEscape(isOpen, () => {
+    const hadFocus = ref.current?.contains(document.activeElement) ?? false;
+    setIsOpen(false);
+    if (hadFocus) toggleRef.current?.focus();
+  });
 
   const contacts = CONTACTS.map(contact =>
     contact.id === "phone" ? { ...contact, value: phoneDisplay(locale), href: phoneHref(locale) } : contact,
@@ -181,6 +188,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
   return (
     <div className={cn("relative", className)} ref={ref} {...props}>
       <button
+        ref={toggleRef}
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
         aria-label={t("contact")}
