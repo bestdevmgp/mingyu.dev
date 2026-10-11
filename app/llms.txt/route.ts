@@ -28,7 +28,7 @@ export function GET() {
     "",
     "## Pages",
     "",
-    "- [Home](https://mingyu.dev/): introduction, skills, work experience, awards and activities, projects, education",
+    "- [Home](https://mingyu.dev/): introduction, skills, work experience, awards and activities, projects, qualifications (academic background and certifications)",
     "- Each project has a detail page at https://mingyu.dev/project/{id}, with the same language prefixes (for example https://mingyu.dev/en/project/{id})",
     "",
     "## Projects",

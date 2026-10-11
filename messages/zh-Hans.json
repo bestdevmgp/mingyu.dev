@@ -13,7 +13,7 @@
     "skills": "技术",
     "career": "工作经历",
     "projects": "项目",
-    "education": "教育"
+    "qualifications": "资格"
   },
   "Main": {
     "heading": "你好，<br></br>我是后端开发者<br></br><em>朴珉圭</em>。",
@@ -52,8 +52,8 @@
     "links": "相关链接",
     "detail": "详细内容"
   },
-  "Education": {
-    "eyebrow": "教育与证书"
+  "Qualification": {
+    "eyebrow": "学历与证书"
   },
   "Outro": {
     "heading": "谢谢。<br></br>如果想了解更多，<br></br>欢迎随时联系我。"

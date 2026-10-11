@@ -16,7 +16,7 @@ import ContactMenu from "./ContactMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 
-const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "education" }] as const;
+const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "qualifications" }] as const;
 
 const nameNudge: Record<string, string> = {
   en: "-translate-y-[0.6px] md:translate-y-0",
