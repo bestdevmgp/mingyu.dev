@@ -13,7 +13,7 @@ let client: PostHog | null = null;
 let booting = false;
 const queue: { name: string; props?: Props }[] = [];
 
-const isLocalhost = () =>
+export const isLocalhost = () =>
   typeof window !== "undefined" && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
 
 export const isAnalyticsEnabled = () => Boolean(KEY) && !isLocalhost();
