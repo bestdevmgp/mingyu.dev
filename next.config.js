@@ -38,9 +38,6 @@ const nextConfig = {
       },
     ];
   },
-  async redirects() {
-    return [{ source: "/me@mingyu.dev", destination: "mailto:me@mingyu.dev", permanent: false }];
-  },
   images: {
     qualities: [75, 85],
     formats: ["image/avif", "image/webp"],
