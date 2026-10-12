@@ -134,7 +134,7 @@ const LanguageSwitcher = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         className={cn(
-          "flex items-center gap-1 transition-colors",
+          "flex items-center gap-1 transition-colors focus-visible:rounded-md",
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >

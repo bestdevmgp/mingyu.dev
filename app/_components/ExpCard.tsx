@@ -57,7 +57,7 @@ const ExpCard = ({
                 rel="noopener noreferrer"
                 className={cn(
                   "text-base md:text-lg font-semibold w-fit no-underline underline-offset-2 text-foreground",
-                  "mouse:hover:underline",
+                  "mouse:hover:underline focus-visible:rounded-sm",
                   isPressed && "underline",
                 )}
                 {...pressHandlers}
@@ -101,9 +101,14 @@ const ExpCard = ({
 
         {items.length > 0 && (
           <>
-            <button className="text-primary/75 flex items-center gap-1 mt-2" onClick={toggleDetail}>
-              <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
-              <span className="text-left text-xs md:text-sm">{isExpanded ? t("hideDetails") : t("showDetails")}</span>
+            <button
+              className="group/toggle text-primary/75 flex items-center gap-1 mt-2 focus-visible:outline-none"
+              onClick={toggleDetail}
+            >
+              <span className="flex items-center gap-1 rounded-sm group-focus-visible/toggle:outline-solid">
+                <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
+                <span className="text-left text-xs md:text-sm">{isExpanded ? t("hideDetails") : t("showDetails")}</span>
+              </span>
             </button>
             <div
               className={cn(

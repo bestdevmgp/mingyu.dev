@@ -34,7 +34,7 @@ const ThemeToggle = ({ className, ...props }: ThemeToggleProps) => {
       onClick={toggle}
       aria-label={t("toggleTheme")}
       title={t("toggleTheme")}
-      className={cn("text-foreground/55 hover:text-foreground transition-colors", className)}
+      className={cn("text-foreground/55 hover:text-foreground transition-colors focus-visible:rounded-md", className)}
       {...props}
     >
       <Sun className="w-[18px] h-[18px] dark:hidden" strokeWidth={2.3} />
