@@ -5,6 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import cn from "classnames";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import {
   flipFrom,
@@ -22,6 +23,7 @@ import ImageSpinner from "./ImageSpinner";
 
 interface ImageModalProps {
   images: string[];
+  title: string;
   initialIndex: number;
   isOpen: boolean;
   onClose: () => void;
@@ -38,7 +40,8 @@ const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
 const TOUCH_TIMING = { open: 560, close: 430, fade: 280 };
 
-export default function ImageModal({ images, initialIndex, isOpen, onClose, getThumbnail }: ImageModalProps) {
+export default function ImageModal({ images, title, initialIndex, isOpen, onClose, getThumbnail }: ImageModalProps) {
+  const t = useTranslations("ImageViewer");
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -443,7 +446,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                       ? "bg-black/70 opacity-100"
                       : "bg-black/50 opacity-55 hover:bg-black/70 hover:opacity-100",
                   )}
-                  aria-label="닫기"
+                  aria-label={t("close")}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -492,7 +495,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
 
                   <Image
                     src={images[currentIndex]}
-                    alt={`Image ${currentIndex + 1}`}
+                    alt={`${title} ${currentIndex + 1}`}
                     width={1200}
                     height={800}
                     sizes="100vw"
@@ -542,7 +545,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                         ? "bg-black/70 opacity-100"
                         : "bg-black/50 opacity-55 hover:bg-black/70 hover:opacity-100",
                     )}
-                    aria-label="이전 이미지"
+                    aria-label={t("previous")}
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -564,7 +567,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                         ? "bg-black/70 opacity-100"
                         : "bg-black/50 opacity-55 hover:bg-black/70 hover:opacity-100",
                     )}
-                    aria-label="다음 이미지"
+                    aria-label={t("next")}
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -593,7 +596,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                       ? "bg-white/20"
                       : "hover:bg-white/20",
                 )}
-                aria-label="축소"
+                aria-label={t("zoomOut")}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -610,7 +613,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                   "text-white px-3 py-2 rounded-full transition-colors duration-200 text-sm",
                   resetPressed ? "bg-white/20" : "hover:bg-white/20",
                 )}
-                aria-label="원래 크기"
+                aria-label={t("resetZoom")}
               >
                 {Math.round(zoom * 100)}%
               </button>
@@ -630,7 +633,7 @@ export default function ImageModal({ images, initialIndex, isOpen, onClose, getT
                       ? "bg-white/20"
                       : "hover:bg-white/20",
                 )}
-                aria-label="확대"
+                aria-label={t("zoomIn")}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

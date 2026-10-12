@@ -52,6 +52,14 @@
     "links": "関連リンク",
     "detail": "詳細"
   },
+  "ImageViewer": {
+    "close": "閉じる",
+    "previous": "前の画像",
+    "next": "次の画像",
+    "zoomOut": "縮小",
+    "resetZoom": "元のサイズ",
+    "zoomIn": "拡大"
+  },
   "Qualification": {
     "eyebrow": "学歴・資格"
   },

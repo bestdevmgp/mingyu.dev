@@ -52,6 +52,14 @@
     "links": "Links",
     "detail": "Details"
   },
+  "ImageViewer": {
+    "close": "Close",
+    "previous": "Previous image",
+    "next": "Next image",
+    "zoomOut": "Zoom out",
+    "resetZoom": "Reset zoom",
+    "zoomIn": "Zoom in"
+  },
   "Qualification": {
     "eyebrow": "Education & Certifications"
   },
