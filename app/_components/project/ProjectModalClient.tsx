@@ -157,6 +157,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
 
       <ImageModal
         images={selectedImages}
+        title={items[selectedGroup]?.title ?? ""}
         initialIndex={selectedImageIndex}
         isOpen={isImageModalOpen}
         onClose={() => setIsImageModalOpen(false)}
