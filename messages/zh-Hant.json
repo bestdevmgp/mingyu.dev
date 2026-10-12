@@ -58,7 +58,8 @@
     "next": "下一張圖片",
     "zoomOut": "縮小",
     "resetZoom": "原始大小",
-    "zoomIn": "放大"
+    "zoomIn": "放大",
+    "loading": "正在載入圖片"
   },
   "Qualification": {
     "eyebrow": "學歷與證照"

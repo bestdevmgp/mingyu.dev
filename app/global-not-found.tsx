@@ -1,3 +1,5 @@
+import { preload } from "react-dom";
+
 import { getLocale, getTranslations } from "next-intl/server";
 
 import LazyNotFoundView from "@/_components/LazyNotFoundView";
@@ -14,6 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function GlobalNotFound() {
   const locale = await getLocale();
+  if (locale === "ko")
+    preload("/fonts/pretendard-core-v2.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
 
   return (
     <RootLayout>

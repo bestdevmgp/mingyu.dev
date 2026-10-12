@@ -5,6 +5,8 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import useCarriedState from "@/utils/useCarriedState";
+
 import ProjectCard from "./ProjectCard";
 import ProjectModalHost from "./ProjectModalHost";
 import CTAButton from "../buttons/CTAButton";
@@ -23,7 +25,8 @@ const ITEMS_TO_SHOW = 6;
 
 const ProjectCards = ({ projects }: ProjectCardsProps) => {
   const t = useTranslations("Project");
-  const [shownCount, setShownCount] = useState(ITEMS_TO_SHOW);
+  const [shownCount, setShownCount] = useCarriedState("projects.shown", ITEMS_TO_SHOW);
+  const [restoredCount] = useState(shownCount);
   const hasNext = shownCount < projects.length;
 
   const showMore = () => {
@@ -46,11 +49,11 @@ const ProjectCards = ({ projects }: ProjectCardsProps) => {
         ))}
       </div>
 
-      {extraBatches.map(batch => (
+      {extraBatches.map((batch, index) => (
         <motion.div
           key={`project-batch-${batch[0].id}`}
           className="overflow-hidden"
-          initial={{ height: 0 }}
+          initial={ITEMS_TO_SHOW * (index + 1) < restoredCount ? false : { height: 0 }}
           animate={{ height: "auto" }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >

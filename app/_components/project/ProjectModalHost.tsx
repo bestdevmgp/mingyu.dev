@@ -5,7 +5,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 
-import { localePath } from "@i18n/config";
+import { localePath, locales } from "@i18n/config";
 
 import { pushedProjectPath, settleProjectPush, subscribeProjectPush } from "./projectHistory";
 
@@ -48,7 +48,7 @@ const afterPageLoad = (task: () => void) => {
   };
 };
 
-const PROJECT_PATH = /^\/project\/(\d+)$/;
+const PROJECT_PATH = new RegExp(`^(?:/(?:${locales.join("|")}))?/project/(\\d+)$`);
 
 const ProjectModalHost = () => {
   const pathname = usePathname();

@@ -1,9 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import { motion, useSpring } from "motion/react";
 import { useTranslations } from "next-intl";
+
+import useCarriedState from "@/utils/useCarriedState";
 
 import SkillItem from "./SkillItem";
 
@@ -19,9 +21,15 @@ type Category = (typeof CATEGORY)[keyof typeof CATEGORY];
 const PILL_SPRING = { stiffness: 1500, damping: 78 };
 const PILL_GROWTH = 2;
 
+const pillBox = (button: Element, container: Element) => {
+  const targetRect = button.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  return { x: targetRect.x - containerRect.x - PILL_GROWTH, width: targetRect.width + PILL_GROWTH * 2 };
+};
+
 const SkillItems = ({ skills }: SkillItemsProps) => {
   const t = useTranslations("Skill");
-  const [activeCategory, setActiveCategory] = useState<string>();
+  const [activeCategory, setActiveCategory] = useCarriedState<string | undefined>("skills.category", undefined);
   const [pressedCategory, setPressedCategory] = useState<string | null>(null);
   const releasePress = () => setPressedCategory(null);
 
@@ -29,8 +37,30 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
   const activeCategoryWidth = useSpring(0, PILL_SPRING);
   const activeCategoryOpacity = useSpring(0, PILL_SPRING);
 
+  const navRef = useRef<HTMLElement>(null);
+  const restoredCategory = useRef(activeCategory);
+
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    if (!nav || !restoredCategory.current) return;
+
+    const place = () => {
+      const button = nav.querySelector(`[data-category="${restoredCategory.current}"]`);
+      if (!button) return;
+      const { x, width } = pillBox(button, nav);
+      activeCategoryX.jump(x);
+      activeCategoryWidth.jump(width);
+      activeCategoryOpacity.jump(1);
+    };
+
+    place();
+    document.fonts?.addEventListener("loadingdone", place);
+    return () => document.fonts?.removeEventListener("loadingdone", place);
+  }, [activeCategoryX, activeCategoryWidth, activeCategoryOpacity]);
+
   const handleCategoryClick = (e: React.MouseEvent, category: Category) => {
     e.preventDefault();
+    restoredCategory.current = undefined;
 
     if (activeCategory === category) {
       setActiveCategory(undefined);
@@ -40,11 +70,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
       setActiveCategory(category);
       activeCategoryOpacity.set(1);
       if (e.currentTarget.parentElement) {
-        const targetRect = (e.currentTarget as Element).getBoundingClientRect();
-        const containerRect = e.currentTarget.parentElement.getBoundingClientRect();
-
-        const x = targetRect.x - containerRect.x - PILL_GROWTH;
-        const width = targetRect.width + PILL_GROWTH * 2;
+        const { x, width } = pillBox(e.currentTarget, e.currentTarget.parentElement);
         if (appearing) {
           activeCategoryX.jump(x);
           activeCategoryWidth.jump(width);
@@ -58,7 +84,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
 
   return (
     <div className="flex flex-col gap-8 items-center">
-      <nav className="bg-gray-100 p-1.5 rounded-full flex items-center relative">
+      <nav ref={navRef} className="bg-gray-100 p-1.5 rounded-full flex items-center relative">
         {[
           { name: t("backend"), value: CATEGORY.BACKEND },
 
@@ -68,6 +94,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
         ].map(({ name, value }) => (
           <button
             key={`nav-item-${value}`}
+            data-category={value}
             className={cn(
               "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
               "mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 
 import { bootPostHog, isLocalhost } from "./analytics/posthog";
 
@@ -15,10 +15,13 @@ const SpeedInsights = dynamic<SpeedInsightsProps>(() =>
 );
 
 const PROJECT_PATH = /^\/project\/\d+$/;
+const LOCALE_PROJECT_PATH = /^\/[\w-]+\/project\/\d+$/;
 
 const DeferredAnalytics = () => {
   const [ready, setReady] = useState(false);
   const pathname = usePathname();
+  const params = useParams();
+  const projectRoute = PROJECT_PATH.test(pathname) || (LOCALE_PROJECT_PATH.test(pathname) && !params?.id);
 
   useEffect(() => {
     let idleId = 0;
@@ -46,7 +49,7 @@ const DeferredAnalytics = () => {
   return (
     <>
       <Analytics />
-      <SpeedInsights {...(PROJECT_PATH.test(pathname) ? { route: "/project/[id]" } : {})} />
+      <SpeedInsights {...(projectRoute ? { route: "/project/[id]" } : {})} />
     </>
   );
 };

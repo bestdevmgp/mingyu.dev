@@ -1,11 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 const HomeButton = () => {
   const t = useTranslations("Common");
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("from-project", "1");
+    } catch {}
+  }, []);
 
   const moveHome = () => {
     router.replace("/");

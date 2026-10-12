@@ -8,6 +8,7 @@ import { RemoveScroll } from "react-remove-scroll";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 
+import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
 interface ModalProps extends React.PropsWithChildren {
@@ -25,8 +26,17 @@ const Modal = ({ children, onClose }: ModalProps) => {
     router.back();
   }, [router]);
 
+  const dismiss = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      if (event.type === "mousedown") event.preventDefault();
+      close();
+    },
+    [close],
+  );
+
   const contentRef = useRef<HTMLDivElement | null>(null);
-  useOnClickOutside(contentRef, close);
+  useOnClickOutside(contentRef, dismiss);
+  useFocusScope(contentRef, isOpen, "#modal-focus");
 
   const innerRef = useRef<HTMLDivElement | null>(null);
   const [box, setBox] = useState<{ h: number; animate: boolean }>();
@@ -112,6 +122,8 @@ const Modal = ({ children, onClose }: ModalProps) => {
                 <motion.div
                   id="modal-content"
                   ref={contentRef}
+                  role="dialog"
+                  aria-modal="true"
                   data-lenis-prevent
                   className="
                     w-[calc(100vw-1.75rem)] md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-1.75rem)] md:max-h-[calc(100vh-4rem)] my-3.5 md:my-8 p-6 md:p-8
@@ -124,6 +136,7 @@ const Modal = ({ children, onClose }: ModalProps) => {
                   transition={box?.animate ? { duration: 0.25, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
                   onAnimationComplete={() => setScrolls(true)}
                 >
+                  <div id="modal-focus" tabIndex={-1} className="absolute outline-none pointer-events-none" />
                   <div ref={innerRef}>{children}</div>
                   <X
                     className="absolute top-5 right-5 md:top-7 md:right-7
