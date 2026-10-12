@@ -58,7 +58,8 @@
     "next": "Next image",
     "zoomOut": "Zoom out",
     "resetZoom": "Reset zoom",
-    "zoomIn": "Zoom in"
+    "zoomIn": "Zoom in",
+    "loading": "Loading image"
   },
   "Qualification": {
     "eyebrow": "Education & Certifications"

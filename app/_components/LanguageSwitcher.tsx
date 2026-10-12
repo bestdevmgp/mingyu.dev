@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { LOCALE_COOKIE, locales, type Locale } from "@i18n/config";
 
 import { beginLocaleSwitch } from "@/utils/localeSwitch";
+import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 import useOnEscape from "@/utils/useOnEscape";
 
@@ -71,13 +72,9 @@ const LanguageSwitcher = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
   useOnClickOutside(ref, () => setIsOpen(false));
-  useOnEscape(isOpen, () => {
-    const hadFocus = ref.current?.contains(document.activeElement) ?? false;
-    setIsOpen(false);
-    if (hadFocus) toggleRef.current?.focus();
-  });
+  useOnEscape(isOpen, () => setIsOpen(false));
+  useFocusScope(ref, isOpen, '[role="option"][aria-selected="true"]');
 
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const displayLocale = pendingLocale ?? activeLocale;
@@ -131,7 +128,6 @@ const LanguageSwitcher = ({
   return (
     <div className={cn("relative", className)} ref={ref} {...props}>
       <button
-        ref={toggleRef}
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
         aria-label={t("changeLanguage")}

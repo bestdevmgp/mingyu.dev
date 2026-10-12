@@ -16,8 +16,6 @@ const cjkFontClass: Record<string, string> = {
   "zh-Hant": "font-zh-hant",
 };
 
-const PRETENDARD_HREF = "/fonts/pretendard-core-v2.woff2";
-
 const webFontHref: Record<string, string> = {
   ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
   "zh-Hans": "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap",
@@ -40,9 +38,6 @@ const LocaleShell = async ({ locale, structuredData, children }: LocaleShellProp
     <>
       <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang=${JSON.stringify(locale)}` }} />
       {structuredData}
-      {locale === "ko" && (
-        <link rel="preload" as="font" type="font/woff2" href={PRETENDARD_HREF} crossOrigin="anonymous" />
-      )}
       {fontHref && (
         <>
           <link rel="preconnect" href="https://fonts.googleapis.com" />

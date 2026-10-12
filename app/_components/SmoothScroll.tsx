@@ -12,6 +12,19 @@ declare global {
 
 const SmoothScroll = () => {
   useEffect(() => {
+    const keepRouterState = (event: MouseEvent) => {
+      if (!(event.target as Element).closest?.('a[href^="#"]')) return;
+      const state = window.history.state;
+      if (!state?.__NA) return;
+      setTimeout(() => {
+        if (!window.history.state) window.history.replaceState(state, "", window.location.href);
+      });
+    };
+    document.addEventListener("click", keepRouterState);
+    return () => document.removeEventListener("click", keepRouterState);
+  }, []);
+
+  useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const isTouch = window.matchMedia("(pointer: coarse)").matches;

@@ -47,6 +47,7 @@ const matchTag = (tag: string): Locale | null => {
 export const negotiateLocale = (acceptLanguage: string | null | undefined): Locale => {
   if (!acceptLanguage) return defaultLocale;
   for (const tag of parseAcceptLanguage(acceptLanguage)) {
+    if (tag === "*") return defaultLocale;
     const matched = matchTag(tag);
     if (matched) return matched;
   }

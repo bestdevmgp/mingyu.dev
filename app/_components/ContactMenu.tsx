@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { phoneDisplay, phoneHref } from "@/utils/phone";
+import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 import useOnEscape from "@/utils/useOnEscape";
 
@@ -150,13 +151,9 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
   const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
   useOnClickOutside(ref, () => setIsOpen(false));
-  useOnEscape(isOpen, () => {
-    const hadFocus = ref.current?.contains(document.activeElement) ?? false;
-    setIsOpen(false);
-    if (hadFocus) toggleRef.current?.focus();
-  });
+  useOnEscape(isOpen, () => setIsOpen(false));
+  useFocusScope(ref, isOpen, '[role="menu"] a');
 
   const contacts = CONTACTS.map(contact =>
     contact.id === "phone" ? { ...contact, value: phoneDisplay(locale), href: phoneHref(locale) } : contact,
@@ -188,7 +185,6 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
   return (
     <div className={cn("relative", className)} ref={ref} {...props}>
       <button
-        ref={toggleRef}
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
         aria-label={t("contact")}

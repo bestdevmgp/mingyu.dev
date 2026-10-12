@@ -17,6 +17,7 @@ import {
   prefersSlowerMotion,
   type Box,
 } from "@/utils/imageFlip";
+import useFocusScope from "@/utils/useFocusScope";
 import useTouchPress from "@/utils/useTouchPress";
 
 import ImageSpinner from "./ImageSpinner";
@@ -34,7 +35,9 @@ const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 1.5;
 const WHEEL_SENSITIVITY = 0.0015;
+const PINCH_DEADZONE = 2;
 const FIT_RATIO = 0.7;
+const TALL_FIT_RATIO = 0.92;
 const SCROLL_KEYS = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
 const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
@@ -48,6 +51,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isPinching, setIsPinching] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
   const [pinchStart, setPinchStart] = useState({ distance: 0, zoom: 1 });
   const [lastTouchTime, setLastTouchTime] = useState(0);
   const [touchStartPos, setTouchStartPos] = useState({ x: 0, y: 0 });
@@ -69,7 +73,11 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
   const imageContentRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
+  const multiTouchRef = useRef(false);
+  const pinchDistanceRef = useRef(0);
+  const pinchDirectionRef = useRef(0);
   const isClosingRef = useRef(false);
+  useFocusScope(overlayRef, isOpen);
 
   const measureVisualBox = useCallback((): Box | null => {
     const wrapper = flipRef.current;
@@ -93,7 +101,8 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     const pane = imageRef.current;
     if (!pane) return null;
 
-    const width = Math.min(pane.offsetWidth, pane.offsetHeight * ratio) * FIT_RATIO;
+    const widthRatio = pane.offsetHeight > pane.offsetWidth ? TALL_FIT_RATIO : FIT_RATIO;
+    const width = Math.min(pane.offsetWidth * widthRatio, pane.offsetHeight * ratio * FIT_RATIO);
     return { width, height: width / ratio };
   }, []);
 
@@ -336,10 +345,13 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
+    multiTouchRef.current = e.touches.length > 1;
+    setIsTouching(true);
 
     if (e.touches.length === 2) {
-      e.preventDefault();
       const distance = getDistance(e.touches[0], e.touches[1]);
+      pinchDistanceRef.current = distance;
+      pinchDirectionRef.current = 0;
       setIsPinching(true);
       setPinchStart({ distance, zoom });
       setHasMoved(false);
@@ -349,7 +361,6 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
 
       if (isOutsideImage(touch.clientX, touch.clientY)) return;
 
-      if (zoom > 1) e.preventDefault();
       setIsDragging(true);
       setDragStart({
         x: touch.clientX - position.x,
@@ -360,8 +371,11 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 2 && isPinching) {
-      e.preventDefault();
       const distance = getDistance(e.touches[0], e.touches[1]);
+      const delta = distance - pinchDistanceRef.current;
+      if (!delta || (Math.sign(delta) !== pinchDirectionRef.current && Math.abs(delta) < PINCH_DEADZONE)) return;
+      pinchDirectionRef.current = Math.sign(delta);
+      pinchDistanceRef.current = distance;
       const scale = distance / pinchStart.distance;
       const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStart.zoom * scale));
       setZoom(newZoom);
@@ -378,7 +392,6 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
       }
 
       if (isDragging) {
-        if (zoom > 1) e.preventDefault();
         setPosition(constrainPosition(touch.clientX - dragStart.x, touch.clientY - dragStart.y, zoom));
       }
     }
@@ -388,7 +401,8 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     setLastTouchTime(Date.now());
 
     if (e.touches.length === 0) {
-      if (!hasMoved && !isPinching && isOutsideImage(touchStartPos.x, touchStartPos.y)) {
+      setIsTouching(false);
+      if (!hasMoved && !multiTouchRef.current && isOutsideImage(touchStartPos.x, touchStartPos.y)) {
         e.stopPropagation();
         requestClose();
       }
@@ -417,7 +431,10 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
         <motion.div
           key="image-modal"
           ref={overlayRef}
-          className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none"
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
+          className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none outline-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: timing.close / 1000, ease: "easeIn" } }}
@@ -473,7 +490,11 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
               <div ref={flipRef} className="flex items-center justify-center">
                 <div
                   ref={imageContentRef}
-                  className={cn("relative transition-transform ease-out", !isDragging && !isPinching && "duration-300")}
+                  className={cn(
+                    "relative",
+                    !isTouching && "transition-transform ease-out",
+                    !isDragging && !isPinching && "duration-300",
+                  )}
                   style={{
                     width: fitted ? `${fitted.width}px` : "100%",
                     height: fitted ? `${fitted.height}px` : "100%",
@@ -523,7 +544,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.14, ease: "easeOut" }}
                   >
-                    <ImageSpinner />
+                    <ImageSpinner label={t("loading")} />
                   </motion.div>
                 )}
               </AnimatePresence>

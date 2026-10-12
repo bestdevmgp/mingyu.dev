@@ -9,6 +9,11 @@ const LOCALE_PATH = new RegExp(`^/(${locales.join("|")})(/.*)?$`);
 
 const FIRST_SEGMENT = /^\/([^/]+)(\/.*)?$/;
 
+const MAIL_PATH = "/me@mingyu.dev";
+
+const KO_FONT_PRELOAD =
+  '</fonts/pretendard-core-v2.woff2>; rel=preload; as="font"; crossorigin="anonymous"; type="font/woff2"';
+
 const CANONICAL_PREFIX = new Map<string, string>([
   ...locales.map((locale): [string, string] => [locale.toLowerCase(), locale]),
   ["zh", "zh-Hans"],
@@ -24,6 +29,8 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const fetchDest = request.headers.get("sec-fetch-dest");
   const isBackgroundRequest = fetchDest !== null && fetchDest !== "document";
+
+  if (pathname === MAIL_PATH) return NextResponse.next();
 
   const first = FIRST_SEGMENT.exec(pathname);
   if (first) {
@@ -60,6 +67,7 @@ export function proxy(request: NextRequest) {
   url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
   const response = NextResponse.rewrite(url, forwardLocale(request, locale));
   response.headers.set("Content-Language", locale);
+  if (locale === "ko" && !isBackgroundRequest) response.headers.set("Link", KO_FONT_PRELOAD);
   if (!remembered) response.cookies.set(LOCALE_COOKIE, locale, COOKIE_OPTIONS);
   return response;
 }

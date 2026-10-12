@@ -2,6 +2,9 @@
 
 import cn from "classnames";
 import Image from "next/image";
+import { useLocale } from "next-intl";
+
+import { localePath } from "@i18n/config";
 
 import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
@@ -24,6 +27,7 @@ const isModifiedClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
 
 const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   const [isPressed, pressHandlers] = useTouchPress();
+  const path = localePath(useLocale(), `/project/${id}`);
 
   const dropSectionHash = () => {
     if (!window.location.hash) return;
@@ -39,14 +43,13 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
     track("project_opened", { project_id: id, project_title: title.replace(/<[^>]+>/g, "") });
     if (event.defaultPrevented || isModifiedClick(event)) return;
     event.preventDefault();
-    const path = `/project/${id}`;
     if (window.location.pathname === path) return;
     markProjectPush(path);
     window.history.pushState({ projectModal: true }, "", path);
   };
 
   return (
-    <a className="no-underline" href={`/project/${id}`} onClick={onOpen}>
+    <a className="no-underline" href={path} onClick={onOpen}>
       <div
         id={`project-card-${id}`}
         {...pressHandlers}

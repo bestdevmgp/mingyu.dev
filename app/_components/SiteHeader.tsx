@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, X } from "react-feather";
 
 import cn from "classnames";
@@ -10,7 +10,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import Sparkle from "@/assets/shape-sparkle-round.svg";
 import useCarriedState from "@/utils/useCarriedState";
-import useOnClickOutside from "@/utils/useOnClickOutside";
+import useFocusScope from "@/utils/useFocusScope";
 import useOnEscape from "@/utils/useOnEscape";
 
 import ContactMenu from "./ContactMenu";
@@ -84,13 +84,54 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
     ]);
   }, [isExpanded, animate]);
 
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
-  useOnClickOutside(scope, () => setIsExpanded(false));
-  useOnEscape(isExpanded, () => {
-    const hadFocus = scope.current?.contains(document.activeElement) ?? false;
-    setIsExpanded(false);
-    if (hadFocus) menuButtonRef.current?.focus();
-  });
+  const pickedSection = useRef<HTMLElement | null>(null);
+  const resumeBelow = useCallback(
+    (openedByKeyboard: boolean) => {
+      const section = pickedSection.current;
+      pickedSection.current = null;
+      if (openedByKeyboard && !section) return null;
+      return () =>
+        Math.max(scope.current?.getBoundingClientRect().bottom ?? 0, section?.getBoundingClientRect().top ?? 0);
+    },
+    [scope],
+  );
+
+  const expandedRef = useRef(isExpanded);
+  useEffect(() => {
+    expandedRef.current = isExpanded;
+  }, [isExpanded]);
+
+  useEffect(() => {
+    let outside = false;
+    const onPointerDown = (event: PointerEvent) => {
+      outside = expandedRef.current && !scope.current?.contains(event.target as Node);
+      if (!outside) return;
+      event.stopPropagation();
+      setIsExpanded(false);
+    };
+    const stopOutside = (event: Event) => {
+      if (outside) event.stopPropagation();
+    };
+    const swallowClick = (event: MouseEvent) => {
+      if (!outside) return;
+      outside = false;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    window.addEventListener("pointerdown", onPointerDown, true);
+    window.addEventListener("touchstart", stopOutside, { capture: true, passive: true });
+    window.addEventListener("mousedown", stopOutside, true);
+    window.addEventListener("click", swallowClick, true);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown, true);
+      window.removeEventListener("touchstart", stopOutside, true);
+      window.removeEventListener("mousedown", stopOutside, true);
+      window.removeEventListener("click", swallowClick, true);
+    };
+  }, [scope, setIsExpanded]);
+
+  useOnEscape(isExpanded, () => setIsExpanded(false));
+  useFocusScope(scope, isExpanded, ".mobile-menu a", resumeBelow);
 
   const scrollToTop = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -144,7 +185,6 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         </div>
 
         <button
-          ref={menuButtonRef}
           type="button"
           className="block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1"
           onClick={() => setIsExpanded(prev => !prev)}
@@ -166,6 +206,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
           isExpanded ? "pointer-events-auto" : "pointer-events-none",
         )}
         style={{ clipPath: initialClip }}
+        inert={!isExpanded}
       >
         <ul className="flex flex-col list-none p-0 m-0 indent-0">
           {navItems.map(({ id }) => (
@@ -173,7 +214,10 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
               <a
                 href={`${homeHref ?? ""}#${id}`}
                 className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80"
-                onClick={() => setIsExpanded(false)}
+                onClick={() => {
+                  pickedSection.current = document.getElementById(id);
+                  setIsExpanded(false);
+                }}
               >
                 {tNav(id)}
               </a>
