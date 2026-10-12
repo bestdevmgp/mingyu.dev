@@ -191,7 +191,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
         aria-haspopup="menu"
         aria-expanded={isOpen}
         className={cn(
-          "flex items-center transition-colors",
+          "flex items-center transition-colors focus-visible:rounded-md",
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >

@@ -146,7 +146,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
     <header
       ref={scope}
       className={cn(
-        "fixed top-0 inset-x-0 z-50 h-14 pr-[23px] lg:pr-[22px] pl-[20px] lg:pl-[22px]",
+        "sticky top-0 z-50 h-14 -mb-14 pr-[23px] lg:pr-[22px] pl-[20px] lg:pl-[22px]",
         "flex items-center justify-between gap-4",
 
         "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px",
@@ -160,7 +160,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       )}
     >
       <HomeLink
-        className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0"
+        className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0 focus-visible:rounded-md"
         href={homeHref ?? "#top"}
         onClick={homeHref ? undefined : scrollToTop}
       >
@@ -186,7 +186,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
 
         <button
           type="button"
-          className="block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1"
+          className="block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1 focus-visible:rounded-md"
           onClick={() => setIsExpanded(prev => !prev)}
           aria-label={t(isExpanded ? "closeMenu" : "openMenu")}
           aria-expanded={isExpanded}
@@ -213,7 +213,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
             <li key={`header-item-m-${id}`} className="mobile-menu-item" style={initialItemStyle}>
               <a
                 href={`${homeHref ?? ""}#${id}`}
-                className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80"
+                className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80 focus-visible:rounded-sm"
                 onClick={() => {
                   pickedSection.current = document.getElementById(id);
                   setIsExpanded(false);

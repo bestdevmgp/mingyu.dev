@@ -49,7 +49,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   };
 
   return (
-    <a className="no-underline" href={path} onClick={onOpen}>
+    <a className="no-underline focus-visible:rounded-md md:focus-visible:rounded-lg" href={path} onClick={onOpen}>
       <div
         id={`project-card-${id}`}
         {...pressHandlers}

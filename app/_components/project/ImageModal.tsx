@@ -147,18 +147,6 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
 
   useLayoutEffect(() => {
     if (!isOpen) return;
-
-    const originalOverflow = document.body.style.overflow;
-
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = originalOverflow || "";
-    };
-  }, [isOpen]);
-
-  useLayoutEffect(() => {
-    if (!isOpen) return;
     isClosingRef.current = false;
     setCurrentIndex(initialIndex);
     resetZoom();
@@ -196,12 +184,6 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     document.addEventListener("touchmove", preventScroll, { passive: false });
     return () => document.removeEventListener("touchmove", preventScroll);
   }, [isOpen]);
-
-  useEffect(() => {
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -434,7 +416,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
           role="dialog"
           aria-modal="true"
           tabIndex={-1}
-          className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none outline-none"
+          className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none outline-none [--focus-ring:rgb(255,255,255)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: timing.close / 1000, ease: "easeIn" } }}

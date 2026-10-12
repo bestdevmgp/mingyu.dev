@@ -57,6 +57,20 @@
   }
 }
 
+@layer base {
+  *,
+  ::after,
+  ::before {
+    outline-color: var(--focus-ring);
+    outline-offset: 2px;
+    outline-width: 2px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+  }
+}
+
 @utility section-title {
   @apply text-2xl font-semibold mb-8 md:mb-12 text-center;
 }
@@ -72,6 +86,7 @@
   --primary: rgb(0, 122, 255);
   --secondary: rgb(0, 198, 118);
   --point: rgb(226, 255, 0);
+  --focus-ring: var(--foreground);
 }
 
 :root.dark {
@@ -97,6 +112,10 @@ html {
 
 main :is(a[href], button, input, select, textarea, summary, [tabindex]) {
   scroll-margin-top: 3.5rem;
+}
+
+header :is(a[href], button, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-top: -1.5rem;
 }
 
 @supports not (scrollbar-gutter: stable) {

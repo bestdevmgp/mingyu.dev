@@ -27,6 +27,7 @@ const ProjectCards = ({ projects }: ProjectCardsProps) => {
   const t = useTranslations("Project");
   const [shownCount, setShownCount] = useCarriedState("projects.shown", ITEMS_TO_SHOW);
   const [restoredCount] = useState(shownCount);
+  const [openedBatches, setOpenedBatches] = useState<number[]>([]);
   const hasNext = shownCount < projects.length;
 
   const showMore = () => {
@@ -49,21 +50,25 @@ const ProjectCards = ({ projects }: ProjectCardsProps) => {
         ))}
       </div>
 
-      {extraBatches.map((batch, index) => (
-        <motion.div
-          key={`project-batch-${batch[0].id}`}
-          className="overflow-hidden"
-          initial={ITEMS_TO_SHOW * (index + 1) < restoredCount ? false : { height: 0 }}
-          animate={{ height: "auto" }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 pt-6 md:pt-8">
-            {batch.map(props => (
-              <ProjectCard key={`project-card-${props.id}`} {...props} />
-            ))}
-          </div>
-        </motion.div>
-      ))}
+      {extraBatches.map((batch, index) => {
+        const restored = ITEMS_TO_SHOW * (index + 1) < restoredCount;
+        return (
+          <motion.div
+            key={`project-batch-${batch[0].id}`}
+            className={restored || openedBatches.includes(batch[0].id) ? undefined : "overflow-hidden"}
+            initial={restored ? false : { height: 0 }}
+            animate={{ height: "auto" }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            onAnimationComplete={() => setOpenedBatches(ids => [...ids, batch[0].id])}
+          >
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 pt-6 md:pt-8">
+              {batch.map(props => (
+                <ProjectCard key={`project-card-${props.id}`} {...props} />
+              ))}
+            </div>
+          </motion.div>
+        );
+      })}
 
       {hasNext && (
         <div className="flex justify-center pt-6 md:pt-8">

@@ -106,7 +106,7 @@ const SectionNav = () => {
             href={`#${id}`}
             aria-current={isActive ? "true" : undefined}
             onClick={() => handleNavClick(id)}
-            className="group flex items-center gap-2.5 no-underline"
+            className="group flex items-center gap-2.5 no-underline focus-visible:rounded-sm"
           >
             <span
               className={cn(
