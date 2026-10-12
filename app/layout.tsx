@@ -1,3 +1,4 @@
+import ConsoleGreeting from "@/_components/ConsoleGreeting";
 import DeferredAnalytics from "@/_components/DeferredAnalytics";
 import SiteLoader from "@/_components/SiteLoader";
 import SmoothScroll from "@/_components/SmoothScroll";
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <div id="modal-root" />
         <DeferredAnalytics />
+        <ConsoleGreeting />
       </body>
     </html>
   );
