@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 
-import { bootPostHog } from "./analytics/posthog";
+import { bootPostHog, isLocalhost } from "./analytics/posthog";
 
 import type { SpeedInsightsProps } from "@vercel/speed-insights";
 
@@ -41,7 +41,7 @@ const DeferredAnalytics = () => {
     if (ready) void bootPostHog();
   }, [ready]);
 
-  if (!ready) return null;
+  if (!ready || isLocalhost()) return null;
 
   return (
     <>
