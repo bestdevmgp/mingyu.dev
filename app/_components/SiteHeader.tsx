@@ -203,7 +203,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-3.5">
           <LanguageSwitcher hardNavigation={homeHref !== undefined} />
-          <ThemeToggle className="-translate-y-px [&_svg]:[stroke-width:2.6] [&_svg]:translate-y-[0.45px] [&_svg:last-child]:w-[18.85px] [&_svg:last-child]:h-[18.85px] [&_svg:last-child]:translate-y-[0.85px]" />
+          <ThemeToggle className="-translate-y-[0.87px] [&_svg]:[stroke-width:2.6] [&_svg]:translate-y-[0.45px] [&_svg:last-child]:w-[18.85px] [&_svg:last-child]:h-[18.85px] [&_svg:last-child]:translate-y-[0.85px]" />
           <ContactMenu className="[&>button]:-translate-y-px" />
         </div>
 
