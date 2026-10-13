@@ -151,6 +151,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     if (!isOpen) return;
     isClosingRef.current = false;
     setCurrentIndex(initialIndex);
+    setLoadedIndex(null);
     resetZoom();
 
     const thumbnail = getThumbnail?.(initialIndex) ?? null;
@@ -201,7 +202,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
         return;
       }
 
-      if (SCROLL_KEYS.includes(e.key)) e.preventDefault();
+      if (SCROLL_KEYS.includes(e.key) && !(e.key === " " && e.target instanceof HTMLButtonElement)) e.preventDefault();
     };
 
     window.addEventListener("keydown", handleKeyDown, { capture: true });
@@ -411,17 +412,26 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     }
   };
 
+  const handleTouchCancel = () => {
+    setIsTouching(false);
+    setIsDragging(false);
+    setIsPinching(false);
+    setHasMoved(false);
+  };
+
   const showOrigin = Boolean(originSrc) && currentIndex === initialIndex && loadedIndex !== currentIndex;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={resetZoom}>
       {isOpen && (
         <motion.div
           key="image-modal"
           ref={overlayRef}
           role="dialog"
           aria-modal="true"
+          aria-label={title}
           tabIndex={-1}
+          data-lenis-prevent
           className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none outline-none [--focus-ring:rgb(255,255,255)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -471,6 +481,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
               style={{
                 cursor: isDragging ? "grabbing" : "default",
               }}

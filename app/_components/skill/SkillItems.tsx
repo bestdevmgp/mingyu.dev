@@ -102,7 +102,9 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
               "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
               "mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",
               pressedCategory === value && "bg-gray-200 dark:bg-gray-700/10",
-              activeCategory === value ? "text-gray-700 dark:text-gray-100" : "text-gray-400 dark:text-gray-500",
+              activeCategory === value
+                ? "text-gray-700 dark:text-gray-100"
+                : "text-gray-400 dark:text-gray-500 focus-visible:z-10",
             )}
             onClick={e => handleCategoryClick(e, value)}
             onPointerDown={() => setPressedCategory(value)}

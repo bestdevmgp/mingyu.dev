@@ -8,7 +8,11 @@ const SETTLED_TOLERANCE = 2;
 
 const RestoreProjectScroll = () => {
   useEffect(() => {
-    if (!sessionStorage.getItem("from-project")) return;
+    try {
+      if (!sessionStorage.getItem("from-project")) return;
+    } catch {
+      return;
+    }
 
     const started = Date.now();
     let observer: MutationObserver | null = null;

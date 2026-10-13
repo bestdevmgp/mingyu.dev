@@ -26,6 +26,8 @@ const [intro, skill, experience, education, blog, project] = await Promise.all([
 ]);
 await prisma.$disconnect();
 
+if (!project.length) throw new Error("content snapshot: the database returned no projects");
+
 const imageUrls = [
   ...new Set(
     project.flatMap(({ ProjectItem }) =>

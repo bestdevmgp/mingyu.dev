@@ -13,9 +13,10 @@ import useOnClickOutside from "@/utils/useOnClickOutside";
 
 interface ModalProps extends React.PropsWithChildren {
   onClose?: () => void;
+  labelledBy?: string;
 }
 
-const Modal = ({ children, onClose }: ModalProps) => {
+const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
 
@@ -124,6 +125,7 @@ const Modal = ({ children, onClose }: ModalProps) => {
                   ref={contentRef}
                   role="dialog"
                   aria-modal="true"
+                  aria-labelledby={labelledBy}
                   data-lenis-prevent
                   className="
                     w-[calc(100vw-1.75rem)] md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-1.75rem)] md:max-h-[calc(100vh-4rem)] my-3.5 md:my-8 p-6 md:p-8
