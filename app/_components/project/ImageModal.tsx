@@ -35,6 +35,8 @@ const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 1.5;
 const WHEEL_SENSITIVITY = 0.0015;
+const PINCH_WHEEL_SENSITIVITY = 0.01;
+const PINCH_WHEEL_MAX_STEP = 0.15;
 const PINCH_DEADZONE = 2;
 const FIT_RATIO = 0.7;
 const TALL_FIT_RATIO = 0.92;
@@ -273,8 +275,11 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
       const pane = imageRef.current;
       if (!pane) return;
 
+      const step = e.ctrlKey
+        ? Math.max(-PINCH_WHEEL_MAX_STEP, Math.min(PINCH_WHEEL_MAX_STEP, e.deltaY * PINCH_WHEEL_SENSITIVITY))
+        : e.deltaY * WHEEL_SENSITIVITY;
       const rect = pane.getBoundingClientRect();
-      zoomByRef.current(Math.exp(-e.deltaY * WHEEL_SENSITIVITY), {
+      zoomByRef.current(Math.exp(-step), {
         x: e.clientX - rect.left - rect.width / 2,
         y: e.clientY - rect.top - rect.height / 2,
       });
