@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 
 import { localePath } from "@i18n/config";
 
+import { isLocaleSwitching } from "@/utils/localeSwitch";
 import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
 
@@ -35,7 +36,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   };
 
   const onOpen = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (projectClosing() && !isModifiedClick(event)) {
+    if ((projectClosing() || isLocaleSwitching()) && !isModifiedClick(event)) {
       event.preventDefault();
       return;
     }

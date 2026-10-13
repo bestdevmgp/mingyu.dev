@@ -15,7 +15,7 @@ export default function ProjectModalOverlay({ id, locale }: ProjectModalOverlayP
   useEffect(() => settleProjectClose, []);
 
   return (
-    <Modal onClose={markProjectClose}>
+    <Modal onClose={markProjectClose} labelledBy="project-modal-title">
       <ProjectModalLoader id={id} locale={locale} />
     </Modal>
   );

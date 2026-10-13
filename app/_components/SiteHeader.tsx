@@ -113,7 +113,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       if (outside) event.stopPropagation();
     };
     const swallowClick = (event: MouseEvent) => {
-      if (!outside) return;
+      if (!outside || event.detail === 0) return;
       outside = false;
       event.preventDefault();
       event.stopPropagation();
@@ -129,6 +129,16 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       window.removeEventListener("click", swallowClick, true);
     };
   }, [scope, setIsExpanded]);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    const wide = window.matchMedia("(min-width: 80rem)");
+    const close = () => {
+      if (wide.matches) setIsExpanded(false);
+    };
+    wide.addEventListener("change", close);
+    return () => wide.removeEventListener("change", close);
+  }, [isExpanded, setIsExpanded]);
 
   useOnEscape(isExpanded, () => setIsExpanded(false));
   useFocusScope(scope, isExpanded, ".mobile-menu a", resumeBelow);

@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { languageAlternates, localePath } from "@i18n/config";
 
 import ProjectModal from "@/_components/project/ProjectModal";
-import { getProject, getProjectIds } from "@/utils/api";
+import { getImageSizes, getProject, getProjectIds } from "@/utils/api";
 import { applyLocale, applyLocaleAll } from "@/utils/localize";
 
 import HomeButton from "./HomeButton";
@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: ProjectParams, parent: Resolv
   const summary = plain(sub_title);
   const path = `/project/${id}`;
   const photo = applyLocaleAll(items, locale).find(item => item.blobUrls?.length)?.blobUrls[0];
+  const size = photo ? getImageSizes([photo])[photo] : undefined;
   const { openGraph: site } = await parent;
   const t = await getTranslations({ locale, namespace: "Meta" });
 
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: ProjectParams, parent: Resolv
       title: name,
       description: summary,
       url: localePath(locale, path),
-      images: photo ? [{ url: photo, alt: name }] : site?.images,
+      images: photo ? [{ url: photo, alt: name, width: size?.[0], height: size?.[1] }] : site?.images,
     },
   };
 }

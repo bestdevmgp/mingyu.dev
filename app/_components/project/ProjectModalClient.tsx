@@ -82,7 +82,9 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
           <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} fill alt="shape" />
         </div>
 
-        <p className="text-xl md:text-2xl font-semibold leading-normal mb-4">{richText(title)}</p>
+        <p id="project-modal-title" className="text-xl md:text-2xl font-semibold leading-normal mb-4">
+          {richText(title)}
+        </p>
 
         <div className="flex gap-6 flex-wrap">
           {[

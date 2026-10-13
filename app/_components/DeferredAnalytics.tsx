@@ -21,7 +21,8 @@ const DeferredAnalytics = () => {
   const [ready, setReady] = useState(false);
   const pathname = usePathname();
   const params = useParams();
-  const projectRoute = PROJECT_PATH.test(pathname) || (LOCALE_PROJECT_PATH.test(pathname) && !params?.id);
+  const projectRoute =
+    Boolean(params?.locale) && (PROJECT_PATH.test(pathname) || (LOCALE_PROJECT_PATH.test(pathname) && !params?.id));
 
   useEffect(() => {
     let idleId = 0;
