@@ -140,6 +140,18 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
     return () => wide.removeEventListener("change", close);
   }, [isExpanded, setIsExpanded]);
 
+  useEffect(() => {
+    const header = scope.current;
+    if (!isExpanded || !header) return;
+    const block = (event: Event) => event.preventDefault();
+    header.addEventListener("wheel", block, { passive: false });
+    header.addEventListener("touchmove", block, { passive: false });
+    return () => {
+      header.removeEventListener("wheel", block);
+      header.removeEventListener("touchmove", block);
+    };
+  }, [isExpanded, scope]);
+
   useOnEscape(isExpanded, () => setIsExpanded(false));
   useFocusScope(scope, isExpanded, ".mobile-menu a", resumeBelow);
 
@@ -155,6 +167,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
   return (
     <header
       ref={scope}
+      data-lenis-prevent={isExpanded || undefined}
       className={cn(
         "sticky top-0 z-50 h-14 -mb-14 pr-[23px] lg:pr-[22px] pl-[20px] lg:pl-[22px]",
         "flex items-center justify-between gap-4",
@@ -190,8 +203,8 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-3.5">
           <LanguageSwitcher hardNavigation={homeHref !== undefined} />
-          <ThemeToggle className="[&_svg]:[stroke-width:2.6] [&_svg]:translate-y-[0.45px] [&_svg:last-child]:w-[18.85px] [&_svg:last-child]:h-[18.85px] [&_svg:last-child]:translate-y-[0.85px]" />
-          <ContactMenu />
+          <ThemeToggle className="-translate-y-px [&_svg]:[stroke-width:2.6] [&_svg]:translate-y-[0.45px] [&_svg:last-child]:w-[18.85px] [&_svg:last-child]:h-[18.85px] [&_svg:last-child]:translate-y-[0.85px]" />
+          <ContactMenu className="[&>button]:-translate-y-px" />
         </div>
 
         <button
