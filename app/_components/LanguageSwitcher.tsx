@@ -41,11 +41,11 @@ const LOCALE_LABELS: Record<Locale, string> = {
 };
 
 const labelNudge: Record<string, string> = {
-  ko: "relative translate-y-[1px]",
-  en: "relative translate-y-[0.5px]",
-  ja: "relative translate-y-[0.2px]",
-  "zh-Hans": "relative translate-y-[0.3px]",
-  "zh-Hant": "relative translate-y-[0.3px]",
+  ko: "relative -translate-y-[0.25px]",
+  en: "relative -translate-y-[0.25px]",
+  ja: "relative -translate-y-[1.05px]",
+  "zh-Hans": "relative -translate-y-[0.7px]",
+  "zh-Hant": "relative -translate-y-[0.7px]",
 };
 
 const LOCALE_PREFIX = new RegExp(`^/(?:${locales.join("|")})(?=/|$)`);
@@ -139,7 +139,7 @@ const LanguageSwitcher = ({
         )}
       >
         <GlobeSimpleIcon
-          className="w-[21.113px] h-[21.113px] [stroke-width:4.197] translate-y-[0.5px]"
+          className="w-[21.113px] h-[21.113px] [stroke-width:4.197] -translate-y-[0.5px]"
           aria-hidden="true"
         />
         <span className={cn("hidden md:inline text-xs font-semibold", labelNudge[activeLocale])}>
