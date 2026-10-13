@@ -47,6 +47,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
   const t = useTranslations("ImageViewer");
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
+  const [buttonZoom, setButtonZoom] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -109,6 +110,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
   const resetZoom = useCallback(() => {
     setZoom(1);
     setPosition({ x: 0, y: 0 });
+    setButtonZoom(false);
   }, []);
 
   const goToNext = useCallback(() => {
@@ -235,7 +237,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     };
   };
 
-  const applyZoom = (nextZoom: number, anchor?: { x: number; y: number }) => {
+  const applyZoom = (nextZoom: number, anchor?: { x: number; y: number }, fromButton = false) => {
     const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, nextZoom));
     if (clamped === zoom) return;
 
@@ -244,14 +246,16 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
       ? { x: position.x - anchor.x * (ratio - 1), y: position.y - anchor.y * (ratio - 1) }
       : { x: position.x * ratio, y: position.y * ratio };
 
+    setButtonZoom(fromButton);
     setZoom(clamped);
     setPosition(constrainPosition(shifted.x, shifted.y, clamped));
   };
 
-  const zoomBy = (factor: number, anchor?: { x: number; y: number }) => applyZoom(zoom * factor, anchor);
+  const zoomBy = (factor: number, anchor?: { x: number; y: number }, fromButton = false) =>
+    applyZoom(zoom * factor, anchor, fromButton);
 
-  const handleZoomIn = () => zoomBy(ZOOM_STEP);
-  const handleZoomOut = () => zoomBy(1 / ZOOM_STEP);
+  const handleZoomIn = () => zoomBy(ZOOM_STEP, undefined, true);
+  const handleZoomOut = () => zoomBy(1 / ZOOM_STEP, undefined, true);
 
   const zoomByRef = useRef(zoomBy);
   useEffect(() => {
@@ -303,6 +307,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
     if (isOutsideImage(e.clientX, e.clientY)) return;
 
+    setButtonZoom(false);
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -329,6 +334,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     const touch = e.touches[0];
     multiTouchRef.current = e.touches.length > 1;
     setIsTouching(true);
+    setButtonZoom(false);
 
     if (e.touches.length === 2) {
       const distance = getDistance(e.touches[0], e.touches[1]);
@@ -474,7 +480,8 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
                   ref={imageContentRef}
                   className={cn(
                     "relative",
-                    !isTouching && "transition-transform ease-out",
+                    !isTouching && "transition-transform",
+                    !isTouching && (buttonZoom ? "ease-[ease]" : "ease-out"),
                     !isDragging && !isPinching && "duration-300",
                   )}
                   style={{
@@ -610,6 +617,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
                 onClick={e => {
                   e.stopPropagation();
                   resetZoom();
+                  setButtonZoom(true);
                 }}
                 {...resetPress}
                 className={cn(

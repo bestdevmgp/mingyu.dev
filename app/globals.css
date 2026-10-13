@@ -367,6 +367,7 @@ main {
   width: 100vw;
   transform: translateX(-50%);
   overflow: hidden;
+  clip-path: inset(4rem -1px -1px);
   container-type: size;
   z-index: 0;
 }
