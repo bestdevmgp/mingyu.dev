@@ -40,14 +40,6 @@ const LOCALE_LABELS: Record<Locale, string> = {
   "zh-Hant": "繁體中文",
 };
 
-const labelNudge: Record<string, string> = {
-  ko: "relative -translate-y-[0.25px]",
-  en: "relative -translate-y-[0.25px]",
-  ja: "relative -translate-y-[1.05px]",
-  "zh-Hans": "relative -translate-y-[0.7px]",
-  "zh-Hant": "relative -translate-y-[0.7px]",
-};
-
 const LOCALE_PREFIX = new RegExp(`^/(?:${locales.join("|")})(?=/|$)`);
 
 const setLocaleCookie = (locale: Locale) => {
@@ -138,13 +130,8 @@ const LanguageSwitcher = ({
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <GlobeSimpleIcon
-          className="w-[21.113px] h-[21.113px] [stroke-width:4.197] -translate-y-[0.5px]"
-          aria-hidden="true"
-        />
-        <span className={cn("hidden md:inline text-xs font-semibold", labelNudge[activeLocale])}>
-          {LOCALE_LABELS[activeLocale]}
-        </span>
+        <GlobeSimpleIcon className="w-5 h-5 [stroke-width:4.197]" aria-hidden="true" />
+        <span className="hidden md:inline text-xs font-semibold">{LOCALE_LABELS[activeLocale]}</span>
       </button>
 
       <AnimatePresence>
