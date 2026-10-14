@@ -68,7 +68,8 @@
     "heading": "谢谢。<br></br>如果想了解更多，<br></br>欢迎随时联系我。"
   },
   "Common": {
-    "backToProjects": "返回项目列表"
+    "backToProjects": "返回项目列表",
+    "close": "关闭"
   },
   "NotFound": {
     "description": "找不到您要寻找的页面。",

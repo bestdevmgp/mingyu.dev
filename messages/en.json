@@ -68,7 +68,8 @@
     "heading": "Thank you.<br></br>If you'd like to know more,<br></br>feel free to reach out."
   },
   "Common": {
-    "backToProjects": "Back to projects"
+    "backToProjects": "Back to projects",
+    "close": "Close"
   },
   "NotFound": {
     "description": "The page you're looking for can't be found.",

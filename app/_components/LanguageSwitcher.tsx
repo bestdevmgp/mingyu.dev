@@ -102,7 +102,7 @@ const LanguageSwitcher = ({
                 aria-pressed={isActive}
                 onClick={() => changeLocale(locale)}
                 className={cn(
-                  "px-2 py-1 rounded-md text-sm whitespace-nowrap transition-colors",
+                  "px-2 py-1 rounded-md text-sm whitespace-nowrap transition-colors duration-200",
                   isActive
                     ? "font-semibold text-foreground bg-foreground/10"
                     : "font-normal text-foreground/55 hover:text-foreground",
@@ -126,11 +126,11 @@ const LanguageSwitcher = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         className={cn(
-          "flex items-center gap-1 transition-colors focus-visible:rounded-md",
+          "flex items-center gap-[3px] transition-colors duration-200 focus-visible:rounded-md",
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <GlobeSimpleIcon className="w-5 h-5 [stroke-width:4.197]" aria-hidden="true" />
+        <GlobeSimpleIcon className="w-[22px] h-[22px] scale-[calc(21/22)] [stroke-width:4.197]" aria-hidden="true" />
         <span className="hidden md:inline text-xs font-semibold">{LOCALE_LABELS[activeLocale]}</span>
       </button>
 
@@ -154,7 +154,7 @@ const LanguageSwitcher = ({
                   aria-selected={locale === activeLocale}
                   onClick={() => changeLocale(locale)}
                   className={cn(
-                    "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                    "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors duration-200",
                     "hover:bg-foreground/5",
                     locale === activeLocale ? "font-semibold text-foreground" : "font-normal text-foreground/70",
                   )}

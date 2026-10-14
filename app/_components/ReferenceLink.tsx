@@ -21,7 +21,7 @@ const ReferenceLink = ({ href, label, labelClassName }: ReferenceLinkProps) => {
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "no-underline text-primary inline-flex items-center gap-1 transition-opacity",
+        "no-underline text-primary inline-flex items-center gap-1 transition-opacity duration-200",
         "mouse:hover:opacity-70 focus-visible:rounded-sm",
         isPressed && "opacity-70",
       )}
