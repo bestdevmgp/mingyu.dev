@@ -56,9 +56,9 @@ const ExpCard = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "text-base md:text-lg font-semibold w-fit no-underline underline-offset-2 text-foreground",
-                  "mouse:hover:underline focus-visible:rounded-sm",
-                  isPressed && "underline",
+                  "text-base md:text-lg font-semibold w-fit underline decoration-transparent underline-offset-2 text-foreground",
+                  "transition-colors duration-200 mouse:hover:decoration-current focus-visible:rounded-sm",
+                  isPressed && "decoration-current",
                 )}
                 {...pressHandlers}
               >

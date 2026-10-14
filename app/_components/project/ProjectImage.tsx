@@ -49,7 +49,7 @@ const ProjectImage = ({ ref, className, src, alt, size, reveal, onClick }: Proje
       >
         <Image
           ref={ref}
-          className="w-full h-auto object-contain hover:opacity-80 transition-opacity"
+          className="w-full h-auto object-contain hover:opacity-80 transition-opacity duration-200"
           src={src}
           alt={alt}
           width={800}

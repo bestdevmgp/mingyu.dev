@@ -20,7 +20,7 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
       data-skill={canTap ? "" : undefined}
       style={{ WebkitTouchCallout: "none" }}
       className={cn(
-        "relative group/skill transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center select-none",
+        "relative group/skill transition-all duration-300 shadow-md flex items-center justify-center select-none",
         rounded,
         isRawImage ? "p-0" : "bg-white border border-gray-100 p-1",
         canTap && "cursor-pointer",

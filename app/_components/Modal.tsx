@@ -7,9 +7,12 @@ import { RemoveScroll } from "react-remove-scroll";
 
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
+
+import Tooltip from "./Tooltip";
 
 interface ModalProps extends React.PropsWithChildren {
   onClose?: () => void;
@@ -18,6 +21,7 @@ interface ModalProps extends React.PropsWithChildren {
 
 const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
   const router = useRouter();
+  const t = useTranslations("Common");
   const [isOpen, setIsOpen] = useState(true);
 
   const close = useCallback(() => {
@@ -140,15 +144,23 @@ const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
                 >
                   <div id="modal-focus" tabIndex={-1} className="absolute outline-none pointer-events-none" />
                   <div ref={innerRef}>{children}</div>
-                  <X
-                    className="absolute top-5 right-5 md:top-7 md:right-7
-                    w-6 h-6 md:w-8 md:h-8 cursor-pointer
-                    text-foreground opacity-45 hover:opacity-60 active:opacity-75
-                    transition-opacity duration-200
-                  "
-                    strokeWidth={1.5}
-                    onClick={close}
-                  />
+                  <Tooltip label={t("close")} shortcut="Escape" align="end">
+                    <button
+                      type="button"
+                      onClick={close}
+                      aria-label={t("close")}
+                      className="group absolute top-5 right-5 md:top-7 md:right-7 cursor-pointer focus-visible:rounded-md"
+                    >
+                      <X
+                        aria-hidden
+                        className="block w-6 h-6 md:w-8 md:h-8
+                        text-foreground opacity-45 group-hover:opacity-100 group-active:opacity-100
+                        transition-opacity duration-200
+                      "
+                        strokeWidth={1.5}
+                      />
+                    </button>
+                  </Tooltip>
                 </motion.div>
               </motion.div>
             </RemoveScroll>

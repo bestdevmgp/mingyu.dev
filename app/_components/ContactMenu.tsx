@@ -11,6 +11,7 @@ import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 import useOnEscape from "@/utils/useOnEscape";
 
+import Tooltip from "./Tooltip";
 import { track } from "./analytics/posthog";
 
 type SvgProps = React.SVGProps<SVGSVGElement>;
@@ -131,7 +132,7 @@ const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () =
         track("contact_click", { channel: id, variant: "dropdown" });
         onClick?.();
       }}
-      className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors hover:bg-foreground/5"
+      className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors duration-200 hover:bg-foreground/5"
     >
       <Icon className={cn(iconClass, "shrink-0 text-foreground opacity-60")} />
       <span className="flex flex-col min-w-0">
@@ -172,7 +173,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
               rel={external ? "noopener noreferrer" : undefined}
               onClick={() => track("contact_click", { channel: id, variant: "inline" })}
               className="px-1.5 py-1 rounded-md text-sm font-normal whitespace-nowrap no-underline
-                text-foreground/55 hover:text-foreground transition-colors"
+                text-foreground/55 hover:text-foreground transition-colors duration-200"
             >
               {label}
             </a>
@@ -184,19 +185,21 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
 
   return (
     <div className={cn("relative", className)} ref={ref} {...props}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(prev => !prev)}
-        aria-label={t("contact")}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        className={cn(
-          "flex items-center transition-colors focus-visible:rounded-md",
-          isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
-        )}
-      >
-        <ContactTriggerIcon className="w-[18px] h-[18px] [stroke-width:2.266]" />
-      </button>
+      <Tooltip label={t("contact")} align="end">
+        <button
+          type="button"
+          onClick={() => setIsOpen(prev => !prev)}
+          aria-label={t("contact")}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          className={cn(
+            "flex items-center transition-colors duration-200 focus-visible:rounded-md",
+            isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
+          )}
+        >
+          <ContactTriggerIcon className="w-5 h-5 [stroke-width:2.266]" />
+        </button>
+      </Tooltip>
 
       <AnimatePresence>
         {isOpen && (

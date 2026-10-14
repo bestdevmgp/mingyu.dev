@@ -116,7 +116,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
           >
             <span
               className={cn(
-                "relative z-10",
+                "relative z-10 transition-colors duration-200",
                 activeCategory !== value && "mouse:group-hover:text-gray-600 dark:mouse:group-hover:text-gray-800",
                 activeCategory !== value && pressedCategory === value && "text-gray-600 dark:text-gray-800",
               )}

@@ -22,7 +22,7 @@ type CTAButtonProps = CTALinkProps | CTAButtonOnlyProps;
 
 const ctaClassName = (prefix: React.ReactNode, suffix: React.ReactNode, className?: string) =>
   cn(
-    "py-2 min-w-36 bg-foreground/5 rounded-lg flex justify-center items-center gap-2 hover:bg-foreground/10 transition-colors",
+    "py-2 min-w-36 bg-foreground/5 rounded-lg flex justify-center items-center gap-2 hover:bg-foreground/10 transition-colors duration-200",
     prefix ? "pl-[19px]" : "pl-5",
     suffix ? "pr-[19px]" : "pr-5",
     className,

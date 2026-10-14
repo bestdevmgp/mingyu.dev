@@ -68,7 +68,8 @@
     "heading": "ありがとうございます。<br></br>もっと知りたいことがあれば<br></br>お気軽にご連絡ください。"
   },
   "Common": {
-    "backToProjects": "プロジェクト一覧に戻る"
+    "backToProjects": "プロジェクト一覧に戻る",
+    "close": "閉じる"
   },
   "NotFound": {
     "description": "お探しのページは見つかりませんでした。",

@@ -16,6 +16,7 @@ import useOnEscape from "@/utils/useOnEscape";
 import ContactMenu from "./ContactMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
+import Tooltip from "./Tooltip";
 
 const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "qualifications" }] as const;
 
@@ -201,9 +202,11 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       </HomeLink>
 
       <div className="flex items-center gap-2 shrink-0">
-        <div className="hidden xl:flex items-center gap-3.5">
+        <div className="hidden xl:flex items-center gap-[13px]">
           <LanguageSwitcher hardNavigation={homeHref !== undefined} />
-          <ThemeToggle className="[&_svg]:[stroke-width:2.6]" />
+          <Tooltip label={t("toggleTheme")}>
+            <ThemeToggle className="[&_svg]:w-5 [&_svg]:h-5 [&_svg]:[stroke-width:2.6] [&_svg:last-child]:translate-y-[0.5px]" />
+          </Tooltip>
           <ContactMenu />
         </div>
 
@@ -255,7 +258,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
           <ContactMenu variant="inline" />
           <div className="flex items-center gap-3">
             <span aria-hidden className="w-px h-[22px] bg-foreground/15 shrink-0" />
-            <ThemeToggle />
+            <ThemeToggle title={t("toggleTheme")} />
           </div>
         </div>
 
