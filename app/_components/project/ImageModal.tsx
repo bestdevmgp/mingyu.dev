@@ -621,7 +621,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
             )}
 
             <div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 rounded-full p-2"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 bg-black/50 rounded-full p-1"
               onClick={e => e.stopPropagation()}
             >
               <Tooltip label={t("zoomOut")} side="top">
@@ -633,7 +633,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
                   disabled={zoom <= MIN_ZOOM}
                   {...zoomOutPress}
                   className={cn(
-                    "p-2 rounded-full transition-colors duration-200",
+                    "p-3 rounded-full transition-colors duration-200",
                     zoom <= MIN_ZOOM
                       ? "text-white/25 cursor-not-allowed"
                       : zoomOutPressed
@@ -657,7 +657,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
                   }}
                   {...resetPress}
                   className={cn(
-                    "px-3 py-2 rounded-full transition-colors duration-200 text-sm",
+                    "p-3 rounded-full transition-colors duration-200 text-sm",
                     resetPressed ? "text-white bg-[#000]/40" : "text-white/55 hover:text-white hover:bg-[#000]/40",
                   )}
                   aria-label={t("resetZoom")}
@@ -678,7 +678,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
                   disabled={zoom >= MAX_ZOOM}
                   {...zoomInPress}
                   className={cn(
-                    "p-2 rounded-full transition-colors duration-200",
+                    "p-3 rounded-full transition-colors duration-200",
                     zoom >= MAX_ZOOM
                       ? "text-white/25 cursor-not-allowed"
                       : zoomInPressed
