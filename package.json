@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "node scripts/snapshot.mjs && next dev",
-    "build": "npx prisma generate && npx prisma migrate deploy && node scripts/snapshot.mjs && next build",
+    "build": "npx prisma generate && node scripts/snapshot.mjs && next build",
     "snapshot": "node scripts/snapshot.mjs",
     "start": "next start",
     "lint": "eslint .",
@@ -18,7 +18,6 @@
     "@next/env": "^16.4.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
-    "@prisma/extension-accelerate": "^3.0.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "classnames": "^2.5.1",

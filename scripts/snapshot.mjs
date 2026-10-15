@@ -3,18 +3,15 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import nextEnv from "@next/env";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import sharp from "sharp";
 
 nextEnv.loadEnvConfig(process.cwd());
 
 const url = process.env.PRISMA_DATABASE_URL ?? "";
 const useAccelerate = url.startsWith("prisma://") || url.startsWith("prisma+postgres://");
-const prisma = (
-  useAccelerate
-    ? new PrismaClient({ accelerateUrl: url })
-    : new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) })
-).$extends(withAccelerate());
+const prisma = useAccelerate
+  ? new PrismaClient({ accelerateUrl: url })
+  : new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
 
 const [intro, skill, experience, education, blog, project] = await Promise.all([
   prisma.intro.findMany({ orderBy: { id: "asc" } }),
