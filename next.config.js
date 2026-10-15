@@ -5,6 +5,8 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const posthogHost =
   process.env.NEXT_PUBLIC_POSTHOG_PROXY_HOST ?? process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
 
+const posthogUiHost = "https://eu.posthog.com";
+
 const posthogOrigins = () => {
   if (!URL.canParse(posthogHost)) return [];
   const { origin, hostname } = new URL(posthogHost);
@@ -32,15 +34,15 @@ const contentSecurityPolicy = () => {
       ...posthog,
     ],
     "script-src-attr": ["'none'"],
-    "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-    "img-src": ["'self'", "data:", "blob:", "https://images.mingyu.dev"],
-    "font-src": ["'self'", "https://fonts.gstatic.com"],
-    "connect-src": ["'self'", ...posthog],
+    "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", ...posthog],
+    "img-src": ["'self'", "data:", "blob:", "https://images.mingyu.dev", ...posthog],
+    "font-src": ["'self'", "https://fonts.gstatic.com", ...posthog],
+    "connect-src": ["'self'", ...posthog, posthogUiHost],
     "worker-src": ["'self'", "blob:", "data:"],
     "object-src": ["'none'"],
     "base-uri": ["'none'"],
     "form-action": ["'self'"],
-    "frame-ancestors": ["'self'"],
+    "frame-ancestors": ["'self'", posthogUiHost],
   };
   if (process.env.VERCEL_ENV === "preview") {
     for (const [directive, sources] of Object.entries(vercelToolbarSources)) {
