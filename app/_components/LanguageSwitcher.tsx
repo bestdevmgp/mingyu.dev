@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check } from "react-feather";
 
 import cn from "classnames";
@@ -68,6 +68,15 @@ const LanguageSwitcher = ({
   useOnEscape(isOpen, () => setIsOpen(false));
   useFocusScope(ref, isOpen, '[role="option"][aria-selected="true"]');
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeIfHidden = () => {
+      if (!ref.current?.getClientRects().length) setIsOpen(false);
+    };
+    window.addEventListener("resize", closeIfHidden);
+    return () => window.removeEventListener("resize", closeIfHidden);
+  }, [isOpen]);
+
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const displayLocale = pendingLocale ?? activeLocale;
 
@@ -130,7 +139,10 @@ const LanguageSwitcher = ({
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <GlobeSimpleIcon className="w-[22px] h-[22px] scale-[calc(21/22)] [stroke-width:4.197]" aria-hidden="true" />
+        <GlobeSimpleIcon
+          className="w-[22px] h-[22px] -ml-[2px] scale-[calc(21/22)] [stroke-width:4.197]"
+          aria-hidden="true"
+        />
         <span className="hidden md:inline text-xs font-semibold">{LOCALE_LABELS[activeLocale]}</span>
       </button>
 

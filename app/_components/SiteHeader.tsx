@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Sparkle from "@/assets/shape-sparkle-round.svg";
 import useCarriedState from "@/utils/useCarriedState";
 import useFocusScope from "@/utils/useFocusScope";
+import useIsDark from "@/utils/useIsDark";
 import useOnEscape from "@/utils/useOnEscape";
 
 import ContactMenu from "./ContactMenu";
@@ -28,7 +29,7 @@ const nameNudge: Record<string, string> = {
   "zh-Hant": "-translate-y-[0.4px] md:-translate-y-[1.3px]",
 };
 
-const staggerMenuItems = stagger(0.07, { startDelay: 0.1 });
+const staggerMenuItems = stagger(0.05, { startDelay: 0.075 });
 
 interface SiteHeaderProps {
   homeHref?: string;
@@ -39,6 +40,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
   const t = useTranslations("Header");
   const tNav = useTranslations("Nav");
   const locale = useLocale();
+  const themeLabel = t(useIsDark() ? "switchToLight" : "switchToDark");
 
   const [scrolled, setScrolled] = useCarriedState("header.scrolled", false);
   const [atTop, setAtTop] = useCarriedState("header.atTop", true);
@@ -75,12 +77,12 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       [
         ".mobile-menu",
         { clipPath: isExpanded ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)" },
-        { type: "spring", bounce: 0, duration: 0.4 },
+        { type: "spring", bounce: 0, duration: 0.3 },
       ],
       [
         ".mobile-menu-item",
         { opacity: isExpanded ? 1 : 0 },
-        { duration: 0.2, delay: isExpanded ? staggerMenuItems : 0, at: "-0.2" },
+        { duration: 0.15, delay: isExpanded ? staggerMenuItems : 0, at: "-0.15" },
       ],
     ]);
   }, [isExpanded, animate]);
@@ -204,7 +206,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-[13px]">
           <LanguageSwitcher hardNavigation={homeHref !== undefined} />
-          <Tooltip label={t("toggleTheme")}>
+          <Tooltip label={themeLabel}>
             <ThemeToggle className="[&_svg]:w-5 [&_svg]:h-5 [&_svg]:[stroke-width:2.6] [&_svg:last-child]:translate-y-[0.5px]" />
           </Tooltip>
           <ContactMenu />
@@ -258,7 +260,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
           <ContactMenu variant="inline" />
           <div className="flex items-center gap-3">
             <span aria-hidden className="w-px h-[22px] bg-foreground/15 shrink-0" />
-            <ThemeToggle title={t("toggleTheme")} />
+            <ThemeToggle title={themeLabel} />
           </div>
         </div>
 

@@ -1,6 +1,5 @@
 import { getImageSizes, getProject, getSkills } from "@/utils/api";
 import { applyLocale, applyLocaleAll } from "@/utils/localize";
-import { parsePrismaJSON } from "@/utils/parsePrisma";
 
 export function getProjectData(id: number, locale: string) {
   const project = getProject(id);
@@ -12,7 +11,7 @@ export function getProjectData(id: number, locale: string) {
 
   return {
     ...res,
-    links: links.map(link => parsePrismaJSON<{ href: string; label: string }>(link)),
+    links: links as unknown as { href: string; label: string }[],
     items: responseItems,
     skills: responseSkills,
     imageSizes: getImageSizes(responseItems.flatMap(item => item.blobUrls)),

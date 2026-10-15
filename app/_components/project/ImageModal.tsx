@@ -455,24 +455,28 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
               )}
 
               <div className="ml-auto pointer-events-auto">
-                <Tooltip label={t("close")} shortcut="Escape" align="end">
+                <Tooltip label={t("close")} shortcut="Escape">
                   <button
                     onClick={e => {
                       e.stopPropagation();
                       requestClose();
                     }}
                     {...closePress}
-                    className={cn(
-                      "text-white rounded-full p-2 transition-[opacity,background-color] duration-200",
-                      closePressed
-                        ? "bg-[#0f0f0f]/70 opacity-100"
-                        : "bg-black/50 opacity-55 hover:bg-[#0f0f0f]/70 hover:opacity-100",
-                    )}
+                    className="group text-white rounded-full"
                     aria-label={t("close")}
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <span
+                      className={cn(
+                        "block rounded-full p-2 transition-[opacity,background-color] duration-200",
+                        closePressed
+                          ? "bg-[#0f0f0f]/70 opacity-100"
+                          : "bg-black/50 opacity-55 group-hover:bg-[#0f0f0f]/70 group-hover:opacity-100",
+                      )}
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </span>
                   </button>
                 </Tooltip>
               </div>
@@ -561,49 +565,55 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
             {images.length > 1 && (
               <>
                 {currentIndex > 0 && (
-                  <Tooltip label={t("previous")} shortcut="ArrowLeft" align="start">
+                  <Tooltip label={t("previous")} shortcut="ArrowLeft">
                     <button
                       onClick={e => {
                         e.stopPropagation();
                         goToPrevious();
                       }}
                       {...prevPress}
-                      className={cn(
-                        "absolute left-4 top-1/2 -translate-y-1/2 text-white rounded-full p-3 z-10",
-                        "transition-[opacity,background-color] duration-200",
-                        prevPressed
-                          ? "bg-[#0f0f0f]/70 opacity-100"
-                          : "bg-black/50 opacity-55 hover:bg-[#0f0f0f]/70 hover:opacity-100",
-                      )}
+                      className="group absolute left-4 top-1/2 -translate-y-1/2 text-white rounded-full z-10"
                       aria-label={t("previous")}
                     >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
+                      <span
+                        className={cn(
+                          "block rounded-full p-3 transition-[opacity,background-color] duration-200",
+                          prevPressed
+                            ? "bg-[#0f0f0f]/70 opacity-100"
+                            : "bg-black/50 opacity-55 group-hover:bg-[#0f0f0f]/70 group-hover:opacity-100",
+                        )}
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </span>
                     </button>
                   </Tooltip>
                 )}
 
                 {currentIndex < images.length - 1 && (
-                  <Tooltip label={t("next")} shortcut="ArrowRight" align="end">
+                  <Tooltip label={t("next")} shortcut="ArrowRight">
                     <button
                       onClick={e => {
                         e.stopPropagation();
                         goToNext();
                       }}
                       {...nextPress}
-                      className={cn(
-                        "absolute right-4 top-1/2 -translate-y-1/2 text-white rounded-full p-3 z-10",
-                        "transition-[opacity,background-color] duration-200",
-                        nextPressed
-                          ? "bg-[#0f0f0f]/70 opacity-100"
-                          : "bg-black/50 opacity-55 hover:bg-[#0f0f0f]/70 hover:opacity-100",
-                      )}
+                      className="group absolute right-4 top-1/2 -translate-y-1/2 text-white rounded-full z-10"
                       aria-label={t("next")}
                     >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                      <span
+                        className={cn(
+                          "block rounded-full p-3 transition-[opacity,background-color] duration-200",
+                          nextPressed
+                            ? "bg-[#0f0f0f]/70 opacity-100"
+                            : "bg-black/50 opacity-55 group-hover:bg-[#0f0f0f]/70 group-hover:opacity-100",
+                        )}
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </span>
                     </button>
                   </Tooltip>
                 )}

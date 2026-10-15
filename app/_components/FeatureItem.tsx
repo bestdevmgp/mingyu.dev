@@ -8,10 +8,9 @@ interface FeatureItemProps extends Omit<intro, "i18n"> {
   index: number;
 }
 
-const FeatureItem = ({ id, blobUrl, title, detail, index }: FeatureItemProps) => {
+const FeatureItem = ({ blobUrl, title, detail, index }: FeatureItemProps) => {
   return (
     <li
-      key={`intro-card-${id}`}
       data-reveal-stagger
       style={{ "--reveal-index": index } as React.CSSProperties}
       className="flex flex-col gap-4 flex-1 indent-0 max-w-80"

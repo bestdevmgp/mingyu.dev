@@ -8,7 +8,6 @@ import SlideUpInView from "@/_components/SlideUpInView";
 import content from "@/lib/content";
 import { getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
-import { parsePrismaJSON } from "@/utils/parsePrisma";
 
 function getExperience(locale: string) {
   const expWithSkills = applyLocaleAll(content.experience, locale).map(({ skill_ids, ...exp }) => ({
@@ -17,7 +16,7 @@ function getExperience(locale: string) {
   }));
 
   return expWithSkills.map(({ links, ...res }) => ({
-    links: links.map(link => parsePrismaJSON<{ href: string; label: string }>(link)),
+    links: links as unknown as { href: string; label: string }[],
     ...res,
   }));
 }

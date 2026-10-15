@@ -144,12 +144,12 @@ const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
                 >
                   <div id="modal-focus" tabIndex={-1} className="absolute outline-none pointer-events-none" />
                   <div ref={innerRef}>{children}</div>
-                  <Tooltip label={t("close")} shortcut="Escape" align="end">
+                  <Tooltip label={t("close")} shortcut="Escape">
                     <button
                       type="button"
                       onClick={close}
                       aria-label={t("close")}
-                      className="group absolute top-5 right-5 md:top-7 md:right-7 cursor-pointer focus-visible:rounded-md"
+                      className="group absolute top-5 right-5 md:top-7 md:right-7 cursor-pointer focus-visible:outline-none"
                     >
                       <X
                         aria-hidden
@@ -158,6 +158,10 @@ const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
                         transition-opacity duration-200
                       "
                         strokeWidth={1.5}
+                      />
+                      <span
+                        data-tooltip-anchor
+                        className="absolute inset-0.5 md:inset-1 rounded-md group-focus-visible:outline-solid"
                       />
                     </button>
                   </Tooltip>

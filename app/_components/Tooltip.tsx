@@ -24,11 +24,10 @@ interface TooltipProps {
   label: string;
   shortcut?: keyof typeof KEYCAPS;
   side?: "top" | "bottom";
-  align?: "start" | "center" | "end";
   children: React.ReactNode;
 }
 
-export default function Tooltip({ label, shortcut, side = "bottom", align = "center", children }: TooltipProps) {
+export default function Tooltip({ label, shortcut, side = "bottom", children }: TooltipProps) {
   const [phase, setPhase] = useState<Phase>("hidden");
   const phaseRef = useRef<Phase>("hidden");
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -79,16 +78,15 @@ export default function Tooltip({ label, shortcut, side = "bottom", align = "cen
     const trigger = triggerRef.current;
     const tip = tipRef.current;
     if (!trigger || !tip) return;
-    const box = trigger.getBoundingClientRect();
-    const width = tip.offsetWidth;
-    const start =
-      align === "start" ? box.left : align === "end" ? box.right - width : box.left + (box.width - width) / 2;
+    const box = (trigger.querySelector("[data-tooltip-anchor]") ?? trigger).getBoundingClientRect();
+    const { width, height } = tip.getBoundingClientRect();
+    const start = box.left + (box.width - width) / 2;
     const left = Math.min(Math.max(EDGE, start), document.documentElement.clientWidth - EDGE - width);
-    const top = side === "bottom" ? box.bottom + GAP : box.top - GAP - tip.offsetHeight;
+    const top = side === "bottom" ? box.bottom + GAP : box.top - GAP - height;
     const snap = (value: number) => Math.round(value * window.devicePixelRatio) / window.devicePixelRatio;
     tip.style.left = `${snap(left)}px`;
     tip.style.top = `${snap(top)}px`;
-  }, [align, side]);
+  }, [side]);
 
   useLayoutEffect(() => {
     const trigger = triggerRef.current;
