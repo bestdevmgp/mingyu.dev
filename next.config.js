@@ -2,6 +2,58 @@ const createNextIntlPlugin = require("next-intl/plugin");
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
+const posthogHost =
+  process.env.NEXT_PUBLIC_POSTHOG_PROXY_HOST ?? process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
+
+const posthogUiHost = "https://eu.posthog.com";
+
+const posthogOrigins = () => {
+  if (!URL.canParse(posthogHost)) return [];
+  const { origin, hostname } = new URL(posthogHost);
+  const region = /^(eu|us)\.i\.posthog\.com$/.exec(hostname)?.[1];
+  return region ? [origin, `https://${region}-assets.i.posthog.com`] : [origin];
+};
+
+const vercelToolbarSources = {
+  "script-src": ["https://vercel.live"],
+  "style-src": ["https://vercel.live"],
+  "img-src": ["https://vercel.live", "https://vercel.com"],
+  "font-src": ["https://vercel.live", "https://assets.vercel.com"],
+  "connect-src": ["https://vercel.live", "wss://ws-us3.pusher.com"],
+  "frame-src": ["'self'", "https://vercel.live"],
+};
+
+const contentSecurityPolicy = () => {
+  const posthog = posthogOrigins();
+  const directives = {
+    "default-src": ["'self'"],
+    "script-src": [
+      "'self'",
+      "'unsafe-inline'",
+      ...(process.env.NODE_ENV === "development" ? ["'unsafe-eval'"] : []),
+      ...posthog,
+    ],
+    "script-src-attr": ["'none'"],
+    "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", ...posthog],
+    "img-src": ["'self'", "data:", "blob:", "https://images.mingyu.dev", ...posthog],
+    "font-src": ["'self'", "https://fonts.gstatic.com", ...posthog],
+    "connect-src": ["'self'", ...posthog, posthogUiHost],
+    "worker-src": ["'self'", "blob:", "data:"],
+    "object-src": ["'none'"],
+    "base-uri": ["'none'"],
+    "form-action": ["'self'"],
+    "frame-ancestors": ["'self'", posthogUiHost],
+  };
+  if (process.env.VERCEL_ENV === "preview") {
+    for (const [directive, sources] of Object.entries(vercelToolbarSources)) {
+      directives[directive] = [...(directives[directive] ?? []), ...sources];
+    }
+  }
+  return Object.entries(directives)
+    .map(([directive, sources]) => [directive, ...sources].join(" "))
+    .join("; ");
+};
+
 const nextConfig = {
   poweredByHeader: false,
   experimental: {
@@ -21,10 +73,7 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: [
-          {
-            key: "Content-Security-Policy",
-            value: "base-uri 'none'; object-src 'none'; form-action 'self'; frame-ancestors 'self'",
-          },
+          { key: "Content-Security-Policy", value: contentSecurityPolicy() },
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
