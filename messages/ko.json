@@ -2,7 +2,8 @@
   "Header": {
     "name": "박민규",
     "role": "백엔드 개발자",
-    "toggleTheme": "테마 전환",
+    "switchToDark": "다크 모드로 전환",
+    "switchToLight": "라이트 모드로 전환",
     "changeLanguage": "언어 변경",
     "openMenu": "메뉴 열기",
     "closeMenu": "메뉴 닫기",
@@ -78,10 +79,7 @@
   "Meta": {
     "title": "박민규 | 백엔드 개발자",
     "name": "박민규",
-    "jobTitle": [
-      "개발자",
-      "백엔드 개발자"
-    ],
+    "jobTitle": ["개발자", "백엔드 개발자"],
     "description": "백엔드 개발자 박민규입니다. Spring Boot를 중심으로 웹 애플리케이션 서버를 설계하고 개발합니다."
   }
 }

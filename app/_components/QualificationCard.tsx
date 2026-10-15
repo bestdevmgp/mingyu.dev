@@ -7,9 +7,9 @@ import type { education } from "@prisma/client";
 
 interface QualificationCardProps extends Omit<education, "i18n"> {}
 
-const QualificationCard = ({ id, period, title, sub_title, items, is_active }: QualificationCardProps) => {
+const QualificationCard = ({ period, title, sub_title, items, is_active }: QualificationCardProps) => {
   return (
-    <div key={`qualification-card-${id}`} className="grid sm:grid-cols-3 sm:gap-x-10 sm:items-start">
+    <div className="grid sm:grid-cols-3 sm:gap-x-10 sm:items-start">
       <div className="flex gap-2.5 sm:justify-end items-center mb-3">
         <Shape className={cn(is_active ? "text-primary" : "text-foreground/30")} />
         <p className="text-sm md:text-base font-normal text-foreground/60">{period}</p>

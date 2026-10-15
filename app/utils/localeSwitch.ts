@@ -83,5 +83,7 @@ export const endLocaleSwitch = () => {
   document.documentElement.classList.remove("locale-switching");
 
   followAnchor();
-  window.__lenis?.scrollTo(window.scrollY, { immediate: true });
+  const lenis = window.__lenis;
+  if (lenis && window.scrollY > lenis.limit) lenis.resize();
+  lenis?.scrollTo(window.scrollY, { immediate: true });
 };

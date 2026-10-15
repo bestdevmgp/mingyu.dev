@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import { AnimatePresence, motion } from "motion/react";
@@ -156,6 +156,15 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
   useOnEscape(isOpen, () => setIsOpen(false));
   useFocusScope(ref, isOpen, '[role="menu"] a');
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeIfHidden = () => {
+      if (!ref.current?.getClientRects().length) setIsOpen(false);
+    };
+    window.addEventListener("resize", closeIfHidden);
+    return () => window.removeEventListener("resize", closeIfHidden);
+  }, [isOpen]);
+
   const contacts = CONTACTS.map(contact =>
     contact.id === "phone" ? { ...contact, value: phoneDisplay(locale), href: phoneHref(locale) } : contact,
   );
@@ -185,7 +194,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
 
   return (
     <div className={cn("relative", className)} ref={ref} {...props}>
-      <Tooltip label={t("contact")} align="end">
+      <Tooltip label={t("contact")}>
         <button
           type="button"
           onClick={() => setIsOpen(prev => !prev)}

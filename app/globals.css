@@ -428,9 +428,6 @@ main {
 }
 
 @media (max-aspect-ratio: 1/1) {
-  .hero-bg {
-    top: -4rem;
-  }
   #main {
     min-height: calc(clamp(600px, calc(var(--vh0, 1vh) * 80), 1080px) + 4rem) !important;
     margin-bottom: 4rem;

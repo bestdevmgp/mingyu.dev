@@ -2,7 +2,8 @@
   "Header": {
     "name": "Mingyu Park",
     "role": "Backend Developer",
-    "toggleTheme": "Toggle theme",
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
     "changeLanguage": "Change language",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
@@ -78,10 +79,7 @@
   "Meta": {
     "title": "Mingyu Park | Backend Developer",
     "name": "Mingyu Park",
-    "jobTitle": [
-      "Developer",
-      "Backend Developer"
-    ],
+    "jobTitle": ["Developer", "Backend Developer"],
     "description": "I'm Mingyu Park, a backend developer. I design and build web application servers centered on Spring Boot."
   }
 }

@@ -15,7 +15,13 @@ const ITEMS = [
 
 const VARIANTS = {
   modal: { title: "w-3/5", titleSecond: "w-2/5", desc: "w-3/5", descSecond: "w-2/5", period: "w-32" },
-  page: { title: "w-[72%]", titleSecond: "w-1/2", desc: "w-[72%]", descSecond: "w-1/2", period: "w-40" },
+  page: {
+    title: "w-[72%] md:w-3/5",
+    titleSecond: "w-1/2",
+    desc: "w-[72%] md:w-3/5",
+    descSecond: "w-1/2",
+    period: "w-40 md:w-32",
+  },
 };
 
 interface ProjectSkeletonProps {

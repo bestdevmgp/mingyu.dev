@@ -12,7 +12,7 @@ const nodeGlobals = {
 
 const config = [
   {
-    ignores: ["**/.next/**", "**/node_modules/**", "**/generated/**", "next-env.d.ts"],
+    ignores: ["**/.next/**", "**/node_modules/**", "next-env.d.ts"],
   },
 
   ...next,

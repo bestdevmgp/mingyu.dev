@@ -4,10 +4,6 @@ interface SectionWatcherProps extends Omit<PropsWithChildren, "id"> {
   id: string;
 }
 
-const SectionWatcher: FC<SectionWatcherProps> = ({ id, children, ...props }) => (
-  <section id={id} {...props}>
-    {children}
-  </section>
-);
+const SectionWatcher: FC<SectionWatcherProps> = ({ id, children }) => <section id={id}>{children}</section>;
 
 export default SectionWatcher;
