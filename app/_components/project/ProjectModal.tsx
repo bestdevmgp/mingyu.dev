@@ -10,8 +10,6 @@ interface ProjectModalProps {
 }
 
 export default async function ProjectModal({ id }: ProjectModalProps) {
-  if (!Number.isSafeInteger(id) || id <= 0) notFound();
-
   const projectData = getProjectData(id, await getLocale());
   if (!projectData) notFound();
 
