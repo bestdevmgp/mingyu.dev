@@ -20,6 +20,8 @@ const KEYCAPS = {
 
 type Phase = "hidden" | "enter" | "exit";
 
+let heldLeave: (() => void) | null = null;
+
 interface TooltipProps {
   label: string;
   shortcut?: keyof typeof KEYCAPS;
@@ -34,16 +36,23 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
   const tipRef = useRef<HTMLDivElement>(null);
   const timer = useRef(0);
   const suppressed = useRef(false);
+  const ownLeave = useRef<(() => void) | null>(null);
 
   const go = useCallback((next: Phase) => {
     phaseRef.current = next;
     setPhase(next);
   }, []);
 
+  const release = useCallback(() => {
+    if (heldLeave && heldLeave === ownLeave.current) heldLeave = null;
+    ownLeave.current = null;
+  }, []);
+
   const dismiss = useCallback(() => {
     window.clearTimeout(timer.current);
+    release();
     if (phaseRef.current !== "hidden") go("hidden");
-  }, [go]);
+  }, [go, release]);
 
   useEffect(() => dismiss, [dismiss]);
 
@@ -52,15 +61,27 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
     if (!trigger || suppressed.current) return;
     if (trigger.matches(":disabled") || trigger.getAttribute("aria-expanded") === "true") return;
     window.clearTimeout(timer.current);
-    if (phaseRef.current === "exit") go("enter");
-    else if (phaseRef.current === "hidden") timer.current = window.setTimeout(() => go("enter"), SHOW_DELAY);
-  }, [go]);
+    release();
+    const held = heldLeave;
+    if (phaseRef.current === "hidden" && !held) {
+      timer.current = window.setTimeout(() => go("enter"), SHOW_DELAY);
+      return;
+    }
+    if (held) {
+      heldLeave = null;
+      held();
+    }
+    if (phaseRef.current !== "enter") go("enter");
+  }, [go, release]);
 
   const hide = useCallback(
     (pressed: boolean) => {
       window.clearTimeout(timer.current);
       if (phaseRef.current !== "enter") return;
       const leave = () => {
+        window.clearTimeout(timer.current);
+        release();
+        if (phaseRef.current !== "enter") return;
         if (prefersReducedMotion()) {
           dismiss();
           return;
@@ -68,10 +89,15 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
         go("exit");
         timer.current = window.setTimeout(dismiss, EXIT_FALLBACK);
       };
-      if (pressed) leave();
-      else timer.current = window.setTimeout(leave, HIDE_DELAY);
+      if (pressed) {
+        leave();
+        return;
+      }
+      timer.current = window.setTimeout(leave, HIDE_DELAY);
+      ownLeave.current = leave;
+      heldLeave = leave;
     },
-    [dismiss, go],
+    [dismiss, go, release],
   );
 
   const place = useCallback(() => {
@@ -169,8 +195,8 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
             data-side={side}
             data-state={phase}
             aria-hidden="true"
-            onAnimationEnd={() => {
-              if (phaseRef.current === "exit") dismiss();
+            onAnimationEnd={event => {
+              if (event.animationName === "tooltip-out" && phaseRef.current === "exit") dismiss();
             }}
           >
             {label}
