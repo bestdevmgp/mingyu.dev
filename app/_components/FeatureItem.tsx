@@ -16,11 +16,12 @@ const FeatureItem = ({ blobUrl, title, detail, index }: FeatureItemProps) => {
       className="flex flex-col gap-4 flex-1 indent-0 max-w-80"
     >
       {blobUrl && (
-        <div className="relative w-full h-60 ">
+        <div className="relative w-full h-60 md:overflow-hidden md:rounded-lg md:shadow-[0_0_0_1px_rgba(0,0,0,0.05)]">
           <Image
-            className="bg-foreground/5 dark:bg-foreground/8 rounded-lg shadow-[0_0_0_1px_rgba(0,0,0,0.05)] object-cover object-center"
+            className="bg-foreground/5 dark:bg-foreground/8 rounded-lg shadow-[0_0_0_1px_rgba(0,0,0,0.05)] object-cover object-center md:object-contain md:scale-[1.0455]"
             src={blobUrl}
             fill
+            sizes="320px"
             alt={`feature-${title}`}
           />
         </div>
