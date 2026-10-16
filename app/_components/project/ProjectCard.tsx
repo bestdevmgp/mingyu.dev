@@ -82,7 +82,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
           <p className="text-sm font-normal opacity-60 hidden md:inline-block">{richText(sub_title)}</p>
         </div>
 
-        <ul className="p-0 flex gap-2 list-none flex-wrap">
+        <ul className="p-0 flex gap-2 list-none flex-wrap xl:-mr-px">
           {skills.map(skill => (
             <li key={`project-${id}-skill-${skill.id}`} className="indent-0">
               <SkillItem label={skill.item} imageUrl={skill.blobUrl} size="xs" />
