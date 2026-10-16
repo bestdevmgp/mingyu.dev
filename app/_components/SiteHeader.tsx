@@ -29,7 +29,7 @@ const nameNudge: Record<string, string> = {
   "zh-Hant": "-translate-y-[0.4px] md:-translate-y-[1.3px]",
 };
 
-const staggerMenuItems = stagger(0.05, { startDelay: 0.075 });
+const staggerMenuItems = stagger(0.06, { startDelay: 0.0875 });
 
 interface SiteHeaderProps {
   homeHref?: string;
@@ -77,12 +77,12 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       [
         ".mobile-menu",
         { clipPath: isExpanded ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)" },
-        { type: "spring", bounce: 0, duration: 0.3 },
+        { type: "spring", bounce: 0, duration: 0.35 },
       ],
       [
         ".mobile-menu-item",
         { opacity: isExpanded ? 1 : 0 },
-        { duration: 0.15, delay: isExpanded ? staggerMenuItems : 0, at: "-0.15" },
+        { duration: 0.175, delay: isExpanded ? staggerMenuItems : 0, at: "-0.175" },
       ],
     ]);
   }, [isExpanded, animate]);
