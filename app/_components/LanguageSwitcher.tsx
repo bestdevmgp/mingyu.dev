@@ -144,7 +144,11 @@ const LanguageSwitcher = ({
           aria-hidden="true"
         />
         <span
-          className={cn("hidden md:inline font-semibold", activeLocale === "en" ? "text-[15px]/4" : "text-[13px]/4")}
+          className={cn(
+            "hidden md:inline font-semibold",
+            activeLocale === "en" ? "text-[14px]/4" : "text-[13px]/4",
+            activeLocale === "ko" && "translate-y-px",
+          )}
         >
           {LOCALE_LABELS[activeLocale]}
         </span>
