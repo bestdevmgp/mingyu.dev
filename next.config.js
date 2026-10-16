@@ -5,14 +5,11 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const posthogHost =
   process.env.NEXT_PUBLIC_POSTHOG_PROXY_HOST ?? process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
 
+const posthogOrigin = new URL(posthogHost).origin;
+
 const posthogUiHost = "https://eu.posthog.com";
 
-const posthogOrigins = () => {
-  if (!URL.canParse(posthogHost)) return [];
-  const { origin, hostname } = new URL(posthogHost);
-  const region = /^(eu|us)\.i\.posthog\.com$/.exec(hostname)?.[1];
-  return region ? [origin, `https://${region}-assets.i.posthog.com`] : [origin];
-};
+const imageHost = "images.mingyu.dev";
 
 const vercelToolbarSources = {
   "script-src": ["https://vercel.live"],
@@ -24,21 +21,19 @@ const vercelToolbarSources = {
 };
 
 const contentSecurityPolicy = () => {
-  const posthog = posthogOrigins();
   const directives = {
     "default-src": ["'self'"],
     "script-src": [
       "'self'",
       "'unsafe-inline'",
       ...(process.env.NODE_ENV === "development" ? ["'unsafe-eval'"] : []),
-      ...posthog,
+      posthogOrigin,
     ],
     "script-src-attr": ["'none'"],
-    "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", ...posthog],
-    "img-src": ["'self'", "data:", "blob:", "https://images.mingyu.dev", ...posthog],
-    "font-src": ["'self'", "https://fonts.gstatic.com", ...posthog],
-    "connect-src": ["'self'", ...posthog, posthogUiHost],
-    "worker-src": ["'self'", "blob:", "data:"],
+    "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", posthogOrigin],
+    "img-src": ["'self'", "data:", "blob:", `https://${imageHost}`],
+    "font-src": ["'self'", "https://fonts.gstatic.com", posthogOrigin],
+    "connect-src": ["'self'", posthogOrigin, posthogUiHost],
     "object-src": ["'none'"],
     "base-uri": ["'none'"],
     "form-action": ["'self'"],
@@ -94,7 +89,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.mingyu.dev",
+        hostname: imageHost,
       },
     ],
   },
