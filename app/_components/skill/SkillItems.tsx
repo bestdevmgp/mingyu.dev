@@ -100,11 +100,9 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             data-category={value}
             className={cn(
               "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
-              "mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",
+              "text-gray-400 dark:text-gray-500 mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",
               pressedCategory === value && "bg-gray-200 dark:bg-gray-700/10",
-              activeCategory === value
-                ? "text-gray-700 dark:text-gray-100"
-                : "text-gray-400 dark:text-gray-500 focus-visible:z-10",
+              activeCategory !== value && "focus-visible:z-10",
             )}
             onClick={e => handleCategoryClick(e, value)}
             onPointerDown={() => setPressedCategory(value)}
@@ -116,8 +114,10 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
           >
             <span
               className={cn(
-                "relative z-10 transition-colors duration-200",
-                activeCategory !== value && "mouse:group-hover:text-gray-600 dark:mouse:group-hover:text-gray-800",
+                "relative z-10 mouse:group-hover:text-gray-600 dark:mouse:group-hover:text-gray-800",
+                activeCategory === value
+                  ? "[-webkit-text-fill-color:var(--color-gray-700)] dark:[-webkit-text-fill-color:var(--color-gray-100)]"
+                  : "transition-colors duration-200",
                 activeCategory !== value && pressedCategory === value && "text-gray-600 dark:text-gray-800",
               )}
             >
