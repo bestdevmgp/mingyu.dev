@@ -143,7 +143,11 @@ const LanguageSwitcher = ({
           className="w-[22px] h-[22px] -ml-[2px] scale-[calc(21/22)] [stroke-width:4.197]"
           aria-hidden="true"
         />
-        <span className="hidden md:inline text-xs font-semibold">{LOCALE_LABELS[activeLocale]}</span>
+        <span
+          className={cn("hidden md:inline font-semibold", activeLocale === "en" ? "text-[15px]/4" : "text-[13px]/4")}
+        >
+          {LOCALE_LABELS[activeLocale]}
+        </span>
       </button>
 
       <AnimatePresence>
