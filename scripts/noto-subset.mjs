@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -63,18 +63,33 @@ const sourceLiterals = dir =>
 
 const ascii = Array.from({ length: 95 }, (_, i) => String.fromCharCode(32 + i)).join("");
 const literals = sourceLiterals(join(root, "app")).join("");
-const pagesDir = join(root, ".next/server/app");
+const serverDir = join(root, ".next/server");
+
+const htmlFiles = dir =>
+  readdirSync(dir, { withFileTypes: true }).flatMap(entry =>
+    entry.isDirectory()
+      ? htmlFiles(join(dir, entry.name))
+      : entry.name.endsWith(".html")
+        ? [join(dir, entry.name)]
+        : [],
+  );
+
+const prerendered = existsSync(serverDir)
+  ? htmlFiles(serverDir).flatMap(path => {
+      const route = relative(serverDir, path)
+        .split(sep)
+        .join("/")
+        .match(/^(?:app|route-cache\/APP_PAGE\/[^/]+\/\$)\/(.+)\.html$/)?.[1];
+      return route ? [{ route, path }] : [];
+    })
+  : [];
 
 const renderedChars = locale => {
-  if (!existsSync(join(pagesDir, `${locale}.html`)))
+  if (!prerendered.some(({ route }) => route === locale))
     throw new Error(`noto subset: run next build first (${locale}.html missing)`);
-  const projectDir = join(pagesDir, locale, "project");
-  const pages = [
-    join(pagesDir, `${locale}.html`),
-    ...readdirSync(projectDir)
-      .filter(name => name.endsWith(".html"))
-      .map(name => join(projectDir, name)),
-  ];
+  const pages = prerendered
+    .filter(({ route }) => route === locale || route.startsWith(`${locale}/project/`))
+    .map(({ path }) => path);
   const text =
     pages.map(page => pageText(readFileSync(page, "utf8"))).join("") +
     messageText(JSON.parse(readFileSync(join(root, `messages/${locale}.json`), "utf8"))) +
