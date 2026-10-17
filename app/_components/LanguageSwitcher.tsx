@@ -139,15 +139,13 @@ const LanguageSwitcher = ({
           isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
         )}
       >
-        <GlobeSimpleIcon
-          className="w-[22px] h-[22px] -ml-[2px] scale-[calc(21/22)] [stroke-width:4.197]"
-          aria-hidden="true"
-        />
+        <GlobeSimpleIcon className="w-[22px] h-[22px] -ml-[2px] [stroke-width:4.197]" aria-hidden="true" />
         <span
           className={cn(
             "hidden md:inline font-semibold",
             activeLocale === "en" ? "text-[13px]/4" : "text-[12px]/4",
-            activeLocale === "ko" && "translate-y-[0.5px]",
+            activeLocale === "ja" && "-translate-y-[0.5px]",
+            activeLocale === "en" && "translate-y-[0.5px]",
           )}
         >
           {LOCALE_LABELS[activeLocale]}
