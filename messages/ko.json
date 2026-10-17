@@ -14,7 +14,7 @@
     "skills": "기술",
     "career": "경력",
     "projects": "프로젝트",
-    "qualifications": "교육"
+    "education": "교육"
   },
   "Main": {
     "heading": "안녕하세요,<br></br>백엔드 개발자<br></br><em>박민규</em>입니다.",
@@ -62,7 +62,7 @@
     "zoomIn": "확대",
     "loading": "이미지 불러오는 중"
   },
-  "Qualification": {
+  "Education": {
     "eyebrow": "학력 및 자격증"
   },
   "Outro": {

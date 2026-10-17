@@ -14,7 +14,7 @@
     "skills": "Skills",
     "career": "Career",
     "projects": "Projects",
-    "qualifications": "Education"
+    "education": "Education"
   },
   "Main": {
     "heading": "Hello,<br></br>I'm <em>Mingyu Park</em>,<br></br>a Backend Developer.",
@@ -62,7 +62,7 @@
     "zoomIn": "Zoom in",
     "loading": "Loading image"
   },
-  "Qualification": {
+  "Education": {
     "eyebrow": "Education & Certifications"
   },
   "Outro": {
