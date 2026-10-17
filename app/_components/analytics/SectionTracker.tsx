@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { isAnalyticsEnabled, track } from "./posthog";
 
-const SECTIONS = ["main", "intro", "skills", "career", "projects", "blog", "qualifications", "contact"] as const;
+const SECTIONS = ["main", "intro", "skills", "career", "projects", "blog", "education", "contact"] as const;
 
 const MIN_DWELL_MS = 1000;
 
