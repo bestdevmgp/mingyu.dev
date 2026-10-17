@@ -56,7 +56,7 @@ const sourceLiterals = dir =>
   readdirSync(dir).flatMap(name => {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) return name === "_generated" ? [] : sourceLiterals(path);
-    if (!/\.(tsx?|css)$/.test(name)) return [];
+    if (!/\.(tsx?|css)$/.test(name) || name === "ConsoleGreeting.tsx") return [];
     const code = readFileSync(path, "utf8").replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
     return [...code.matchAll(/(["'`])((?:\\.|(?!\1).)*?[^\x00-\x7f](?:\\.|(?!\1).)*?)\1/g)].map(match => match[2]);
   });
