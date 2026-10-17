@@ -7,8 +7,9 @@
   },
   "scripts": {
     "dev": "node scripts/snapshot.mjs && next dev",
-    "build": "npx prisma generate && node scripts/snapshot.mjs && next build",
+    "build": "npx prisma generate && node scripts/snapshot.mjs && next build && node scripts/noto-subset.mjs --check",
     "snapshot": "node scripts/snapshot.mjs",
+    "noto-subset": "node scripts/noto-subset.mjs",
     "start": "next start",
     "lint": "eslint .",
     "prisma:generate": "prisma generate",

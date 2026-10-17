@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 
 import LocaleDocumentSync from "@/_components/LocaleDocumentSync";
+import notoFontFaces from "@/lib/notoFontFaces";
 
 const inter = Inter({
   weight: ["400", "500", "600", "700", "800"],
@@ -16,12 +17,6 @@ const cjkFontClass: Record<string, string> = {
   "zh-Hant": "font-zh-hant",
 };
 
-const webFontHref: Record<string, string> = {
-  ja: "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap",
-  "zh-Hans": "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap",
-  "zh-Hant": "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap",
-};
-
 interface LocaleShellProps {
   locale: string;
   structuredData?: React.ReactNode;
@@ -31,29 +26,14 @@ interface LocaleShellProps {
 const LocaleShell = async ({ locale, structuredData, children }: LocaleShellProps) => {
   const messages = await getMessages({ locale });
 
-  const fontHref = webFontHref[locale];
+  const fontFace = notoFontFaces[locale];
   const fontClass = locale === "en" ? inter.className : (cjkFontClass[locale] ?? "font-ko");
 
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang=${JSON.stringify(locale)}` }} />
       {structuredData}
-      {fontHref && (
-        <>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link rel="preload" as="style" href={fontHref} id="webfont-css" />
-          <script
-            dangerouslySetInnerHTML={{
-              __html:
-                "(function(){var l=document.getElementById('webfont-css');if(!l)return;var d=0;function a(){if(d)return;d=1;l.rel='stylesheet'}l.addEventListener('load',a,{once:true});addEventListener('load',a,{once:true})})()",
-            }}
-          />
-          <noscript>
-            <link rel="stylesheet" href={fontHref} />
-          </noscript>
-        </>
-      )}
+      {fontFace && <style dangerouslySetInnerHTML={{ __html: fontFace }} />}
       <div className={`contents ${fontClass}`} lang={locale}>
         <LocaleDocumentSync locale={locale} />
         <NextIntlClientProvider locale={locale} messages={messages}>

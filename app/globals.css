@@ -223,6 +223,22 @@ body {
   descent-override: 28.8%;
   line-gap-override: 0%;
 }
+@font-face {
+  font-family: "YaHei Adjusted";
+  src: local("Microsoft YaHei"), local("MicrosoftYaHei");
+  font-weight: 100 500;
+  ascent-override: 116%;
+  descent-override: 28.8%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "YaHei Adjusted";
+  src: local("Microsoft YaHei Bold"), local("MicrosoftYaHei-Bold");
+  font-weight: 600 900;
+  ascent-override: 116%;
+  descent-override: 28.8%;
+  line-gap-override: 0%;
+}
 
 .font-ko {
   font-family:
@@ -240,7 +256,7 @@ body {
   font-family: "Hiragino Adjusted", "Noto Sans JP", "Yu Gothic", YuGothic, Meiryo, sans-serif;
 }
 .font-zh-hans {
-  font-family: "PingFang SC Adjusted", "Noto Sans SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+  font-family: "PingFang SC Adjusted", "YaHei Adjusted", "Noto Sans SC", "Hiragino Sans GB", sans-serif;
 }
 .font-zh-hant {
   font-family: "PingFang TC Adjusted", "Noto Sans TC", "Microsoft JhengHei", "Hiragino Sans CNS", sans-serif;
