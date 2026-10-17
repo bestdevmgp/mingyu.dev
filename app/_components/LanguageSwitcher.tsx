@@ -146,8 +146,8 @@ const LanguageSwitcher = ({
         <span
           className={cn(
             "hidden md:inline font-semibold",
-            activeLocale === "en" ? "text-[14px]/4" : "text-[13px]/4",
-            activeLocale === "ko" && "translate-y-px",
+            activeLocale === "en" ? "text-[13px]/4" : "text-[12px]/4",
+            activeLocale === "ko" && "translate-y-[0.5px]",
           )}
         >
           {LOCALE_LABELS[activeLocale]}
