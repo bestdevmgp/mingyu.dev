@@ -15,6 +15,7 @@ import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 import useOnEscape from "@/utils/useOnEscape";
 
+import Tooltip from "./Tooltip";
 import { setLocale, track } from "./analytics/posthog";
 
 type SvgProps = React.SVGProps<SVGSVGElement>;
@@ -128,34 +129,36 @@ const LanguageSwitcher = ({
 
   return (
     <div className={cn("relative", className)} ref={ref} {...props}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(prev => !prev)}
-        aria-label={t("changeLanguage")}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        className={cn(
-          "flex items-center gap-[3px] transition-colors duration-200 focus-visible:rounded-md",
-          isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
-        )}
-      >
-        <GlobeSimpleIcon
-          className="w-[22px] h-[22px] -ml-[2px] -translate-x-[0.5px] [stroke-width:4.197]"
-          aria-hidden="true"
-        />
-        <span
+      <Tooltip label={t("changeLanguage")}>
+        <button
+          type="button"
+          onClick={() => setIsOpen(prev => !prev)}
+          aria-label={t("changeLanguage")}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
           className={cn(
-            "hidden md:inline font-semibold",
-            activeLocale === "en" ? "text-[13px]/4" : "text-[12px]/4",
-            activeLocale === "ko" && "translate-y-[0.5px]",
-            activeLocale === "ja" && "-translate-y-[0.5px]",
-            activeLocale === "en" && "translate-y-[0.4px]",
-            activeLocale.startsWith("zh") && "-translate-y-[0.2px]",
+            "flex items-center gap-[3px] transition-colors duration-200 focus-visible:rounded-md",
+            isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
           )}
         >
-          {LOCALE_LABELS[activeLocale]}
-        </span>
-      </button>
+          <GlobeSimpleIcon
+            className="w-[22px] h-[22px] -ml-[2px] -translate-x-[0.5px] [stroke-width:4.197]"
+            aria-hidden="true"
+          />
+          <span
+            className={cn(
+              "hidden md:inline font-semibold",
+              activeLocale === "en" ? "text-[13px]/4" : "text-[12px]/4",
+              activeLocale === "ko" && "translate-y-[0.5px]",
+              activeLocale === "ja" && "-translate-y-[0.5px]",
+              activeLocale === "en" && "translate-y-[0.4px]",
+              activeLocale.startsWith("zh") && "-translate-y-[0.2px]",
+            )}
+          >
+            {LOCALE_LABELS[activeLocale]}
+          </span>
+        </button>
+      </Tooltip>
 
       <AnimatePresence>
         {isOpen && (
