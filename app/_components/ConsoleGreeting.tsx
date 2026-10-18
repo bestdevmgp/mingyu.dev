@@ -5,15 +5,15 @@ import { useEffect } from "react";
 import { SPARKLE_PATH } from "./SpinnerMark";
 
 const SHAPES = [
-  { color: "#e2ff00", viewBox: 16, size: 68, gap: 0, path: SPARKLE_PATH },
+  { color: "#e2ff00", viewBox: 16, size: 76, gap: 0, path: SPARKLE_PATH },
   {
     color: "#00c676",
     viewBox: 24,
-    size: 64,
+    size: 72,
     gap: 16,
     path: "M0 8L7.55202 10.1577L0.685839 6.34317L6.34269 0.68632L10.1585 7.5548L8 0H16L13.8415 7.5548L17.6573 0.686321L23.3142 6.34317L16.448 10.1577L24 8V16L16.4465 13.8419L23.3136 17.6569L17.6567 23.3137L13.8422 16.4476L16 24H8L10.1578 16.4476L6.3433 23.3137L0.686443 17.6569L7.55347 13.8419L0 16V8Z",
   },
-  { color: "#007aff", viewBox: 24, size: 63, gap: 20, path: "M0 0H9V7.5H16.5V15L24 15V24H0V0Z" },
+  { color: "#007aff", viewBox: 24, size: 71, gap: 21, path: "M0 0H9V7.5H16.5V15L24 15V24H0V0Z" },
 ];
 const EMAIL = "me@mingyu.dev";
 const MESSAGES: Record<string, [string, string]> = {
