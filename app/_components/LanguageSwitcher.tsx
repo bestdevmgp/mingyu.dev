@@ -50,11 +50,13 @@ const setLocaleCookie = (locale: Locale) => {
 interface LanguageSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "dropdown" | "inline";
   hardNavigation?: boolean;
+  onLocaleChange?: () => void;
 }
 
 const LanguageSwitcher = ({
   variant = "dropdown",
   hardNavigation = false,
+  onLocaleChange,
   className,
   ...props
 }: LanguageSwitcherProps) => {
@@ -84,6 +86,7 @@ const LanguageSwitcher = ({
   const changeLocale = (nextLocale: Locale) => {
     setIsOpen(false);
     if (nextLocale === displayLocale) return;
+    onLocaleChange?.();
     setPendingLocale(nextLocale);
     setLocaleCookie(nextLocale);
     track("locale_changed", { from: displayLocale, to: nextLocale });

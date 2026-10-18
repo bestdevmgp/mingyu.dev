@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Menu, X } from "react-feather";
 
 import cn from "classnames";
@@ -31,6 +31,8 @@ const nameNudge: Record<string, string> = {
 
 const staggerMenuItems = stagger(0.06, { startDelay: 0.0875 });
 
+let closeMenuAfterSwitch = false;
+
 interface SiteHeaderProps {
   homeHref?: string;
 }
@@ -42,29 +44,38 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
   const locale = useLocale();
   const themeLabel = t(useIsDark() ? "switchToLight" : "switchToDark");
 
-  const [scrolled, setScrolled] = useCarriedState("header.scrolled", false);
   const [atTop, setAtTop] = useCarriedState("header.atTop", true);
   const [isExpanded, setIsExpanded] = useCarriedState("header.menu", false);
-  const solid = scrolled || isExpanded || homeHref !== undefined;
+  const glass = !atTop || homeHref !== undefined;
   const [carriedOpen] = useState(isExpanded);
   const [scope, animate] = useAnimate();
   const initialClip = carriedOpen ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)";
   const initialItemStyle = carriedOpen ? { opacity: 1 } : undefined;
 
-  useEffect(() => {
-    const hero = document.getElementById("main");
-    if (!hero) return;
-    const observer = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting), { threshold: 0 });
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, [setScrolled]);
-
-  useEffect(() => {
-    const onScroll = () => setAtTop(window.scrollY <= 0);
+  useLayoutEffect(() => {
+    const header = scope.current;
+    const greeting = homeHref === undefined ? document.querySelector<HTMLElement>("#main h1") : null;
+    const range = document.createRange();
+    const onScroll = () => {
+      setAtTop(window.scrollY <= 0);
+      let progress = 1;
+      if (greeting) {
+        range.selectNodeContents(greeting);
+        const line = range.getClientRects()[0];
+        const shift = new DOMMatrixReadOnly(getComputedStyle(greeting).transform).m42;
+        const distance = line ? line.top + window.scrollY - shift : 0;
+        progress = distance > 0 ? Math.min(Math.max(window.scrollY / distance, 0), 1) : 1;
+      }
+      header?.style.setProperty("--glass", `${progress}`);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [setAtTop]);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [homeHref, scope, setAtTop]);
 
   const didMountRef = useRef(false);
 
@@ -86,6 +97,15 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       ],
     ]);
   }, [isExpanded, animate]);
+
+  useEffect(() => {
+    if (!closeMenuAfterSwitch) return;
+    const frame = requestAnimationFrame(() => {
+      closeMenuAfterSwitch = false;
+      setIsExpanded(false);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [locale, setIsExpanded]);
 
   const pickedSection = useRef<HTMLElement | null>(null);
   const resumeBelow = useCallback(
@@ -175,14 +195,16 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         "sticky top-0 z-50 h-14 -mb-14 pr-[23px] lg:pr-[22px] pl-[20px] lg:pl-[22px]",
         "flex items-center justify-between gap-4",
 
+        "bg-[color-mix(in_oklab,var(--background)_calc(var(--glass,0)*42%),transparent)]",
+        glass && "backdrop-blur-md",
+
+        "before:content-[''] before:absolute before:inset-0 before:-z-10 before:bg-background",
+        "before:transition-opacity before:duration-300",
+        isExpanded ? "before:opacity-100" : "before:opacity-0",
+
         "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px",
-        "transition-colors duration-300 after:transition-colors after:duration-300",
-        !atTop && !solid && "backdrop-blur-md",
-        solid
-          ? "bg-background after:bg-foreground/10"
-          : atTop
-            ? "bg-transparent after:bg-transparent"
-            : "bg-background/50 after:bg-transparent",
+        "after:transition-colors after:duration-300",
+        isExpanded ? "after:bg-foreground/10" : "after:bg-transparent",
       )}
     >
       <HomeLink
@@ -267,6 +289,9 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         <LanguageSwitcher
           variant="inline"
           hardNavigation={homeHref !== undefined}
+          onLocaleChange={() => {
+            closeMenuAfterSwitch = true;
+          }}
           className="mobile-menu-item py-2.5 border-t border-foreground/10"
           style={initialItemStyle}
         />
