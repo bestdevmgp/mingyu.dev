@@ -19,7 +19,13 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import Tooltip from "./Tooltip";
 
-const navItems = [{ id: "skills" }, { id: "career" }, { id: "projects" }, { id: "education" }] as const;
+const navItems = [
+  { id: "competencies" },
+  { id: "skills" },
+  { id: "career" },
+  { id: "projects" },
+  { id: "education" },
+] as const;
 
 const nameNudge: Record<string, string> = {
   en: "-translate-y-[0.6px] md:translate-y-0",

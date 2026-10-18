@@ -11,7 +11,7 @@ const ScrollCue = () => {
   const [hidden, setHidden] = useCarriedState("cue.hidden", false);
 
   useEffect(() => {
-    const target = document.querySelector("#intro .section-eyebrow");
+    const target = document.querySelector("#competencies .section-eyebrow");
     if (!target) return;
     const io = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting || isLocaleSwitching()) return;

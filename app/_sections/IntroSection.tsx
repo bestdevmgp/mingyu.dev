@@ -11,7 +11,7 @@ export default async function IntroSection() {
   const features = applyLocaleAll(content.intro, locale);
 
   return (
-    <section id="intro" className="pt-6">
+    <section id="competencies" className="pt-6 scroll-mt-10 md:scroll-mt-14">
       <SlideUpInView>
         <p className="section-eyebrow">{t("eyebrow")}</p>
         <p className="section-title">{t("title")}</p>
