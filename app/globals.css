@@ -682,8 +682,7 @@ main {
   opacity: 0;
   transform: scale(0.985);
 }
-.image-spinner,
-:root.loader-showing .site-loader-mark {
+.image-spinner {
   animation: image-spinner-turn 1.8s cubic-bezier(0.593, 0.14, 0.407, 0.86) infinite;
 }
 .image-spinner {
@@ -707,60 +706,99 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  -webkit-backdrop-filter: blur(0px);
-  backdrop-filter: blur(0px);
-  transition:
-    opacity 0.35s ease-out,
-    -webkit-backdrop-filter 0.35s ease-out,
-    backdrop-filter 0.35s ease-out,
-    visibility 0s linear 0.35s;
-}
-.site-loader::before {
-  content: "";
-  position: absolute;
-  inset: 0;
   background: var(--background);
-  opacity: 0.58;
 }
 .site-loader-mark {
-  position: relative;
-  width: 34px;
-  height: 34px;
+  width: 144.94px;
+  height: 144.94px;
 }
-:root.loader-showing .site-loader {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  transition:
-    opacity 0.22s ease-out,
-    -webkit-backdrop-filter 0.22s ease-out,
-    backdrop-filter 0.22s ease-out,
-    visibility 0s;
+.site-loader-hole {
+  transform: scale(0);
+  transform-origin: 8px 8px;
+  animation: site-loader-hole 4.75s ease-out 0.05s infinite;
+}
+.site-loader-funnel {
+  transform-origin: 12px 12px;
+  animation: site-loader-funnel 4.75s ease-out 0.05s infinite;
+}
+.site-loader-cover {
+  transform: scaleX(0);
+  transform-origin: -1px 12px;
+  animation: site-loader-cover 4.75s ease-out 0.05s infinite;
+}
+.site-loader-flower {
+  transform-origin: 12px 12px;
+  animation: site-loader-flower 4.75s ease-out 0.05s infinite;
 }
 :root.loader-done .site-loader {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  -webkit-backdrop-filter: blur(0px);
-  backdrop-filter: blur(0px);
   transition:
-    opacity 0.35s ease-out,
-    -webkit-backdrop-filter 0.35s ease-out,
-    backdrop-filter 0.35s ease-out,
-    visibility 0s linear 0.35s;
+    opacity 0.3s ease-out 0.3s,
+    visibility 0s linear 0.6s;
+}
+:root.loader-done .site-loader-mark {
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0, 0.4, 0, 1);
 }
 :root:not(.loader-js) .site-loader,
 :root.loader-gone .site-loader {
   display: none;
 }
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .site-loader::before {
-    opacity: 0.9;
+@keyframes site-loader-hole {
+  0% {
+    transform: scale(0);
+  }
+  6.31579%,
+  78.9474% {
+    transform: scale(0.73);
+  }
+  85.2632%,
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes site-loader-funnel {
+  0%,
+  10.5263% {
+    transform: scaleY(1);
+  }
+  16.8421%,
+  68.4211% {
+    transform: scaleY(-1);
+  }
+  74.7368%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+@keyframes site-loader-cover {
+  0%,
+  21.0526% {
+    transform: scaleX(0);
+  }
+  27.3684%,
+  57.8947% {
+    transform: scaleX(1);
+  }
+  64.2105%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+@keyframes site-loader-flower {
+  0%,
+  31.5789% {
+    transform: rotate(0deg);
+  }
+  37.8947%,
+  47.3684% {
+    transform: rotate(90deg);
+  }
+  53.6842%,
+  100% {
+    transform: rotate(0deg);
   }
 }
 @media print {
@@ -872,7 +910,7 @@ main {
     animation: none !important;
   }
   .image-spinner,
-  .site-loader-mark {
+  .site-loader-mark * {
     animation: none !important;
   }
   .image-reveal {

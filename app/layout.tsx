@@ -10,14 +10,15 @@ import "./globals.css";
 const PROJECT_PATH = `^(?:\\/[\\w-]+)?\\/project\\/(?:${content.project.map(({ id }) => id).join("|")})$`;
 
 const BOOT_SCRIPT =
-  "(function(){var r=document.documentElement,SHOW=400,MIN=300,SOFT=800,CAP=5000,FADE=400,shown=0,done=0,at=0,t=0;" +
+  "(function(){var r=document.documentElement,MIN=400,SOFT=800,FADE=600,done=0,at=performance.now();" +
   "r.classList.add('loader-js');" +
   "function gone(){r.classList.add('loader-gone')}" +
   "function hide(){r.classList.add('loader-done');setTimeout(gone,FADE)}" +
-  "function finish(){if(done)return;done=1;clearTimeout(t);if(!shown)return hide();" +
-  "var left=MIN-(performance.now()-at);if(left>0)setTimeout(hide,left);else hide()}" +
-  "function show(){if(done)return;shown=1;at=performance.now();r.classList.add('loader-showing')}" +
-  "t=setTimeout(show,Math.max(0,SHOW-performance.now()));setTimeout(finish,CAP);" +
+  "function wait(left){if(left>0)setTimeout(hide,left);else hide()}" +
+  "function finish(){if(done)return;done=1;" +
+  "var h=document.querySelector('.site-loader-hole'),a=h&&h.getAnimations&&h.getAnimations()[0];" +
+  "if(!a)return wait(MIN-(performance.now()-at));" +
+  "a.ready.then(function(){var e=a.effect,t=e.getTiming();wait(t.delay+e.getKeyframes()[1].computedOffset*t.duration-a.currentTime)},hide)}" +
   "function ready(){var p=document.fonts&&document.fonts.ready;setTimeout(finish,SOFT);" +
   "if(p&&p.then)p.then(function(){requestAnimationFrame(finish)},finish);else requestAnimationFrame(finish)}" +
   "if(document.readyState==='loading')addEventListener('DOMContentLoaded',ready,{once:true});else ready()})();" +
