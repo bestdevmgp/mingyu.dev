@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function GlobalNotFound() {
   const locale = await getLocale();
   if (locale === "ko")
-    preload("/fonts/pretendard-core-v2.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+    preload("/fonts/pretendard-core-v3.woff2", { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
 
   return (
     <RootLayout>

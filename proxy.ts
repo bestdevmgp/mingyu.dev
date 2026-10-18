@@ -12,7 +12,7 @@ const FIRST_SEGMENT = /^\/([^/]+)(\/.*)?$/;
 const MAIL_PATH = "/me@mingyu.dev";
 
 const KO_FONT_PRELOAD =
-  '</fonts/pretendard-core-v2.woff2>; rel=preload; as="font"; crossorigin="anonymous"; type="font/woff2"';
+  '</fonts/pretendard-core-v3.woff2>; rel=preload; as="font"; crossorigin="anonymous"; type="font/woff2"';
 
 const CANONICAL_PREFIX = new Map<string, string>([
   ...locales.map((locale): [string, string] => [locale.toLowerCase(), locale]),
