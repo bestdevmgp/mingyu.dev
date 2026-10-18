@@ -132,7 +132,7 @@ const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () =
         track("contact_click", { channel: id, variant: "dropdown" });
         onClick?.();
       }}
-      className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors duration-200 hover:bg-foreground/5"
+      className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors duration-200 hover:bg-foreground/5 -outline-offset-1"
     >
       <Icon className={cn(iconClass, "shrink-0 text-foreground opacity-60")} />
       <span className="flex flex-col min-w-0">

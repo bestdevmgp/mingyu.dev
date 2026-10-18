@@ -99,7 +99,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             key={`nav-item-${value}`}
             data-category={value}
             className={cn(
-              "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative",
+              "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative -outline-offset-1",
               "text-gray-400 dark:text-gray-500 mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",
               pressedCategory === value && "bg-gray-200 dark:bg-gray-700/10",
               activeCategory !== value && "focus-visible:z-10",

@@ -111,7 +111,7 @@ const LanguageSwitcher = ({
                 aria-pressed={isActive}
                 onClick={() => changeLocale(locale)}
                 className={cn(
-                  "px-2 py-1 rounded-md text-sm whitespace-nowrap transition-colors duration-200",
+                  "px-2 py-1 rounded-md text-sm whitespace-nowrap transition-colors duration-200 -outline-offset-1",
                   isActive
                     ? "font-semibold text-foreground bg-foreground/10"
                     : "font-normal text-foreground/55 hover:text-foreground",
@@ -177,7 +177,7 @@ const LanguageSwitcher = ({
                   aria-selected={locale === activeLocale}
                   onClick={() => changeLocale(locale)}
                   className={cn(
-                    "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors duration-200",
+                    "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors duration-200 -outline-offset-1",
                     "hover:bg-foreground/5",
                     locale === activeLocale ? "font-semibold text-foreground" : "font-normal text-foreground/70",
                   )}
