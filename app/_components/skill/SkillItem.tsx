@@ -23,7 +23,7 @@ const SkillItem = ({ size = "md", label, imageUrl, isActive = true, tappable = f
         "relative group/skill transition-all duration-300 shadow-md flex items-center justify-center select-none",
         rounded,
         isRawImage ? "p-0" : "bg-white border border-gray-100 p-1",
-        canTap && "cursor-pointer",
+        canTap && "cursor-(--cursor-pointer)",
 
         size === "md" && "w-12 h-12",
         size === "xs" && "w-7 h-7",

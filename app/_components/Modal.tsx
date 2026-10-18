@@ -149,7 +149,7 @@ const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
                       type="button"
                       onClick={close}
                       aria-label={t("close")}
-                      className="group absolute top-5 right-5 md:top-7 md:right-7 cursor-pointer focus-visible:outline-none"
+                      className="group absolute top-5 right-5 md:top-7 md:right-7 focus-visible:outline-none"
                     >
                       <X
                         aria-hidden

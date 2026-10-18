@@ -2,6 +2,7 @@ import ConsoleGreeting from "@/_components/ConsoleGreeting";
 import DeferredAnalytics from "@/_components/DeferredAnalytics";
 import SiteLoader from "@/_components/SiteLoader";
 import SmoothScroll from "@/_components/SmoothScroll";
+import TextCursor from "@/_components/TextCursor";
 import ThemeScript from "@/_components/ThemeScript";
 import content from "@/lib/content";
 
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
         <SiteLoader />
         <SmoothScroll />
+        <TextCursor />
         {children}
         <div id="modal-root" />
         <DeferredAnalytics />

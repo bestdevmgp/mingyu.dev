@@ -495,7 +495,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
               onTouchEnd={handleTouchEnd}
               onTouchCancel={handleTouchCancel}
               style={{
-                cursor: isDragging ? "grabbing" : "default",
+                cursor: isDragging ? "grabbing" : "var(--cursor-default)",
               }}
             >
               <div ref={flipRef} className="flex items-center justify-center">

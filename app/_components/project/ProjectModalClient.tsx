@@ -142,7 +142,10 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
                           thumbnails.current.delete(key);
                         };
                       }}
-                      className={cn("cursor-pointer", item.image_ratio === "PORTRAIT" ? "flex-1 min-w-0" : "w-full")}
+                      className={cn(
+                        "cursor-(--cursor-pointer)",
+                        item.image_ratio === "PORTRAIT" ? "flex-1 min-w-0" : "w-full",
+                      )}
                       src={imageUrl}
                       alt={`${item.title} ${imgIndex + 1}`}
                       size={imageSizes[imageUrl]}
