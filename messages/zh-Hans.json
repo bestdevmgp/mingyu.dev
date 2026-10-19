@@ -15,6 +15,7 @@
     "skills": "技术",
     "career": "工作经历",
     "projects": "项目",
+    "blog": "博客",
     "education": "教育经历"
   },
   "Main": {
@@ -53,6 +54,12 @@
     "period": "期间",
     "links": "相关链接",
     "detail": "详细内容"
+  },
+  "Blog": {
+    "eyebrow": "博客",
+    "title": "详细的问题解决过程<br></br>可以在博客中查看。",
+    "readMore": "查看详情",
+    "cta": "前往博客"
   },
   "ImageViewer": {
     "close": "关闭",

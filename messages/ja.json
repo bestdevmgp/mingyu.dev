@@ -15,6 +15,7 @@
     "skills": "スキル",
     "career": "経歴",
     "projects": "プロジェクト",
+    "blog": "ブログ",
     "education": "学歴"
   },
   "Main": {
@@ -53,6 +54,12 @@
     "period": "期間",
     "links": "関連リンク",
     "detail": "詳細"
+  },
+  "Blog": {
+    "eyebrow": "ブログ",
+    "title": "詳しい問題解決の過程は<br></br>ブログでご覧いただけます。",
+    "readMore": "詳しく見る",
+    "cta": "ブログへ移動"
   },
   "ImageViewer": {
     "close": "閉じる",

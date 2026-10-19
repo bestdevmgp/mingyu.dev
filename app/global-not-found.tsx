@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import LazyNotFoundView from "@/_components/LazyNotFoundView";
 import LocaleShell from "@/_components/LocaleShell";
+import { getNavSections } from "@/utils/api";
 
 import RootLayout from "./layout";
 
@@ -27,7 +28,7 @@ export default async function GlobalNotFound() {
   return (
     <RootLayout>
       <LocaleShell locale={locale}>
-        <LazyNotFoundView />
+        <LazyNotFoundView sections={getNavSections()} />
       </LocaleShell>
     </RootLayout>
   );

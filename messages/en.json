@@ -15,6 +15,7 @@
     "skills": "Skills",
     "career": "Career",
     "projects": "Projects",
+    "blog": "Blog",
     "education": "Education"
   },
   "Main": {
@@ -53,6 +54,12 @@
     "period": "Period",
     "links": "Links",
     "detail": "Details"
+  },
+  "Blog": {
+    "eyebrow": "Blog",
+    "title": "Read the full problem-solving process<br></br>on my blog.",
+    "readMore": "Read more",
+    "cta": "Go to Blog"
   },
   "ImageViewer": {
     "close": "Close",

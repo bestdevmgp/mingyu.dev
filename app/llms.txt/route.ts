@@ -1,5 +1,6 @@
 import { defaultLocale, localePath, locales } from "@i18n/config";
 
+import content from "@/lib/content";
 import { getProjectsInOrder } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 
@@ -11,6 +12,7 @@ export function GET() {
   const rows = getProjectsInOrder().map(({ id, title, sub_title, i18n }) => ({ id, title, sub_title, i18n }));
   const ko = applyLocaleAll(rows, "ko");
   const en = applyLocaleAll(rows, "en");
+  const blogEn = applyLocaleAll(content.blog, "en");
 
   const lines = [
     "# Mingyu Park (박민규) — Backend Developer Portfolio",
@@ -28,7 +30,7 @@ export function GET() {
     "",
     "## Pages",
     "",
-    "- [Home](https://mingyu.dev/): introduction, skills, work experience, awards and activities, projects, education and certifications",
+    `- [Home](https://mingyu.dev/): introduction, skills, work experience, awards and activities, projects, ${content.blog.length ? "blog posts, " : ""}education and certifications`,
     "- Each project has a detail page at https://mingyu.dev/project/{id}, with the same language prefixes (for example https://mingyu.dev/en/project/{id})",
     "",
     "## Projects",
@@ -40,6 +42,17 @@ export function GET() {
       return `- [${title}](https://mingyu.dev/project/${row.id}): ${e.sub_title || k.sub_title}`;
     }),
     "",
+    ...(content.blog.length
+      ? [
+          "## Blog posts",
+          "",
+          ...content.blog.map((post, i) => {
+            const title = post.title === blogEn[i].title ? post.title : `${post.title} / ${blogEn[i].title}`;
+            return `- [${title}](${post.forwardLink}) (${post.date})`;
+          }),
+          "",
+        ]
+      : []),
     "## Notes for crawlers",
     "",
     "- Sitemap: https://mingyu.dev/sitemap.xml (every page in every language)",

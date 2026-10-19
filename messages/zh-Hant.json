@@ -15,6 +15,7 @@
     "skills": "技術",
     "career": "工作經歷",
     "projects": "專案",
+    "blog": "部落格",
     "education": "學歷"
   },
   "Main": {
@@ -53,6 +54,12 @@
     "period": "期間",
     "links": "相關連結",
     "detail": "詳細內容"
+  },
+  "Blog": {
+    "eyebrow": "部落格",
+    "title": "詳細的問題解決過程<br></br>可以在部落格中查看。",
+    "readMore": "查看詳情",
+    "cta": "前往部落格"
   },
   "ImageViewer": {
     "close": "關閉",

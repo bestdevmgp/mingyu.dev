@@ -24,6 +24,7 @@ model blog {
   date        String @db.VarChar(50)
   forwardLink String @db.VarChar(255)
   bgImageUrl  String @db.VarChar(255)
+  i18n        Json?
 }
 
 model education {

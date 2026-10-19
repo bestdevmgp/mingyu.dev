@@ -1,5 +1,13 @@
 import content from "@/lib/content";
 
+const NAV_SECTIONS = ["competencies", "skills", "career", "projects", "blog", "education"] as const;
+
+export type NavSection = (typeof NAV_SECTIONS)[number];
+
+export function getNavSections(): NavSection[] {
+  return NAV_SECTIONS.filter(id => id !== "blog" || content.blog.length > 0);
+}
+
 export function getSkillTable() {
   return content.skill;
 }

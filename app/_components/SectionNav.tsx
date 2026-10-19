@@ -5,15 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import cn from "classnames";
 import { useTranslations } from "next-intl";
 
+import type { NavSection } from "@/utils/api";
 import useCarriedState from "@/utils/useCarriedState";
 
-const navItems = [
-  { id: "competencies", color: "#007aff" },
-  { id: "skills", color: "#00a6c3" },
-  { id: "career", color: "#00c676" },
-  { id: "projects", color: "#92e35c" },
-  { id: "education", color: "#e2ff00" },
-] as const;
+const PALETTES: Record<number, string[]> = {
+  5: ["#007aff", "#00a6c3", "#00c676", "#92e35c", "#e2ff00"],
+  6: ["#007aff", "#009fcf", "#00ba98", "#57d26e", "#a3e954", "#e2ff00"],
+};
 
 const ACTIVE_LINE = 60;
 const LABEL_GAP = 10;
@@ -22,7 +20,6 @@ const BLEND_START = 0.8125;
 const BLEND_END = 0.9375;
 
 const rgb = (hex: string) => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
-const colors = navItems.map(({ color }) => rgb(color));
 
 const blend = (from: number[], to: number[], amount: number) =>
   `rgb(${from.map((channel, i) => Math.round(channel + (to[i] - channel) * amount)).join(", ")})`;
@@ -41,7 +38,11 @@ const anchorsOf = (sections: HTMLElement[]) => {
   return anchors.map((anchor, i) => (i < reachable ? anchor : from + ((end - from) * (i - reachable + 1)) / missing));
 };
 
-const SectionNav = () => {
+interface SectionNavProps {
+  sections: NavSection[];
+}
+
+const SectionNav = ({ sections }: SectionNavProps) => {
   const t = useTranslations("Nav");
   const tHeader = useTranslations("Header");
 
@@ -84,6 +85,8 @@ const SectionNav = () => {
 
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 80rem)");
+    const palette = PALETTES[sections.length];
+    const colors = palette.map(rgb);
     let detach: (() => void) | null = null;
 
     const placeIndicator = (anchors: number[]) => {
@@ -118,21 +121,20 @@ const SectionNav = () => {
       indicator.style.top = `${top}px`;
       indicator.style.height = `${height}px`;
       const amount = Math.min(Math.max((progress - BLEND_START) / (BLEND_END - BLEND_START), 0), 1);
-      indicator.style.backgroundColor = amount > 0 ? blend(colors[index], colors[next], amount) : navItems[index].color;
+      indicator.style.backgroundColor = amount > 0 ? blend(colors[index], colors[next], amount) : palette[index];
     };
 
     const attach = () => {
       if (detach) return;
-      const ids = navItems.map(({ id }) => id);
       let queued = false;
       const compute = () => {
         queued = false;
-        const sections = ids.map(id => document.getElementById(id)).filter(el => el !== null);
-        const anchors = anchorsOf(sections);
+        const targets = sections.map(id => document.getElementById(id)).filter(el => el !== null);
+        const anchors = anchorsOf(targets);
         placeIndicator(anchors);
         let current = "";
-        sections.forEach((section, i) => {
-          if (window.scrollY >= anchors[i]) current = section.id;
+        targets.forEach((target, i) => {
+          if (window.scrollY >= anchors[i]) current = target.id;
         });
         const pending = pendingId.current;
         if (pending) {
@@ -179,7 +181,7 @@ const SectionNav = () => {
       wide.removeEventListener("change", sync);
       detach?.();
     };
-  }, [setActiveId]);
+  }, [sections, setActiveId]);
 
   const handleNavClick = (id: string) => {
     pendingId.current = id;
@@ -202,7 +204,7 @@ const SectionNav = () => {
         aria-hidden="true"
         className="absolute left-0 top-0 w-2.5 h-2.5 rounded-full pointer-events-none bg-blue will-change-[top,height]"
       />
-      {navItems.map(({ id }, index) => {
+      {sections.map((id, index) => {
         const isActive = activeId === id;
         return (
           <a

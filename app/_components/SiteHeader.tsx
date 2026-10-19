@@ -8,6 +8,7 @@ import { stagger, useAnimate } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Sparkle from "@/assets/shape-sparkle-round.svg";
+import type { NavSection } from "@/utils/api";
 import useCarriedState from "@/utils/useCarriedState";
 import useFocusScope from "@/utils/useFocusScope";
 import useIsDark from "@/utils/useIsDark";
@@ -17,14 +18,6 @@ import ContactMenu from "./ContactMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import Tooltip from "./Tooltip";
-
-const navItems = [
-  { id: "competencies" },
-  { id: "skills" },
-  { id: "career" },
-  { id: "projects" },
-  { id: "education" },
-] as const;
 
 const nameNudge: Record<string, string> = {
   en: "-translate-y-[0.6px] md:translate-y-0",
@@ -40,10 +33,11 @@ let closeMenuAfterSwitch = false;
 let refocusMenuAfterSwitch = false;
 
 interface SiteHeaderProps {
+  sections: NavSection[];
   homeHref?: string;
 }
 
-const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
+const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
   const t = useTranslations("Header");
   const tNav = useTranslations("Nav");
   const locale = useLocale();
@@ -294,7 +288,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
             listScrolls ? "-m-1 p-1 overflow-y-auto overscroll-contain" : "p-0 m-0",
           )}
         >
-          {navItems.map(({ id }) => (
+          {sections.map(id => (
             <li key={`header-item-m-${id}`} className="mobile-menu-item" style={initialItemStyle}>
               <a
                 href={`${homeHref ?? ""}#${id}`}

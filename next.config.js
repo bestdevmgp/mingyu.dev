@@ -91,6 +91,11 @@ const nextConfig = {
         protocol: "https",
         hostname: imageHost,
       },
+      {
+        protocol: "https",
+        hostname: "velog.velcdn.com",
+        pathname: "/images/bestdevmgp/**",
+      },
     ],
   },
 };

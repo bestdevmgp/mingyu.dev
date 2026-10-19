@@ -79,12 +79,15 @@ const pageText = html =>
     .replace(/&quot;/g, '"')
     .replace(/&#39;|&apos;/g, "'");
 
+const blogShown = JSON.parse(readFileSync(join(root, "app/_generated/content.json"), "utf8")).blog.length > 0;
+
 const UNDRAWN_MESSAGES = new Set([
   "Meta",
   "Header.openMenu",
   "Header.closeMenu",
   "Header.sectionNav",
   "ImageViewer.loading",
+  ...(blogShown ? [] : ["Blog", "Nav.blog"]),
 ]);
 
 const messageText = (value, key = "") =>

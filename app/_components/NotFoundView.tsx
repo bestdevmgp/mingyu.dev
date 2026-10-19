@@ -9,8 +9,9 @@ import SiteHeader from "@/_components/SiteHeader";
 import CTAButton from "@/_components/buttons/CTAButton";
 import monocleStill from "@/assets/emoji/face-with-monocle-still.webp";
 import monocle from "@/assets/emoji/face-with-monocle.webp";
+import type { NavSection } from "@/utils/api";
 
-const NotFoundView = () => {
+const NotFoundView = ({ sections }: { sections: NavSection[] }) => {
   const t = useTranslations("NotFound");
   const [animated, setAnimated] = useState(false);
 
@@ -38,7 +39,7 @@ const NotFoundView = () => {
 
   return (
     <>
-      <SiteHeader homeHref="/" />
+      <SiteHeader sections={sections} homeHref="/" />
       <main className="flex flex-col items-center justify-center px-5 pt-14 pb-[calc(var(--vh0,1vh)*12)] [@media(max-height:500px)]:pb-0">
         <div className="hero-rise hero-rise-1 flex flex-col md:flex-row [@media(max-height:500px)]:flex-row items-center gap-4 md:gap-7">
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -13,19 +13,21 @@ import MainSection from "@/_sections/MainSection";
 import OutroSection from "@/_sections/OutroSection";
 import ProjectSection from "@/_sections/ProjectSection";
 import SkillSection from "@/_sections/SkillSection";
+import { getNavSections } from "@/utils/api";
 
 export const dynamicParams = false;
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const sections = getNavSections();
 
   return (
     <>
       <RestoreProjectScroll />
       <SectionTracker />
-      <SiteHeader />
-      <SectionNav />
+      <SiteHeader sections={sections} />
+      <SectionNav sections={sections} />
       <main
         className="
         w-full max-w-(--breakpoint-lg) mx-auto
