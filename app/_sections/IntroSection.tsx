@@ -13,7 +13,7 @@ export default async function IntroSection() {
   return (
     <section id="competencies" className="pt-6 scroll-mt-10 md:scroll-mt-14">
       <SlideUpInView>
-        <p className="section-eyebrow">{t("eyebrow")}</p>
+        <h2 className="section-eyebrow">{t("eyebrow")}</h2>
         <p className="section-title">{t("title")}</p>
         <FeatureItems features={features} />
       </SlideUpInView>

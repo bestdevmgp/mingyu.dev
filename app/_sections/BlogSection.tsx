@@ -1,7 +1,6 @@
 import { ExternalLink } from "react-feather";
 
 import BlogCard from "@/_components/BlogCard";
-import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import CTAButton from "@/_components/buttons/CTAButton";
 import content from "@/lib/content";
@@ -14,7 +13,7 @@ export default function BlogSection() {
   if (!blogs.length) return null;
 
   return (
-    <SectionWatcher id="blog">
+    <section id="blog">
       <SlideUpInView>
         <h2 className="section-eyebrow">블로그</h2>
         <p className="section-title">
@@ -36,6 +35,6 @@ export default function BlogSection() {
           className="mx-auto"
         />
       </SlideUpInView>
-    </SectionWatcher>
+    </section>
   );
 }

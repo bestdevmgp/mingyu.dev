@@ -9,9 +9,19 @@ import { bootPostHog, isLocalhost } from "./analytics/posthog";
 
 import type { SpeedInsightsProps } from "@vercel/speed-insights";
 
-const Analytics = dynamic(() => import("@vercel/analytics/react").then(m => m.Analytics));
+const Unavailable = () => null;
+
+const Analytics = dynamic(() =>
+  import("@vercel/analytics/react").then(
+    m => m.Analytics,
+    () => Unavailable,
+  ),
+);
 const SpeedInsights = dynamic<SpeedInsightsProps>(() =>
-  import("@vercel/speed-insights/next").then(m => m.SpeedInsights),
+  import("@vercel/speed-insights/next").then(
+    m => m.SpeedInsights,
+    () => Unavailable,
+  ),
 );
 
 const PROJECT_PATH = /^\/project\/\d+$/;

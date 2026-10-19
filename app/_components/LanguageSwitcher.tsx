@@ -10,6 +10,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { LOCALE_COOKIE, locales, type Locale } from "@i18n/config";
 
+import arrowFocus from "@/utils/arrowFocus";
 import { beginLocaleSwitch } from "@/utils/localeSwitch";
 import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
@@ -47,10 +48,15 @@ const setLocaleCookie = (locale: Locale) => {
   document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax; secure`;
 };
 
+let refocusTrigger = false;
+const refocusTriggerAfterSwitch = (value: boolean) => {
+  refocusTrigger = value;
+};
+
 interface LanguageSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "dropdown" | "inline";
   hardNavigation?: boolean;
-  onLocaleChange?: () => void;
+  onLocaleChange?: (viaKeyboard: boolean) => void;
 }
 
 const LanguageSwitcher = ({
@@ -67,7 +73,7 @@ const LanguageSwitcher = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  useOnClickOutside(ref, () => setIsOpen(false));
+  useOnClickOutside(ref, isOpen, () => setIsOpen(false));
   useOnEscape(isOpen, () => setIsOpen(false));
   useFocusScope(ref, isOpen, '[role="option"][aria-selected="true"]');
 
@@ -83,17 +89,26 @@ const LanguageSwitcher = ({
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const displayLocale = pendingLocale ?? activeLocale;
 
-  const changeLocale = (nextLocale: Locale) => {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const trigger = triggerRef.current;
+    if (!refocusTrigger || !trigger?.getClientRects().length) return;
+    refocusTriggerAfterSwitch(false);
+    trigger.focus({ preventScroll: true, focusVisible: true });
+  }, [activeLocale]);
+
+  const changeLocale = (nextLocale: Locale, viaKeyboard: boolean) => {
     setIsOpen(false);
     if (nextLocale === displayLocale) return;
-    onLocaleChange?.();
+    onLocaleChange?.(viaKeyboard);
+    refocusTriggerAfterSwitch(variant === "dropdown" && viaKeyboard);
     setPendingLocale(nextLocale);
     setLocaleCookie(nextLocale);
     track("locale_changed", { from: displayLocale, to: nextLocale });
     setLocale(nextLocale);
     beginLocaleSwitch();
     const rootPath = pathname.replace(LOCALE_PREFIX, "") || "/";
-    if (hardNavigation) window.location.replace(rootPath);
+    if (hardNavigation) window.location.replace(rootPath + window.location.hash);
     else if (rootPath !== pathname) router.replace(rootPath);
     else router.refresh();
   };
@@ -113,7 +128,7 @@ const LanguageSwitcher = ({
                 key={locale}
                 type="button"
                 aria-pressed={isActive}
-                onClick={() => changeLocale(locale)}
+                onClick={event => changeLocale(locale, event.detail === 0)}
                 className={cn(
                   "px-2 py-1 rounded-md text-sm whitespace-nowrap transition-colors duration-200 -outline-offset-1",
                   isActive
@@ -134,9 +149,10 @@ const LanguageSwitcher = ({
     <div className={cn("relative", className)} ref={ref} {...props}>
       <Tooltip label={t("changeLanguage")}>
         <button
+          ref={triggerRef}
           type="button"
           onClick={() => setIsOpen(prev => !prev)}
-          aria-label={t("changeLanguage")}
+          aria-label={`${LOCALE_LABELS[activeLocale]}, ${t("changeLanguage")}`}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
           className={cn(
@@ -150,7 +166,7 @@ const LanguageSwitcher = ({
           />
           <span
             className={cn(
-              "hidden md:inline font-semibold",
+              "font-semibold",
               activeLocale === "en" ? "text-[13px]/4" : "text-[12px]/4",
               activeLocale === "ko" && "translate-y-[0.5px]",
               activeLocale === "ja" && "-translate-y-[0.5px]",
@@ -167,6 +183,7 @@ const LanguageSwitcher = ({
         {isOpen && (
           <motion.ul
             role="listbox"
+            onKeyDown={arrowFocus('[role="option"]')}
             initial={{ opacity: 0, y: -4, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.96 }}
@@ -181,7 +198,7 @@ const LanguageSwitcher = ({
                   type="button"
                   role="option"
                   aria-selected={locale === activeLocale}
-                  onClick={() => changeLocale(locale)}
+                  onClick={event => changeLocale(locale, event.detail === 0)}
                   className={cn(
                     "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors duration-200 -outline-offset-1",
                     "hover:bg-foreground/5",

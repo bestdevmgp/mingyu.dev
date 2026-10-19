@@ -2,6 +2,7 @@ import { ExternalLink } from "react-feather";
 
 import { getTranslations } from "next-intl/server";
 
+import HeroIdle from "@/_components/HeroIdle";
 import CTAButton from "@/_components/buttons/CTAButton";
 
 const MainSection = async () => {
@@ -12,6 +13,7 @@ const MainSection = async () => {
       id="main"
       className="relative w-full flex flex-col items-center justify-center pt-32 md:pt-44 pb-32 mb-12 md:mb-20"
     >
+      <HeroIdle />
       <div aria-hidden className="hero-bg">
         <div className="hero-bg-canvas">
           <div className="hero-blob hero-blob-blue" />

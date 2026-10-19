@@ -21,6 +21,7 @@ const KEYCAPS = {
 type Phase = "hidden" | "enter" | "exit";
 
 let handOff: (() => void) | null = null;
+let visible: (() => void) | null = null;
 
 interface TooltipProps {
   label: string;
@@ -37,10 +38,16 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
   const timer = useRef(0);
   const suppressed = useRef(false);
   const ownHandOff = useRef<(() => void) | null>(null);
+  const ownDismiss = useRef<(() => void) | null>(null);
 
   const go = useCallback((next: Phase) => {
     phaseRef.current = next;
     setPhase(next);
+    const own = ownDismiss.current;
+    if (next === "enter") {
+      if (visible && visible !== own) visible();
+      visible = own;
+    } else if (next === "hidden" && visible === own) visible = null;
   }, []);
 
   const release = useCallback(() => {
@@ -54,7 +61,10 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
     if (phaseRef.current !== "hidden") go("hidden");
   }, [go, release]);
 
-  useEffect(() => dismiss, [dismiss]);
+  useEffect(() => {
+    ownDismiss.current = dismiss;
+    return dismiss;
+  }, [dismiss]);
 
   const show = useCallback(() => {
     const trigger = triggerRef.current;
@@ -62,14 +72,9 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
     if (trigger.matches(":disabled") || trigger.getAttribute("aria-expanded") === "true") return;
     window.clearTimeout(timer.current);
     release();
-    const previous = handOff;
-    if (phaseRef.current === "hidden" && !previous) {
+    if (phaseRef.current === "hidden" && !handOff) {
       timer.current = window.setTimeout(() => go("enter"), SHOW_DELAY);
       return;
-    }
-    if (previous) {
-      handOff = null;
-      previous();
     }
     if (phaseRef.current !== "enter") go("enter");
   }, [go, release]);

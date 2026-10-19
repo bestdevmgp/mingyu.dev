@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import { isLocaleSwitching } from "@/utils/localeSwitch";
+
 import { isAnalyticsEnabled, track } from "./posthog";
 
 const SECTIONS = ["main", "competencies", "skills", "career", "projects", "blog", "education", "contact"] as const;
@@ -9,6 +11,20 @@ const SECTIONS = ["main", "competencies", "skills", "career", "projects", "blog"
 const MIN_DWELL_MS = 1000;
 
 type Target = { id: string; order: number; el: HTMLElement };
+
+type Visit = {
+  startedAt: number;
+  engagedBase: number;
+  engagedFrom: number;
+  maxScroll: number;
+  deepest: string;
+  lastLeave: string;
+  dwell: Map<string, number>;
+  reported: Map<string, number>;
+  seen: Set<string>;
+};
+
+let carried: Visit | null = null;
 
 const SectionTracker = () => {
   useEffect(() => {
@@ -23,16 +39,24 @@ const SectionTracker = () => {
 
     const orderOf = new Map(targets.map(t => [t.id, t.order]));
     const rankOf = (id: string) => orderOf.get(id) ?? 0;
-    const dwell = new Map<string, number>();
-    const reported = new Map<string, number>();
-    const seen = new Set<string>();
 
-    const startedAt = performance.now();
-    let engagedBase = 0;
-    let engagedFrom = document.visibilityState === "visible" ? startedAt : 0;
-    let maxScroll = 0;
+    const now = performance.now();
+    const visit: Visit =
+      isLocaleSwitching() && carried
+        ? carried
+        : {
+            startedAt: now,
+            engagedBase: 0,
+            engagedFrom: document.visibilityState === "visible" ? now : 0,
+            maxScroll: 0,
+            deepest: targets[0].id,
+            lastLeave: "",
+            dwell: new Map(),
+            reported: new Map(),
+            seen: new Set(),
+          };
+    carried = null;
     let rafId = 0;
-    let lastLeave = "";
 
     const currentSection = () => {
       const middle = window.innerHeight / 2;
@@ -50,40 +74,39 @@ const SectionTracker = () => {
       return Math.min(100, ((window.scrollY + window.innerHeight) / height) * 100);
     };
 
-    let active = currentSection();
-    let activeSince = engagedFrom;
-    let deepest = active;
-
     const sample = () => {
-      maxScroll = Math.max(maxScroll, scrollPct());
+      visit.maxScroll = Math.max(visit.maxScroll, scrollPct());
       const id = currentSection();
-      if (rankOf(id) > rankOf(deepest)) deepest = id;
+      if (rankOf(id) > rankOf(visit.deepest)) visit.deepest = id;
       return id;
     };
 
-    const bank = (now: number) => {
-      if (activeSince) dwell.set(active, (dwell.get(active) ?? 0) + (now - activeSince));
+    let active = sample();
+    let activeSince = visit.engagedFrom ? now : 0;
+
+    const bank = (at: number) => {
+      if (activeSince) visit.dwell.set(active, (visit.dwell.get(active) ?? 0) + (at - activeSince));
       activeSince = 0;
     };
 
-    const resume = (now: number) => {
+    const resume = (at: number) => {
       active = sample();
-      activeSince = now;
+      activeSince = at;
     };
 
     const flush = () => {
-      const now = performance.now();
+      const at = performance.now();
       sample();
-      bank(now);
-      if (engagedFrom) {
-        engagedBase += now - engagedFrom;
-        engagedFrom = 0;
+      bank(at);
+      if (visit.engagedFrom) {
+        visit.engagedBase += at - visit.engagedFrom;
+        visit.engagedFrom = 0;
       }
 
-      dwell.forEach((total, id) => {
-        const delta = total - (reported.get(id) ?? 0);
+      visit.dwell.forEach((total, id) => {
+        const delta = total - (visit.reported.get(id) ?? 0);
         if (delta < MIN_DWELL_MS) return;
-        reported.set(id, total);
+        visit.reported.set(id, total);
         track("section_dwell", {
           section: id,
           section_order: orderOf.get(id),
@@ -93,29 +116,29 @@ const SectionTracker = () => {
       });
 
       const leave = {
-        max_section: deepest,
-        max_section_order: rankOf(deepest),
-        max_scroll_pct: Math.round(maxScroll),
-        engaged_ms: Math.round(engagedBase),
+        max_section: visit.deepest,
+        max_section_order: rankOf(visit.deepest),
+        max_scroll_pct: Math.round(visit.maxScroll),
+        engaged_ms: Math.round(visit.engagedBase),
       };
       const signature = JSON.stringify(leave);
-      if (signature === lastLeave) return;
-      lastLeave = signature;
+      if (signature === visit.lastLeave) return;
+      visit.lastLeave = signature;
       track("page_leave", leave);
     };
 
     const observer = new IntersectionObserver(
       entries => {
-        const now = performance.now();
+        const at = performance.now();
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           const id = entry.target.id;
-          if (seen.has(id)) continue;
-          seen.add(id);
+          if (visit.seen.has(id)) continue;
+          visit.seen.add(id);
           track("section_viewed", {
             section: id,
             section_order: orderOf.get(id),
-            reached_after_ms: Math.round(now - startedAt),
+            reached_after_ms: Math.round(at - visit.startedAt),
           });
         }
       },
@@ -129,21 +152,21 @@ const SectionTracker = () => {
         rafId = 0;
         const next = sample();
         if (next === active || !activeSince) return;
-        const now = performance.now();
-        bank(now);
+        const at = performance.now();
+        bank(at);
         active = next;
-        activeSince = now;
+        activeSince = at;
       });
     };
 
     const onVisibility = () => {
-      const now = performance.now();
+      const at = performance.now();
       if (document.visibilityState === "hidden") {
         flush();
         return;
       }
-      engagedFrom = now;
-      resume(now);
+      visit.engagedFrom = at;
+      resume(at);
     };
 
     const onPageHide = () => flush();
@@ -154,7 +177,6 @@ const SectionTracker = () => {
       if (name) track(name, { section: currentSection() });
     };
 
-    sample();
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pagehide", onPageHide);
@@ -167,6 +189,9 @@ const SectionTracker = () => {
       window.removeEventListener("pagehide", onPageHide);
       document.removeEventListener("click", onClick, true);
       if (rafId) cancelAnimationFrame(rafId);
+      if (!isLocaleSwitching()) return;
+      bank(performance.now());
+      carried = visit;
     };
   }, []);
 

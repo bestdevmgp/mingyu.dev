@@ -1,4 +1,4 @@
-import { SPARKLE_PATH } from "@/_components/SpinnerMark";
+import { FLOWER_PATH, SPARKLE_PATH } from "./markPaths";
 
 const SiteLoader = () => (
   <div className="site-loader">
@@ -27,10 +27,7 @@ const SiteLoader = () => (
         <rect width="24" height="24" mask="url(#site-loader-stairs)" />
       </svg>
       <svg x="86.295" y="86.295" width="74.75" height="74.75" viewBox="0 0 24 24" overflow="visible">
-        <path
-          className="site-loader-flower"
-          d="M0 8L7.55202 10.1577L0.685839 6.34317L6.34269 0.68632L10.1585 7.5548L8 0H16L13.8415 7.5548L17.6573 0.686321L23.3142 6.34317L16.448 10.1577L24 8V16L16.4465 13.8419L23.3136 17.6569L17.6567 23.3137L13.8422 16.4476L16 24H8L10.1578 16.4476L6.3433 23.3137L0.686443 17.6569L7.55347 13.8419L0 16V8Z"
-        />
+        <path className="site-loader-flower" d={FLOWER_PATH} />
       </svg>
     </svg>
   </div>

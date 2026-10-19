@@ -3,10 +3,13 @@
 import { useEffect } from "react";
 
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+
+import { localePath } from "@i18n/config";
 
 const HomeButton = () => {
   const t = useTranslations("Common");
+  const locale = useLocale();
   const router = useRouter();
 
   useEffect(() => {
@@ -16,7 +19,7 @@ const HomeButton = () => {
   }, []);
 
   const moveHome = () => {
-    router.replace("/");
+    router.replace(localePath(locale));
   };
   return (
     <button

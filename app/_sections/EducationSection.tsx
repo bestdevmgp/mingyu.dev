@@ -1,7 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
 import EducationCard from "@/_components/EducationCard";
-import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import content from "@/lib/content";
 import { applyLocaleAll } from "@/utils/localize";
@@ -15,7 +14,7 @@ export default async function EducationSection() {
   const certifications = data.filter(d => d.category === "CERTIFICATION");
 
   return (
-    <SectionWatcher id="education">
+    <section id="education">
       <SlideUpInView>
         <h2 className="section-eyebrow mb-6 md:mb-8">{t("eyebrow")}</h2>
 
@@ -29,6 +28,6 @@ export default async function EducationSection() {
           ))}
         </div>
       </SlideUpInView>
-    </SectionWatcher>
+    </section>
   );
 }

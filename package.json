@@ -12,7 +12,6 @@
     "font-subset": "node scripts/font-subset.mjs",
     "start": "next start",
     "lint": "eslint .",
-    "prisma:generate": "prisma generate",
     "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {

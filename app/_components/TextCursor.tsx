@@ -11,9 +11,6 @@ const caretAt = (x: number, y: number) => {
   return range && { node: range.startContainer, offset: range.startOffset };
 };
 
-const inheritsDefaultCursor = (element: Element) =>
-  getComputedStyle(element).cursor === getComputedStyle(document.documentElement).cursor;
-
 const isSelectable = (element: Element) => {
   for (let node: Element | null = element; node; node = node.parentElement) {
     const style = getComputedStyle(node);
@@ -33,28 +30,39 @@ const TextCursor = () => {
     let queued = false;
     let pressed = false;
     let selecting = false;
+    let marked: Element | null = null;
 
-    const overText = () => {
+    const inheritsDefaultCursor = (element: Element) =>
+      getComputedStyle(element).cursor === getComputedStyle(marked && marked.contains(element) ? marked : root).cursor;
+
+    const textUnderPointer = () => {
       const caret = caretAt(x, y);
-      if (!caret || !(caret.node instanceof Text)) return false;
+      if (!caret || !(caret.node instanceof Text)) return null;
       const text = caret.node;
       const parent = text.parentElement;
-      if (!parent || !inheritsDefaultCursor(parent) || !isSelectable(parent)) return false;
+      if (!parent || !inheritsDefaultCursor(parent) || !isSelectable(parent)) return null;
       for (const start of [caret.offset - 1, caret.offset]) {
         if (start < 0 || start >= text.length) continue;
         range.setStart(text, start);
         range.setEnd(text, start + 1);
         for (const rect of range.getClientRects()) {
-          if (x >= rect.left && x < rect.right && y >= rect.top && y < rect.bottom) return true;
+          if (x >= rect.left && x < rect.right && y >= rect.top && y < rect.bottom) return parent;
         }
       }
-      return false;
+      return null;
+    };
+
+    const mark = (element: Element | null) => {
+      if (element === marked) return;
+      marked?.removeAttribute("data-text-cursor");
+      element?.setAttribute("data-text-cursor", "");
+      marked = element;
     };
 
     const update = () => {
       queued = false;
       if (selecting) return;
-      root.classList.toggle("over-text", x >= 0 && overText());
+      mark(x >= 0 ? textUnderPointer() : null);
     };
 
     const schedule = () => {
@@ -67,7 +75,7 @@ const TextCursor = () => {
       if (event.pointerType === "touch") return;
       x = event.clientX;
       y = event.clientY;
-      if (selecting) root.classList.add("over-text");
+      if (selecting) root.classList.add("text-selecting");
       else schedule();
     };
 
@@ -84,6 +92,7 @@ const TextCursor = () => {
       pressed = false;
       if (!selecting) return;
       selecting = false;
+      root.classList.remove("text-selecting");
       schedule();
     };
 
@@ -93,22 +102,34 @@ const TextCursor = () => {
       schedule();
     };
 
+    const changes = new MutationObserver(schedule);
+    changes.observe(document.body, { childList: true, characterData: true, subtree: true });
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerdown", onDown, { passive: true });
     window.addEventListener("pointerup", onUp, { passive: true });
     window.addEventListener("pointercancel", onUp, { passive: true });
-    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    document.addEventListener("scroll", schedule, { capture: true, passive: true });
+    document.addEventListener("transitionend", schedule, true);
+    document.addEventListener("animationend", schedule, true);
+    document.addEventListener("load", schedule, true);
     document.addEventListener("selectstart", onSelectStart);
     document.addEventListener("mouseout", onLeave);
     return () => {
+      changes.disconnect();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
-      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      document.removeEventListener("scroll", schedule, true);
+      document.removeEventListener("transitionend", schedule, true);
+      document.removeEventListener("animationend", schedule, true);
+      document.removeEventListener("load", schedule, true);
       document.removeEventListener("selectstart", onSelectStart);
       document.removeEventListener("mouseout", onLeave);
-      root.classList.remove("over-text");
+      mark(null);
+      root.classList.remove("text-selecting");
     };
   }, []);
 

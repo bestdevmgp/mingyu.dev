@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import { phoneDisplay, phoneHref } from "@/utils/phone";
 
@@ -10,7 +9,7 @@ const OutroSection = async () => {
   const locale = await getLocale();
 
   return (
-    <SectionWatcher id="contact">
+    <section id="contact">
       <SlideUpInView>
         <p className="text-center text-2xl md:text-3xl font-semibold leading-normal md:leading-normal mb-4 md:mb-6">
           {t.rich("heading", { br: () => <br /> })}
@@ -42,7 +41,7 @@ const OutroSection = async () => {
           </Link>
         </div>
       </SlideUpInView>
-    </SectionWatcher>
+    </section>
   );
 };
 

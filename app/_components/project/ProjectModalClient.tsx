@@ -39,14 +39,12 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
   const t = useTranslations("Project");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedGroup, setSelectedGroup] = useState(0);
   const thumbnails = useRef(new Map<string, HTMLImageElement>());
 
   const { title, sub_title, member, period, skills, links, items, imageSizes } = projectData;
 
-  const handleImageClick = (images: string[], imageIndex: number, groupIndex: number) => {
-    setSelectedImages(images);
+  const handleImageClick = (imageIndex: number, groupIndex: number) => {
     setSelectedImageIndex(imageIndex);
     setSelectedGroup(groupIndex);
     setIsImageModalOpen(true);
@@ -150,7 +148,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
                       alt={`${item.title} ${imgIndex + 1}`}
                       size={imageSizes[imageUrl]}
                       reveal={revealImages}
-                      onClick={() => handleImageClick(item.blobUrls!, imgIndex, index)}
+                      onClick={() => handleImageClick(imgIndex, index)}
                     />
                   ))}
                 </div>
@@ -161,7 +159,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
       </div>
 
       <ImageModal
-        images={selectedImages}
+        images={items[selectedGroup]?.blobUrls ?? []}
         title={items[selectedGroup]?.title ?? ""}
         initialIndex={selectedImageIndex}
         isOpen={isImageModalOpen}

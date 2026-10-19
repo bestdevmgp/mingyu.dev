@@ -36,13 +36,16 @@ const SmoothScroll = () => {
 
     if (!isTouch) {
       void (async () => {
-        const [{ default: LenisCtor }] = await Promise.all([import("lenis"), import("lenis/dist/lenis.css")]);
-        if (disposed) return;
+        const modules = await Promise.all([import("lenis"), import("lenis/dist/lenis.css")]).catch(() => null);
+        if (!modules || disposed) return;
+        const [{ default: LenisCtor }] = modules;
+        const root = document.documentElement;
         const instance = new LenisCtor({
           duration: 0.6,
           easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           smoothWheel: true,
           respectReducedMotion: false,
+          virtualScroll: () => !root.classList.contains("loader-js") || root.classList.contains("loader-done"),
         });
         lenis = instance;
         window.__lenis = instance;
@@ -59,14 +62,7 @@ const SmoothScroll = () => {
       const anchor = (event.target as HTMLElement).closest?.('a[href^="#"]') as HTMLAnchorElement | null;
       const href = anchor?.getAttribute("href");
       if (!href || href === "#") return;
-      const id = href.slice(1);
-      if (id === "top") {
-        event.preventDefault();
-        if (lenis) lenis.scrollTo(0);
-        else window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
-      const el = document.getElementById(id);
+      const el = document.getElementById(href.slice(1));
       if (!el) return;
       event.preventDefault();
 

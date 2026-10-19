@@ -1,5 +1,5 @@
 "use client";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import { motion, useSpring } from "motion/react";
@@ -39,6 +39,21 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
 
   const navRef = useRef<HTMLElement>(null);
   const restoredCategory = useRef(activeCategory);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const markSelection = () => {
+      const label = nav.querySelector('[aria-pressed="true"] > span');
+      const selection = document.getSelection();
+      nav.toggleAttribute(
+        "data-selecting",
+        Boolean(label && selection && !selection.isCollapsed && selection.containsNode(label, true)),
+      );
+    };
+    document.addEventListener("selectionchange", markSelection);
+    return () => document.removeEventListener("selectionchange", markSelection);
+  }, []);
 
   useLayoutEffect(() => {
     const nav = navRef.current;
@@ -98,11 +113,14 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
           <button
             key={`nav-item-${value}`}
             data-category={value}
+            aria-pressed={activeCategory === value}
             className={cn(
-              "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative -outline-offset-1",
-              "text-gray-400 dark:text-gray-500 mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",
-              pressedCategory === value && "bg-gray-200 dark:bg-gray-700/10",
-              activeCategory !== value && "focus-visible:z-10",
+              "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative focus-visible:z-10",
+              "text-gray-400 dark:text-gray-500",
+              activeCategory === value
+                ? "outline-offset-1"
+                : "-outline-offset-1 mouse:hover:bg-gray-200 dark:mouse:hover:bg-gray-700/10",
+              activeCategory !== value && pressedCategory === value && "bg-gray-200 dark:bg-gray-700/10",
             )}
             onClick={e => handleCategoryClick(e, value)}
             onPointerDown={() => setPressedCategory(value)}

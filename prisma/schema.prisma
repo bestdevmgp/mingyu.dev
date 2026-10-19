@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 model ProjectItem {
@@ -67,7 +67,6 @@ model project {
   sub_title   String        @db.VarChar(150)
   period      String        @db.VarChar(30)
   member      String        @db.VarChar(100)
-  skills      String[]      @db.VarChar(50)
   links       Json[]        @db.Json
   row_number  Int?
   skill_ids   Int[]         @default([])
@@ -78,7 +77,6 @@ model project {
 model skill {
   id       Int      @id @default(autoincrement())
   category Category
-  items    String[] @db.VarChar(255)
   blobUrl  String   @default("") @db.VarChar(255)
   item     String   @default("") @db.VarChar(255)
   order    Int      @default(0)

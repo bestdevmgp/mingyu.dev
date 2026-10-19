@@ -15,7 +15,6 @@ const RestoreProjectScroll = () => {
     }
 
     const started = Date.now();
-    let observer: MutationObserver | null = null;
     let retry = 0;
     let finished = false;
 
@@ -23,7 +22,6 @@ const RestoreProjectScroll = () => {
       if (finished) return;
       finished = true;
       sessionStorage.removeItem("from-project");
-      observer?.disconnect();
       window.clearInterval(retry);
       window.removeEventListener("wheel", finish);
       window.removeEventListener("touchstart", finish);
@@ -36,9 +34,6 @@ const RestoreProjectScroll = () => {
 
       const target = document.getElementById("projects");
       if (!target) return;
-
-      observer?.disconnect();
-      observer = null;
 
       const before = window.scrollY;
       window.__lenis?.resize?.();
@@ -53,10 +48,6 @@ const RestoreProjectScroll = () => {
 
     if (!finished) {
       retry = window.setInterval(step, RETRY_INTERVAL);
-      if (!document.getElementById("projects")) {
-        observer = new MutationObserver(step);
-        observer.observe(document.body, { childList: true, subtree: true });
-      }
       window.addEventListener("wheel", finish, { once: true, passive: true });
       window.addEventListener("touchstart", finish, { once: true, passive: true });
       window.addEventListener("keydown", finish, { once: true });

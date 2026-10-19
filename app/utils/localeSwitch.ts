@@ -2,6 +2,7 @@ const ANCHOR = "main section[id], main [data-reveal], main [data-reveal-stagger]
 const RELEASE_CAP = 3000;
 
 let active = false;
+let hash = "";
 let fallbackY = 0;
 let anchorIndex = -1;
 let anchorTop = 0;
@@ -49,6 +50,7 @@ export const isLocaleSwitching = () => active;
 
 export const beginLocaleSwitch = () => {
   active = true;
+  hash = window.location.hash;
   fallbackY = window.scrollY;
   captureAnchor();
   document.documentElement.classList.add("locale-switching", "locale-switched");
@@ -81,6 +83,8 @@ export const endLocaleSwitch = () => {
     if (el.getBoundingClientRect().top < limit) el.classList.add("is-revealed");
   });
   document.documentElement.classList.remove("locale-switching");
+  if (hash && !window.location.hash)
+    window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search + hash);
 
   followAnchor();
   const lenis = window.__lenis;

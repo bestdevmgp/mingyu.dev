@@ -47,11 +47,21 @@ export function setLocale(locale: string) {
   client?.register({ locale });
 }
 
+const loadPostHog = async () => {
+  try {
+    const { default: posthog } = await import("posthog-js");
+    return posthog;
+  } catch {
+    return null;
+  }
+};
+
 export async function bootPostHog() {
   if (!KEY || !isAnalyticsEnabled() || booting || client) return;
   booting = true;
 
-  const { default: posthog } = await import("posthog-js");
+  const posthog = await loadPostHog();
+  if (!posthog) return;
 
   posthog.init(KEY, {
     api_host: HOST,

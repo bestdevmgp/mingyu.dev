@@ -537,7 +537,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
                       "relative w-full h-full object-contain image-reveal",
                       loadedIndex !== currentIndex && !showOrigin && "image-reveal-pending",
                     )}
-                    priority
+                    preload
                     draggable={false}
                     onLoad={e => {
                       setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);

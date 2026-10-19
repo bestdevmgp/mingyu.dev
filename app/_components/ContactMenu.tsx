@@ -6,6 +6,7 @@ import cn from "classnames";
 import { AnimatePresence, motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
+import arrowFocus from "@/utils/arrowFocus";
 import { phoneDisplay, phoneHref } from "@/utils/phone";
 import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
@@ -126,6 +127,7 @@ const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () =
   return (
     <a
       href={href}
+      role="menuitem"
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
       onClick={() => {
@@ -152,7 +154,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
   const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  useOnClickOutside(ref, () => setIsOpen(false));
+  useOnClickOutside(ref, isOpen, () => setIsOpen(false));
   useOnEscape(isOpen, () => setIsOpen(false));
   useFocusScope(ref, isOpen, '[role="menu"] a');
 
@@ -214,6 +216,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
         {isOpen && (
           <motion.div
             role="menu"
+            onKeyDown={arrowFocus('[role="menuitem"]')}
             initial={{ opacity: 0, y: -4, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.96 }}

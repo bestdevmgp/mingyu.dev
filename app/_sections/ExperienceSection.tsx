@@ -3,7 +3,6 @@ import React from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import ExpCard from "@/_components/ExpCard";
-import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import content from "@/lib/content";
 import { getSkills } from "@/utils/api";
@@ -30,7 +29,7 @@ export default async function ExperienceSection() {
   const projects = data.filter(({ category }) => category === "PROJECT");
 
   return (
-    <SectionWatcher id="career">
+    <section id="career">
       <SlideUpInView>
         <h2 className="section-eyebrow">{t("eyebrow")}</h2>
         <p className="section-title">{t.rich("title", { br: () => <br /> })}</p>
@@ -57,6 +56,6 @@ export default async function ExperienceSection() {
             </React.Fragment>
           ))}
       </SlideUpInView>
-    </SectionWatcher>
+    </section>
   );
 }

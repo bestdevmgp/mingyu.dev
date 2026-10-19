@@ -1,10 +1,12 @@
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { languageAlternates, localePath } from "@i18n/config";
 
-import ProjectModal from "@/_components/project/ProjectModal";
+import ProjectModalClient from "@/_components/project/ProjectModalClient";
 import { getImageSizes, getProject, getProjectIds } from "@/utils/api";
 import { applyLocale, applyLocaleAll } from "@/utils/localize";
+import { getProjectData } from "@/utils/projectData";
 
 import HomeButton from "./HomeButton";
 
@@ -53,9 +55,12 @@ export async function generateMetadata({ params }: ProjectParams, parent: Resolv
 export default async function ProjectPage({ params }: ProjectParams) {
   const { id, locale } = await params;
   setRequestLocale(locale);
+  const projectData = getProjectData(Number(id), locale);
+  if (!projectData) notFound();
+
   return (
     <div className="w-full md:w-[calc(100vw-4rem)] md:max-w-4xl mx-auto px-4 md:px-[33px] py-8 md:py-12">
-      <ProjectModal id={Number(id)} />
+      <ProjectModalClient id={Number(id)} projectData={projectData} />
       <HomeButton />
     </div>
   );

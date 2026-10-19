@@ -5,7 +5,6 @@ import { Menu, X } from "react-feather";
 
 import cn from "classnames";
 import { stagger, useAnimate } from "motion/react";
-import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 
 import Sparkle from "@/assets/shape-sparkle-round.svg";
@@ -38,19 +37,19 @@ const nameNudge: Record<string, string> = {
 const staggerMenuItems = stagger(0.06, { startDelay: 0.0875 });
 
 let closeMenuAfterSwitch = false;
+let refocusMenuAfterSwitch = false;
 
 interface SiteHeaderProps {
   homeHref?: string;
 }
 
 const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
-  const HomeLink = homeHref ? "a" : Link;
   const t = useTranslations("Header");
   const tNav = useTranslations("Nav");
   const locale = useLocale();
   const themeLabel = t(useIsDark() ? "switchToLight" : "switchToDark");
 
-  const [atTop, setAtTop] = useCarriedState("header.atTop", true);
+  const [atTop, setAtTop] = useState(true);
   const [isExpanded, setIsExpanded] = useCarriedState("header.menu", false);
   const glass = !atTop || homeHref !== undefined;
   const [carriedOpen] = useState(isExpanded);
@@ -104,13 +103,21 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
     ]);
   }, [isExpanded, animate]);
 
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (!closeMenuAfterSwitch) return;
+    let refocus = 0;
     const frame = requestAnimationFrame(() => {
       closeMenuAfterSwitch = false;
       setIsExpanded(false);
+      if (!refocusMenuAfterSwitch) return;
+      refocusMenuAfterSwitch = false;
+      refocus = requestAnimationFrame(() => menuButtonRef.current?.focus({ preventScroll: true, focusVisible: true }));
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(refocus);
+    };
   }, [locale, setIsExpanded]);
 
   const pickedSection = useRef<HTMLElement | null>(null);
@@ -169,10 +176,26 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
     return () => wide.removeEventListener("change", close);
   }, [isExpanded, setIsExpanded]);
 
+  const listRef = useRef<HTMLUListElement>(null);
+  const [listScrolls, setListScrolls] = useState(false);
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const measure = () => setListScrolls(list.scrollHeight > list.clientHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const header = scope.current;
     if (!isExpanded || !header) return;
-    const block = (event: Event) => event.preventDefault();
+    const block = (event: Event) => {
+      const list = listRef.current;
+      if (list && list.scrollHeight > list.clientHeight && list.contains(event.target as Node)) return;
+      event.preventDefault();
+    };
     header.addEventListener("wheel", block, { passive: false });
     header.addEventListener("touchmove", block, { passive: false });
     return () => {
@@ -186,7 +209,6 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
 
   const scrollToTop = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    event.stopPropagation();
     setIsExpanded(false);
     if (window.__lenis) window.__lenis.scrollTo(0);
     else window.scrollTo({ top: 0, behavior: "smooth" });
@@ -213,7 +235,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         isExpanded ? "after:bg-foreground/10" : "after:bg-transparent",
       )}
     >
-      <HomeLink
+      <a
         className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0 focus-visible:rounded-md"
         href={homeHref ?? "#top"}
         onClick={homeHref ? undefined : scrollToTop}
@@ -229,7 +251,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
           <span className="font-extrabold text-foreground">{t("name")}</span>
           <span className="font-normal text-foreground/45"> | {t("role")}</span>
         </p>
-      </HomeLink>
+      </a>
 
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-[13px]">
@@ -241,6 +263,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         </div>
 
         <button
+          ref={menuButtonRef}
           type="button"
           className="block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1 focus-visible:rounded-md"
           onClick={() => setIsExpanded(prev => !prev)}
@@ -254,7 +277,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
       <div
         className={cn(
           "mobile-menu",
-          "absolute top-full left-0 right-0",
+          "absolute top-full left-0 right-0 max-h-[calc(100dvh-3.5rem)]",
 
           "flex flex-col xl:hidden px-5 pt-3 pb-0 indent-0",
 
@@ -264,7 +287,13 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         style={{ clipPath: initialClip }}
         inert={!isExpanded}
       >
-        <ul className="flex flex-col list-none p-0 m-0 indent-0">
+        <ul
+          ref={listRef}
+          className={cn(
+            "flex flex-col list-none indent-0 min-h-0",
+            listScrolls ? "-m-1 p-1 overflow-y-auto overscroll-contain" : "p-0 m-0",
+          )}
+        >
           {navItems.map(({ id }) => (
             <li key={`header-item-m-${id}`} className="mobile-menu-item" style={initialItemStyle}>
               <a
@@ -282,7 +311,7 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         </ul>
 
         <div
-          className="mobile-menu-item flex items-center justify-between gap-3 h-11 mt-2 border-t border-foreground/10"
+          className="mobile-menu-item flex shrink-0 items-center justify-between gap-3 h-11 mt-2 border-t border-foreground/10"
           style={initialItemStyle}
         >
           <ContactMenu variant="inline" />
@@ -295,10 +324,11 @@ const SiteHeader = ({ homeHref }: SiteHeaderProps) => {
         <LanguageSwitcher
           variant="inline"
           hardNavigation={homeHref !== undefined}
-          onLocaleChange={() => {
+          onLocaleChange={viaKeyboard => {
             closeMenuAfterSwitch = true;
+            refocusMenuAfterSwitch = viaKeyboard;
           }}
-          className="mobile-menu-item py-2.5 border-t border-foreground/10"
+          className="mobile-menu-item shrink-0 py-2.5 border-t border-foreground/10"
           style={initialItemStyle}
         />
       </div>

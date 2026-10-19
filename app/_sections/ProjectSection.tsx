@@ -1,6 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
-import SectionWatcher from "@/_components/SectionWatcher";
 import SlideUpInView from "@/_components/SlideUpInView";
 import ProjectCards from "@/_components/project/ProjectCards";
 import { getProjectsInOrder, getSkills } from "@/utils/api";
@@ -26,13 +25,13 @@ export default async function ProjectSection() {
   const projects = getProjects(await getLocale());
 
   return (
-    <SectionWatcher id="projects">
+    <section id="projects">
       <SlideUpInView>
         <h2 className="section-eyebrow">{t("eyebrow")}</h2>
         <p className="section-title">{t("title")}</p>
 
         <ProjectCards projects={projects} />
       </SlideUpInView>
-    </SectionWatcher>
+    </section>
   );
 }

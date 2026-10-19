@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,6 +18,7 @@ const NOTO_FEATURES = "ccmp,liga,clig,calt,rlig,locl,vert,vrt2,halt,kern,mark,mk
 const GOOGLE_LATIN_FEATURES = "calt,ccmp,dnom,frac,locl,numr,pnum,tnum,kern,mark,mkmk";
 const GOOGLE_LATIN_SLICE =
   "U+0000,U+0020-007E,U+00A0-00AC,U+00AE-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+2002,U+2009,U+200B,U+2013-2014,U+2018-201A,U+201C-201E,U+2022,U+2026,U+2032-2033,U+2039-203A,U+2044,U+20AC,U+2122,U+2191,U+2193,U+2212,U+FEFF";
+const TEXT_OVERFLOW_ELLIPSIS = "U+2026";
 const LOCALES = {
   ko: {
     name: "pretendard-core",
@@ -24,7 +26,7 @@ const LOCALES = {
     source: "https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/woff2/PretendardVariable.woff2",
     cache: "pretendard-1.3.9.woff2",
     instance: ["wght=400:800"],
-    options: ["--layout-features=kern,liga,calt", "--desubroutinize"],
+    options: ["--layout-features=kern,liga,calt,tnum", "--desubroutinize"],
   },
   en: {
     name: "inter",
@@ -37,14 +39,14 @@ const LOCALES = {
       "--recalc-bounds",
       "--glyph-names",
     ],
-    options: [`--layout-features=${GOOGLE_LATIN_FEATURES}`, "--glyph-names"],
+    options: [`--layout-features=${GOOGLE_LATIN_FEATURES}`, "--glyph-names", `--unicodes=${TEXT_OVERFLOW_ELLIPSIS}`],
   },
   ja: {
     name: "noto-sans-jp",
     family: "Noto Sans JP",
     source: `${GOOGLE_FONTS}295d98a7a0c17c68f1341eaeea354e7960ea70d3/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf`,
     cache: "jp-295d98a.ttf",
-    options: [`--layout-features=${NOTO_FEATURES}`],
+    options: [`--layout-features=${NOTO_FEATURES}`, `--unicodes=${TEXT_OVERFLOW_ELLIPSIS}`],
   },
   "zh-Hans": {
     name: "noto-sans-sc",
@@ -67,7 +69,6 @@ const pageText = html =>
     .replace(/<head[\s\S]*?<\/head>/i, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<noscript[\s\S]*?<\/noscript>/gi, "")
     .replace(/<[^>]+>/g, " ")
     .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
     .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
@@ -78,24 +79,35 @@ const pageText = html =>
     .replace(/&quot;/g, '"')
     .replace(/&#39;|&apos;/g, "'");
 
-const messageText = value =>
-  typeof value === "string"
-    ? value
-    : value && typeof value === "object"
-      ? Object.values(value).map(messageText).join("")
-      : "";
+const UNDRAWN_MESSAGES = new Set([
+  "Meta",
+  "Header.openMenu",
+  "Header.closeMenu",
+  "Header.sectionNav",
+  "ImageViewer.loading",
+]);
+
+const messageText = (value, key = "") =>
+  UNDRAWN_MESSAGES.has(key)
+    ? ""
+    : typeof value === "string"
+      ? value.replace(/<\/?[a-z]+>/g, "")
+      : value && typeof value === "object"
+        ? Object.entries(value)
+            .map(([name, child]) => messageText(child, key ? `${key}.${name}` : name))
+            .join("")
+        : "";
 
 const sourceLiterals = dir =>
   readdirSync(dir).flatMap(name => {
     const path = join(dir, name);
-    if (statSync(path).isDirectory()) return name === "_generated" ? [] : sourceLiterals(path);
+    if (statSync(path).isDirectory()) return sourceLiterals(path);
     if (!/\.(tsx?|css)$/.test(name) || name === "ConsoleGreeting.tsx") return [];
     const code = readFileSync(path, "utf8").replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
     return [...code.matchAll(/(["'`])((?:\\.|(?!\1).)*?[^\x00-\x7f](?:\\.|(?!\1).)*?)\1/g)].map(match => match[2]);
   });
 
-const ascii = Array.from({ length: 95 }, (_, i) => String.fromCharCode(32 + i)).join("");
-const literals = sourceLiterals(join(root, "app")).join("");
+const literals = sourceLiterals(join(root, "app/_components")).join("");
 const serverDir = join(root, ".next/server");
 
 const htmlFiles = dir =>
@@ -126,13 +138,18 @@ const renderedChars = locale => {
   const text =
     pages.map(page => pageText(readFileSync(page, "utf8"))).join("") +
     messageText(JSON.parse(readFileSync(join(root, `messages/${locale}.json`), "utf8"))) +
-    literals +
-    ascii;
+    literals;
   const chars = new Set(
     [...text].filter(c => (c.codePointAt(0) >= 0x20 && !/\s/.test(c)) || c === " " || c === "\u00a0"),
   );
   return [...chars].sort((a, b) => a.codePointAt(0) - b.codePointAt(0)).join("");
 };
+
+const recipeOf = ({ source, instance, slice, options }) =>
+  createHash("sha256")
+    .update(JSON.stringify([FONTTOOLS, source, instance, slice, options]))
+    .digest("hex")
+    .slice(0, 12);
 
 const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : {};
 const rendered = Object.fromEntries(Object.keys(LOCALES).map(locale => [locale, renderedChars(locale)]));
@@ -146,6 +163,9 @@ if (process.argv.includes("--check")) {
     return [
       ...(missing ? [`${locale} renders characters its subset was not built for: ${missing}`] : []),
       ...(unused ? [`${locale} subset was built for characters no page renders: ${unused}`] : []),
+      ...(manifest[locale]?.recipe !== recipeOf(LOCALES[locale])
+        ? [`${locale} subset was built with another recipe`]
+        : []),
     ];
   });
   if (problems.length) {
@@ -196,8 +216,9 @@ const sourceFont = async ({ source, cache, instance }) => {
   return instanced;
 };
 
-const subset = (sourcePath, codes, { name, slice, options }, file) => {
+const subset = (sourcePath, codes, { name, slice, options }) => {
   const listPath = join(cacheDir, "unicodes.txt");
+  const outputPath = join(cacheDir, "subset.woff2");
   writeFileSync(listPath, codes.map(code => code.toString(16)).join("\n"));
   const input = slice ? join(cacheDir, `${name}-slice.ttf`) : sourcePath;
   if (slice)
@@ -209,11 +230,10 @@ const subset = (sourcePath, codes, { name, slice, options }, file) => {
     ...options,
     "--no-hinting",
     "--flavor=woff2",
-    `--output-file=${join(fontsDir, file)}`,
+    `--output-file=${outputPath}`,
   ]);
+  return readFileSync(outputPath);
 };
-
-const sameCodes = (a, b) => a.length === b.length && a.every((code, i) => code === b[i]);
 
 const replaceReferences = (from, to) => {
   for (const path of references) {
@@ -235,7 +255,8 @@ let notoChanged = false;
 for (const [locale, font] of Object.entries(LOCALES)) {
   const previous = manifest[locale];
   const chars = rendered[locale];
-  if (previous?.chars === chars) continue;
+  const recipe = recipeOf(font);
+  if (previous?.chars === chars && previous.recipe === recipe) continue;
   const sourcePath = await sourceFont(font);
   const available = new Set(cmap(sourcePath));
   const codes = { file: [...chars].map(c => c.codePointAt(0)).filter(code => available.has(code)) };
@@ -243,23 +264,27 @@ for (const [locale, font] of Object.entries(LOCALES)) {
     const coverage = new Set([...cmap(join(fontsDir, previous.file)), ...cmap(join(fontsDir, previous.extension))]);
     codes.extension = [...coverage].filter(code => !codes.file.includes(code)).sort((a, b) => a - b);
   }
-  if (previous && Object.entries(codes).every(([key, list]) => sameCodes(list, cmap(join(fontsDir, previous[key]))))) {
-    manifest[locale] = { ...previous, chars };
-    console.log(`font subset: ${locale} glyphs unchanged, kept public/fonts/${previous.file}`);
+  const built = Object.fromEntries(Object.entries(codes).map(([key, list]) => [key, subset(sourcePath, list, font)]));
+  if (
+    previous &&
+    Object.entries(built).every(([key, data]) => data.equals(readFileSync(join(fontsDir, previous[key]))))
+  ) {
+    manifest[locale] = { ...previous, chars, recipe };
+    console.log(`font subset: ${locale} font unchanged, kept public/fonts/${previous.file}`);
     continue;
   }
   const version = previous ? Number(previous.file.match(/-v(\d+)\.woff2$/)[1]) + 1 : 1;
   const next = { file: `${font.name}-v${version}.woff2` };
   if (font.extension) next.extension = `${font.extension}-v${version}.woff2`;
-  for (const [key, list] of Object.entries(codes)) {
-    subset(sourcePath, list, font, next[key]);
+  for (const [key, data] of Object.entries(built)) {
+    writeFileSync(join(fontsDir, next[key]), data);
     if (!previous) continue;
     rmSync(join(fontsDir, previous[key]));
     replaceReferences(previous[key], next[key]);
   }
   if (font.family) notoChanged = true;
   else setUnicodeRange(next.file, unicodeRange(cmap(join(fontsDir, next.file))));
-  manifest[locale] = { ...next, chars };
+  manifest[locale] = { ...next, chars, recipe };
   console.log(
     `font subset: wrote public/fonts/${next.file} (${codes.file.length} of ${[...chars].length} characters are in the font)`,
   );
