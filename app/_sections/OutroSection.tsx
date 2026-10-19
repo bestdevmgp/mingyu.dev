@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import ContactLink from "@/_components/ContactLink";
 import SlideUpInView from "@/_components/SlideUpInView";
 import { phoneDisplay, phoneHref } from "@/utils/phone";
 
@@ -17,28 +17,44 @@ const OutroSection = async () => {
 
         <div className="w-72 md:w-80 mx-auto grid grid-cols-3 text-sm md:text-base gap-2 md:gap-3 p-6 md:p-8 rounded-2xl bg-dark/5 dark:bg-light/10">
           <p className="font-semibold">Phone</p>
-          <Link href={phoneHref(locale)} target="_blank" className="col-span-2 focus-visible:rounded-sm">
+          <ContactLink
+            channel="phone"
+            href={phoneHref(locale)}
+            target="_blank"
+            className="col-span-2 w-fit focus-visible:rounded-sm"
+          >
             <p>{phoneDisplay(locale)}</p>
-          </Link>
+          </ContactLink>
 
           <p className="font-semibold">Email</p>
-          <Link href="mailto:me@mingyu.dev" target="_blank" className="col-span-2 focus-visible:rounded-sm">
+          <ContactLink
+            channel="email"
+            href="mailto:me@mingyu.dev"
+            target="_blank"
+            className="col-span-2 w-fit focus-visible:rounded-sm"
+          >
             <p>me@mingyu.dev</p>
-          </Link>
+          </ContactLink>
 
           <p className="font-semibold">GitHub</p>
-          <Link href="https://github.com/bestdevmgp" target="_blank" className="col-span-2 focus-visible:rounded-sm">
+          <ContactLink
+            channel="github"
+            href="https://github.com/bestdevmgp"
+            target="_blank"
+            className="col-span-2 w-fit focus-visible:rounded-sm"
+          >
             <p>@bestdevmgp</p>
-          </Link>
+          </ContactLink>
 
           <p className="font-semibold">LinkedIn</p>
-          <Link
+          <ContactLink
+            channel="linkedin"
             href="https://www.linkedin.com/in/min-gyu"
             target="_blank"
-            className="col-span-2 focus-visible:rounded-sm"
+            className="col-span-2 w-fit focus-visible:rounded-sm"
           >
             <p>in/min-gyu</p>
-          </Link>
+          </ContactLink>
         </div>
       </SlideUpInView>
     </section>

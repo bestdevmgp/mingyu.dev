@@ -217,7 +217,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
         "sticky top-0 z-50 h-14 -mb-14 pr-[23px] lg:pr-[22px] pl-[20px] lg:pl-[22px]",
         "flex items-center justify-between gap-4",
 
-        "bg-[color-mix(in_oklab,var(--background)_calc(var(--glass,0)*42%),transparent)]",
+        "bg-[color-mix(in_oklab,var(--background)_calc(var(--glass,0)*70%),transparent)]",
         glass && "backdrop-blur-md",
 
         "before:content-[''] before:absolute before:inset-0 before:-z-10 before:bg-background",

@@ -30,6 +30,7 @@ interface ImageModalProps {
   isOpen: boolean;
   onClose: () => void;
   getThumbnail?: (index: number) => HTMLImageElement | null;
+  imageSizes?: Record<string, [number, number]>;
 }
 
 const MIN_ZOOM = 0.5;
@@ -46,7 +47,15 @@ const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
 const TOUCH_TIMING = { open: 560, close: 430, fade: 280 };
 
-export default function ImageModal({ images, title, initialIndex, isOpen, onClose, getThumbnail }: ImageModalProps) {
+export default function ImageModal({
+  images,
+  title,
+  initialIndex,
+  isOpen,
+  onClose,
+  getThumbnail,
+  imageSizes,
+}: ImageModalProps) {
   const t = useTranslations("ImageViewer");
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
@@ -110,25 +119,39 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     return { width, height: width / ratio };
   }, []);
 
+  const knownRatio = useCallback(
+    (index: number) => {
+      const size = imageSizes?.[images[index]];
+      return size ? size[0] / size[1] : null;
+    },
+    [images, imageSizes],
+  );
+
   const resetZoom = useCallback(() => {
     setZoom(1);
     setPosition({ x: 0, y: 0 });
     setButtonZoom(false);
   }, []);
 
-  const goToNext = useCallback(() => {
-    if (currentIndex < images.length - 1) {
-      setCurrentIndex(prev => prev + 1);
+  const showImage = useCallback(
+    (index: number) => {
+      setCurrentIndex(index);
       resetZoom();
-    }
-  }, [currentIndex, images.length, resetZoom]);
+      const ratio = knownRatio(index);
+      if (!ratio) return;
+      setAspect(ratio);
+      setFitted(fitToPane(ratio));
+    },
+    [knownRatio, fitToPane, resetZoom],
+  );
+
+  const goToNext = useCallback(() => {
+    if (currentIndex < images.length - 1) showImage(currentIndex + 1);
+  }, [currentIndex, images.length, showImage]);
 
   const goToPrevious = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-      resetZoom();
-    }
-  }, [currentIndex, resetZoom]);
+    if (currentIndex > 0) showImage(currentIndex - 1);
+  }, [currentIndex, showImage]);
 
   const requestClose = useCallback(() => {
     if (isClosingRef.current) return;
@@ -159,9 +182,8 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
 
     const thumbnail = getThumbnail?.(initialIndex) ?? null;
     setOriginSrc(thumbnail?.currentSrc || null);
-    if (!thumbnail) return;
 
-    const ratio = thumbnail.naturalWidth / thumbnail.naturalHeight;
+    const ratio = knownRatio(initialIndex) ?? (thumbnail ? thumbnail.naturalWidth / thumbnail.naturalHeight : NaN);
     if (!Number.isFinite(ratio) || ratio <= 0) return;
 
     const size = fitToPane(ratio);
@@ -171,7 +193,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
     const pane = imageRef.current;
     const wrapper = flipRef.current;
     const content = imageContentRef.current;
-    const origin = getVisibleImageBox(thumbnail);
+    const origin = thumbnail ? getVisibleImageBox(thumbnail) : null;
     if (!pane || !wrapper || !content || !size || !origin || prefersReducedMotion()) return;
 
     content.style.width = `${size.width}px`;
@@ -179,7 +201,7 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
 
     const transform = getFlipTransform(origin, getCenteredBox(pane, size));
     if (transform) flipFrom(wrapper, transform, timing.open, FLIP_EASING);
-  }, [isOpen, initialIndex, getThumbnail, fitToPane, resetZoom, timing.open]);
+  }, [isOpen, initialIndex, getThumbnail, knownRatio, fitToPane, resetZoom, timing.open]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
@@ -540,7 +562,8 @@ export default function ImageModal({ images, title, initialIndex, isOpen, onClos
                     preload
                     draggable={false}
                     onLoad={e => {
-                      setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
+                      if (!knownRatio(currentIndex))
+                        setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
                       setLoadedIndex(currentIndex);
                     }}
                     onError={() => setLoadedIndex(currentIndex)}

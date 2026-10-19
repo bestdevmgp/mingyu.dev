@@ -36,8 +36,7 @@ const BOOT_SCRIPT =
   "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
   "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +
   "if(!t||t===o){c();return}c();t.classList.add('skill-open');o=t},true);" +
-  "addEventListener('scroll',c,{capture:true,passive:true});addEventListener('touchmove',c,{passive:true})})();" +
-  "addEventListener('load',function(){document.documentElement.classList.add('anim-ready')},{once:true})";
+  "addEventListener('scroll',c,{capture:true,passive:true});addEventListener('touchmove',c,{passive:true})})();";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

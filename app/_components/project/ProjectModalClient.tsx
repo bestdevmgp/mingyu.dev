@@ -165,6 +165,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
         isOpen={isImageModalOpen}
         onClose={() => setIsImageModalOpen(false)}
         getThumbnail={getThumbnail}
+        imageSizes={imageSizes}
       />
     </>
   );
