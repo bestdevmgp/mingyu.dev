@@ -47,7 +47,6 @@
   "Project": {
     "eyebrow": "プロジェクト",
     "title": "主要プロジェクトの詳細をご覧ください。",
-    "showMore": "もっと見る",
     "description": "概要",
     "skills": "技術スタック",
     "member": "チーム",
@@ -78,7 +77,8 @@
   },
   "Common": {
     "backToProjects": "プロジェクト一覧に戻る",
-    "close": "閉じる"
+    "close": "閉じる",
+    "showMore": "もっと見る"
   },
   "NotFound": {
     "description": "お探しのページは見つかりませんでした。",

@@ -1,7 +1,9 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
+import CardBatches from "@/_components/CardBatches";
 import SlideUpInView from "@/_components/SlideUpInView";
-import ProjectCards from "@/_components/project/ProjectCards";
+import ProjectCard from "@/_components/project/ProjectCard";
+import ProjectModalHost from "@/_components/project/ProjectModalHost";
 import { getProjectsInOrder, getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 
@@ -30,7 +32,12 @@ export default async function ProjectSection() {
         <h2 className="section-eyebrow">{t("eyebrow")}</h2>
         <p className="section-title">{t("title")}</p>
 
-        <ProjectCards projects={projects} />
+        <CardBatches carryKey="projects.shown" showMoreAnalytics="projects_show_more">
+          {projects.map(project => (
+            <ProjectCard key={`project-card-${project.id}`} {...project} />
+          ))}
+        </CardBatches>
+        <ProjectModalHost />
       </SlideUpInView>
     </section>
   );

@@ -8,9 +8,13 @@ import { useTranslations } from "next-intl";
 import type { NavSection } from "@/utils/api";
 import useCarriedState from "@/utils/useCarriedState";
 
-const PALETTES: Record<number, string[]> = {
-  5: ["#007aff", "#00a6c3", "#00c676", "#92e35c", "#e2ff00"],
-  6: ["#007aff", "#009fcf", "#00ba98", "#57d26e", "#a3e954", "#e2ff00"],
+const SECTION_COLORS: Record<NavSection, string> = {
+  competencies: "#007aff",
+  skills: "#00a6c3",
+  career: "#00c676",
+  projects: "#92e35c",
+  blog: "#92e35c",
+  education: "#e2ff00",
 };
 
 const ACTIVE_LINE = 60;
@@ -85,7 +89,7 @@ const SectionNav = ({ sections }: SectionNavProps) => {
 
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 80rem)");
-    const palette = PALETTES[sections.length];
+    const palette = sections.map(id => SECTION_COLORS[id]);
     const colors = palette.map(rgb);
     let detach: (() => void) | null = null;
 

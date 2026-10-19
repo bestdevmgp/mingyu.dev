@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsRight } from "react-feather";
+import { ArrowUpRight } from "react-feather";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -36,7 +36,7 @@ const BlogCard = ({ id, title, date, forwardLink, bgImageUrl }: BlogCardProps) =
       <div
         {...pressHandlers}
         className={cn(
-          "w-full h-fit md:h-64 xl:h-72 p-5 md:p-6 rounded-md md:rounded-lg relative overflow-hidden group",
+          "w-full h-fit md:h-full md:min-h-72 p-5 md:p-6 border border-foreground/15 rounded-md md:rounded-lg relative overflow-hidden group",
           "transition-[scale] duration-200",
           isPressed && "scale-[0.97]",
         )}
@@ -45,13 +45,13 @@ const BlogCard = ({ id, title, date, forwardLink, bgImageUrl }: BlogCardProps) =
         <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] group-hover:backdrop-blur-sm transition-[backdrop-filter] duration-200" />
 
         <div className="relative z-10 flex flex-col md:h-full">
-          <p className="text-white text-lg md:text-xl font-bold mb-10 md:mb-4">{title}</p>
+          <p className="text-white text-lg md:text-xl font-semibold mb-10 md:mb-4">{title}</p>
 
           <div className="text-white/60 text-xs md:text-sm font-normal flex justify-between md:flex-col md:grow">
             <p>{date}</p>
             <div className="flex gap-1 items-center">
               <p>{t("readMore")}</p>
-              <ChevronsRight size={14} strokeWidth={1.5} aria-hidden="true" />
+              <ArrowUpRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
             </div>
           </div>
         </div>

@@ -47,7 +47,6 @@
   "Project": {
     "eyebrow": "项目",
     "title": "查看我主要项目的详细信息。",
-    "showMore": "查看更多",
     "description": "概述",
     "skills": "技术栈",
     "member": "团队",
@@ -78,7 +77,8 @@
   },
   "Common": {
     "backToProjects": "返回项目列表",
-    "close": "关闭"
+    "close": "关闭",
+    "showMore": "查看更多"
   },
   "NotFound": {
     "description": "找不到您要寻找的页面。",

@@ -47,7 +47,6 @@
   "Project": {
     "eyebrow": "Projects",
     "title": "Explore the details of my key projects.",
-    "showMore": "Show more",
     "description": "Overview",
     "skills": "Tech Stack",
     "member": "Team",
@@ -78,7 +77,8 @@
   },
   "Common": {
     "backToProjects": "Back to projects",
-    "close": "Close"
+    "close": "Close",
+    "showMore": "Show more"
   },
   "NotFound": {
     "description": "The page you're looking for can't be found.",
