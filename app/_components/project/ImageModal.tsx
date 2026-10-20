@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import { motion, AnimatePresence } from "motion/react";
@@ -17,6 +17,7 @@ import {
   prefersSlowerMotion,
   type Box,
 } from "@/utils/imageFlip";
+import { SCROLL_KEYS } from "@/utils/scrollKeys";
 import useFocusScope from "@/utils/useFocusScope";
 import useTouchPress from "@/utils/useTouchPress";
 
@@ -42,7 +43,6 @@ const PINCH_WHEEL_MAX_STEP = 0.15;
 const PINCH_DEADZONE = 2;
 const FIT_RATIO = 0.7;
 const TALL_FIT_RATIO = 0.92;
-const SCROLL_KEYS = [" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"];
 const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
 const TOUCH_TIMING = { open: 560, close: 430, fade: 280 };
@@ -90,6 +90,9 @@ export default function ImageModal({
   const pinchDistanceRef = useRef(0);
   const pinchDirectionRef = useRef(0);
   const isClosingRef = useRef(false);
+  const previousRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const focusAfterStepRef = useRef<RefObject<HTMLButtonElement | null> | null>(null);
   useFocusScope(overlayRef, isOpen);
 
   const measureVisualBox = useCallback((): Box | null => {
@@ -146,12 +149,22 @@ export default function ImageModal({
   );
 
   const goToNext = useCallback(() => {
-    if (currentIndex < images.length - 1) showImage(currentIndex + 1);
+    if (currentIndex >= images.length - 1) return;
+    if (currentIndex + 1 === images.length - 1 && document.activeElement === nextRef.current)
+      focusAfterStepRef.current = previousRef;
+    showImage(currentIndex + 1);
   }, [currentIndex, images.length, showImage]);
 
   const goToPrevious = useCallback(() => {
-    if (currentIndex > 0) showImage(currentIndex - 1);
+    if (currentIndex <= 0) return;
+    if (currentIndex === 1 && document.activeElement === previousRef.current) focusAfterStepRef.current = nextRef;
+    showImage(currentIndex - 1);
   }, [currentIndex, showImage]);
+
+  useLayoutEffect(() => {
+    focusAfterStepRef.current?.current?.focus();
+    focusAfterStepRef.current = null;
+  }, [currentIndex]);
 
   const requestClose = useCallback(() => {
     if (isClosingRef.current) return;
@@ -227,7 +240,7 @@ export default function ImageModal({
         return;
       }
 
-      if (SCROLL_KEYS.includes(e.key) && !(e.key === " " && e.target instanceof HTMLButtonElement)) e.preventDefault();
+      if (SCROLL_KEYS.has(e.key) && !(e.key === " " && e.target instanceof HTMLButtonElement)) e.preventDefault();
     };
 
     window.addEventListener("keydown", handleKeyDown, { capture: true });
@@ -468,7 +481,15 @@ export default function ImageModal({
         >
           <div className="absolute inset-0 bg-black/90 backdrop-blur-xs" />
 
-          <div className="relative w-full h-full flex items-center justify-center p-2 md:p-4">
+          <div
+            className="relative w-full h-full flex items-center justify-center p-2 md:p-4"
+            onMouseDown={e => {
+              if (e.target === e.currentTarget) mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
+            }}
+            onClick={e => {
+              if (e.target === e.currentTarget) handleImageClick(e);
+            }}
+          >
             <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
               {images.length > 1 && (
                 <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm pointer-events-auto">
@@ -590,6 +611,7 @@ export default function ImageModal({
                 {currentIndex > 0 && (
                   <Tooltip label={t("previous")} shortcut="ArrowLeft">
                     <button
+                      ref={previousRef}
                       onClick={e => {
                         e.stopPropagation();
                         goToPrevious();
@@ -617,6 +639,7 @@ export default function ImageModal({
                 {currentIndex < images.length - 1 && (
                   <Tooltip label={t("next")} shortcut="ArrowRight">
                     <button
+                      ref={nextRef}
                       onClick={e => {
                         e.stopPropagation();
                         goToNext();
@@ -644,19 +667,19 @@ export default function ImageModal({
             )}
 
             <div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 bg-black/50 rounded-full p-1"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px]"
               onClick={e => e.stopPropagation()}
             >
               <Tooltip label={t("zoomOut")} side="top">
                 <button
                   onClick={e => {
                     e.stopPropagation();
-                    handleZoomOut();
+                    if (zoom > MIN_ZOOM) handleZoomOut();
                   }}
-                  disabled={zoom <= MIN_ZOOM}
+                  aria-disabled={zoom <= MIN_ZOOM || undefined}
                   {...zoomOutPress}
                   className={cn(
-                    "p-3 rounded-full transition-colors duration-200",
+                    "p-[11px] rounded-full transition-colors duration-200",
                     zoom <= MIN_ZOOM
                       ? "text-white/25 cursor-not-allowed"
                       : zoomOutPressed
@@ -680,7 +703,7 @@ export default function ImageModal({
                   }}
                   {...resetPress}
                   className={cn(
-                    "p-3 rounded-full transition-colors duration-200 text-sm",
+                    "p-[11px] rounded-full transition-colors duration-200 text-sm",
                     resetPressed ? "text-white bg-[#000]/40" : "text-white/55 hover:text-white hover:bg-[#000]/40",
                   )}
                   aria-label={t("resetZoom")}
@@ -696,12 +719,12 @@ export default function ImageModal({
                 <button
                   onClick={e => {
                     e.stopPropagation();
-                    handleZoomIn();
+                    if (zoom < MAX_ZOOM) handleZoomIn();
                   }}
-                  disabled={zoom >= MAX_ZOOM}
+                  aria-disabled={zoom >= MAX_ZOOM || undefined}
                   {...zoomInPress}
                   className={cn(
-                    "p-3 rounded-full transition-colors duration-200",
+                    "p-[11px] rounded-full transition-colors duration-200",
                     zoom >= MAX_ZOOM
                       ? "text-white/25 cursor-not-allowed"
                       : zoomInPressed

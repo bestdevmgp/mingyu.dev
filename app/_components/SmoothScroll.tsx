@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import { SCROLL_KEYS } from "@/utils/scrollKeys";
+
 import type Lenis from "lenis";
 
 declare global {
@@ -73,9 +75,17 @@ const SmoothScroll = () => {
     };
     document.addEventListener("click", onAnchorClick);
 
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (lenis?.isScrolling !== "smooth" || !SCROLL_KEYS.has(event.key)) return;
+      lenis.stop();
+      lenis.start();
+    };
+    window.addEventListener("keydown", onKeyDown);
+
     return () => {
       disposed = true;
       document.removeEventListener("click", onAnchorClick);
+      window.removeEventListener("keydown", onKeyDown);
       if (lenis) {
         cancelAnimationFrame(rafId);
         lenis.destroy();

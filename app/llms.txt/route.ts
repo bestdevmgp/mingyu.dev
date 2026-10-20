@@ -10,7 +10,6 @@ const languageName = new Intl.DisplayNames(["en"], { type: "language" });
 
 export function GET() {
   const rows = getProjectsInOrder().map(({ id, title, sub_title, i18n }) => ({ id, title, sub_title, i18n }));
-  const ko = applyLocaleAll(rows, "ko");
   const en = applyLocaleAll(rows, "en");
   const blogEn = applyLocaleAll(content.blog, "en");
 
@@ -36,10 +35,9 @@ export function GET() {
     "## Projects",
     "",
     ...rows.map((row, i) => {
-      const k = ko[i];
       const e = en[i];
-      const title = k.title === e.title ? k.title : `${k.title} / ${e.title}`;
-      return `- [${title}](https://mingyu.dev/project/${row.id}): ${e.sub_title || k.sub_title}`;
+      const title = row.title === e.title ? row.title : `${row.title} / ${e.title}`;
+      return `- [${title}](https://mingyu.dev/project/${row.id}): ${e.sub_title || row.sub_title}`;
     }),
     "",
     ...(content.blog.length

@@ -13,7 +13,7 @@ if (typeof window !== "undefined") {
   window.addEventListener("popstate", () => {
     traversed = true;
     closing = false;
-    setPushedPath(null);
+    setPushedPath(window.history.state?.projectModal ? window.location.pathname : null);
   });
 }
 

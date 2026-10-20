@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ChevronRight } from "react-feather";
 
 import cn from "classnames";
@@ -35,6 +35,7 @@ const ExpCard = ({
   const t = useTranslations("Experience");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPressed, pressHandlers] = useTouchPress();
+  const detailId = useId();
 
   const toggleDetail = () => {
     setIsExpanded(!isExpanded);
@@ -43,7 +44,7 @@ const ExpCard = ({
   return (
     <div className="grid sm:grid-cols-3 sm:gap-x-10 sm:items-start">
       <div className="flex gap-2.5 sm:justify-end items-center mb-3">
-        <Shape className={cn(is_active ? "text-primary" : "text-foreground/30")} />
+        <Shape className={is_active ? "text-primary" : "text-foreground/30"} />
         <p className="text-sm md:text-base font-normal text-foreground/60">{period}</p>
       </div>
 
@@ -56,7 +57,7 @@ const ExpCard = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "text-base md:text-lg font-semibold w-fit underline decoration-transparent underline-offset-2 text-foreground",
+                  "text-base md:text-lg font-semibold w-fit decoration-transparent text-foreground",
                   "transition-colors duration-200 mouse:hover:decoration-current focus-visible:rounded-sm",
                   isPressed && "decoration-current",
                 )}
@@ -104,6 +105,8 @@ const ExpCard = ({
             <button
               className="group/toggle text-primary/75 flex items-center gap-1 mt-2 focus-visible:outline-none"
               onClick={toggleDetail}
+              aria-expanded={isExpanded}
+              aria-controls={detailId}
             >
               <span className="flex items-center gap-1 rounded-sm group-focus-visible/toggle:outline-solid">
                 <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
@@ -111,13 +114,15 @@ const ExpCard = ({
               </span>
             </button>
             <div
+              id={detailId}
+              inert={!isExpanded}
               className={cn(
                 "grid transition-all duration-300 ease-in-out",
                 isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
               )}
             >
               <div className="overflow-hidden">
-                <ul className="list-disc list-inside bg-foreground/5 rounded-lg p-4 -indent-5 pl-10 mt-2">
+                <ul className="bg-foreground/5 rounded-lg p-4 pl-10 mt-2">
                   {items.map((data, index) => (
                     <li
                       key={`exp-${id}-detail-${index}`}

@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: ProjectParams, parent: Resolv
   const name = plain(title);
   const summary = plain(sub_title);
   const path = `/project/${id}`;
-  const photo = applyLocaleAll(items, locale).find(item => item.blobUrls?.length)?.blobUrls[0];
+  const photo = applyLocaleAll(items, locale).find(item => item.blobUrls.length)?.blobUrls[0];
   const size = photo ? getImageSizes([photo])[photo] : undefined;
   const { openGraph: site } = await parent;
   const t = await getTranslations({ locale, namespace: "Meta" });

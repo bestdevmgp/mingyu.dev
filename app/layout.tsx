@@ -25,13 +25,17 @@ const BOOT_SCRIPT =
   "(function(){var d=document.documentElement,w=0;function s(){d.style.setProperty('--vh0',window.innerHeight/100+'px');w=window.innerWidth}s();addEventListener('resize',function(){if(window.innerWidth!==w)s()})})();" +
   "(function(){var r=document.documentElement;if(!window.IntersectionObserver)return;r.classList.add('reveal-js');" +
   "function s(){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px -9% 0px'});" +
-  "function w(n){if(n.nodeType!==1)return;if(n.matches('[data-reveal]')&&!n.classList.contains('is-revealed'))io.observe(n);" +
+  "function w(n){if(n.nodeType!==1)return;if(n.matches('[data-reveal]:not(.is-revealed)'))io.observe(n);" +
   "n.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function(el){io.observe(el)})}w(document.body);" +
   "new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(w)})}).observe(document.body,{childList:true,subtree:true})}" +
   "if(document.readyState!=='loading')s();else addEventListener('DOMContentLoaded',s,{once:true})})();" +
   "(function(){try{var h=history,s=h.state,n={},k;if(s&&s.projectModal){for(k in s)if(k!=='projectModal')n[k]=s[k];h.replaceState(n,'')}" +
   "addEventListener('pagehide',function(){h.scrollRestoration=h.state&&h.state.projectModal?'manual':'auto'});" +
   "addEventListener('pageshow',function(e){if(e.persisted)h.scrollRestoration='auto';else setTimeout(function(){h.scrollRestoration='auto'})})}catch(e){}})();" +
+  "(function(){try{var e=performance.getEntriesByType('navigation')[0],c='',i,k,n,p,s;if(!e||e.type!=='reload'&&e.type!=='back_forward')return;" +
+  "for(i=0;i<sessionStorage.length;i++){k=sessionStorage.key(i);if(k.indexOf('cardBatches:'))continue;n=+sessionStorage.getItem(k);if(!n)continue;" +
+  "p=':root [data-carry=\"'+k.slice(12)+'\"] ';c+=p+'[data-show-more=\"'+n+'\"]{display:none}';for(s=1;s<=n;s++)c+=p+'[data-batch=\"'+s+'\"]{display:block}'}" +
+  "if(c){var t=document.createElement('style');t.textContent=c;document.head.appendChild(t)}}catch(e){}})();" +
   "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
   "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
   "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +

@@ -1,17 +1,15 @@
-import cn from "classnames";
-
 import Shape from "@/assets/shape-sparkle-round.svg";
 import richText from "@/utils/richText";
 
 import type { education } from "@prisma/client";
 
-interface EducationCardProps extends Omit<education, "i18n"> {}
+type EducationCardProps = Omit<education, "i18n">;
 
 const EducationCard = ({ period, title, sub_title, items, is_active }: EducationCardProps) => {
   return (
     <div className="grid sm:grid-cols-3 sm:gap-x-10 sm:items-start">
       <div className="flex gap-2.5 sm:justify-end items-center mb-3">
-        <Shape className={cn(is_active ? "text-primary" : "text-foreground/30")} />
+        <Shape className={is_active ? "text-primary" : "text-foreground/30"} />
         <p className="text-sm md:text-base font-normal text-foreground/60">{period}</p>
       </div>
 
@@ -22,7 +20,7 @@ const EducationCard = ({ period, title, sub_title, items, is_active }: Education
         </div>
 
         {items.length > 0 && (
-          <ul className="list-disc list-inside -indent-4 md:-indent-5 pl-4 md:pl-5">
+          <ul className="-indent-4 md:-indent-5 pl-4 md:pl-5">
             {items.map((item, index) => (
               <li
                 key={`education-card-item-${index}`}

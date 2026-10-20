@@ -1,17 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
 import cn from "classnames";
-import { AnimatePresence, motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
-import arrowFocus from "@/utils/arrowFocus";
 import { phoneDisplay, phoneHref } from "@/utils/phone";
-import useFocusScope from "@/utils/useFocusScope";
-import useOnClickOutside from "@/utils/useOnClickOutside";
-import useOnEscape from "@/utils/useOnEscape";
+import useDropdown from "@/utils/useDropdown";
 
+import DropdownPanel from "./DropdownPanel";
 import Tooltip from "./Tooltip";
 import { track } from "./analytics/posthog";
 
@@ -145,27 +140,14 @@ const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () =
   );
 };
 
-interface ContactMenuProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ContactMenuProps {
   variant?: "dropdown" | "inline";
 }
 
-const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuProps) => {
+const ContactMenu = ({ variant = "dropdown" }: ContactMenuProps) => {
   const t = useTranslations("Header");
   const locale = useLocale();
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useOnClickOutside(ref, isOpen, () => setIsOpen(false));
-  useOnEscape(isOpen, () => setIsOpen(false));
-  useFocusScope(ref, isOpen, '[role="menu"] a');
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const closeIfHidden = () => {
-      if (!ref.current?.getClientRects().length) setIsOpen(false);
-    };
-    window.addEventListener("resize", closeIfHidden);
-    return () => window.removeEventListener("resize", closeIfHidden);
-  }, [isOpen]);
+  const { isOpen, setIsOpen, ref } = useDropdown('[role="menu"] a');
 
   const contacts = CONTACTS.map(contact =>
     contact.id === "phone" ? { ...contact, value: phoneDisplay(locale), href: phoneHref(locale) } : contact,
@@ -173,9 +155,9 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
 
   if (variant === "inline") {
     return (
-      <div className={cn("flex items-center gap-2", className)} {...props}>
+      <div className="flex items-center gap-2">
         <ContactTriggerIcon className="w-[19px] h-[19px] text-foreground/55 shrink-0" />
-        <div className="flex items-center gap-0.5" role="group" aria-label={t("contact")}>
+        <div className="flex flex-wrap items-center gap-0.5" role="group" aria-label={t("contact")}>
           {contacts.map(({ id, label, href, external }) => (
             <a
               key={id}
@@ -195,7 +177,7 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
   }
 
   return (
-    <div className={cn("relative", className)} ref={ref} {...props}>
+    <div className="relative" ref={ref}>
       <Tooltip label={t("contact")}>
         <button
           type="button"
@@ -212,25 +194,17 @@ const ContactMenu = ({ variant = "dropdown", className, ...props }: ContactMenuP
         </button>
       </Tooltip>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            role="menu"
-            onKeyDown={arrowFocus('[role="menuitem"]')}
-            initial={{ opacity: 0, y: -4, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.96 }}
-            transition={{ type: "spring", bounce: 0, duration: 0.2 }}
-            style={{ transformOrigin: "top right" }}
-            className="absolute right-[-2px] top-full mt-2 w-[190px] p-1 rounded-xl flex flex-col
-              bg-background border border-foreground/10 shadow-lg shadow-black/5 z-50"
-          >
-            {contacts.map(contact => (
-              <ContactRow key={contact.id} contact={contact} onClick={() => setIsOpen(false)} />
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <DropdownPanel
+        as="div"
+        isOpen={isOpen}
+        role="menu"
+        itemSelector='[role="menuitem"]'
+        className="w-[190px] flex flex-col"
+      >
+        {contacts.map(contact => (
+          <ContactRow key={contact.id} contact={contact} onClick={() => setIsOpen(false)} />
+        ))}
+      </DropdownPanel>
     </div>
   );
 };

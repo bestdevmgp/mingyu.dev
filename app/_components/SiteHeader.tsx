@@ -220,11 +220,11 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
         "bg-[color-mix(in_oklab,var(--background)_calc(var(--glass,0)*70%),transparent)]",
         glass && "backdrop-blur-md",
 
-        "before:content-[''] before:absolute before:inset-0 before:-z-10 before:bg-background",
+        "before:absolute before:inset-0 before:-z-10 before:bg-background",
         "before:transition-opacity before:duration-300",
         isExpanded ? "before:opacity-100" : "before:opacity-0",
 
-        "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px",
+        "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px",
         "after:transition-colors after:duration-300",
         isExpanded ? "after:bg-foreground/10" : "after:bg-transparent",
       )}
@@ -239,7 +239,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
           className={cn(
             "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate py-1",
 
-            nameNudge[locale] ?? "translate-y-0",
+            nameNudge[locale],
           )}
         >
           <span className="font-extrabold text-foreground">{t("name")}</span>
@@ -273,7 +273,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
           "mobile-menu",
           "absolute top-full left-0 right-0 max-h-[calc(100dvh-3.5rem)]",
 
-          "flex flex-col xl:hidden px-5 pt-3 pb-0 indent-0",
+          "flex flex-col xl:hidden px-5 pt-3",
 
           "bg-background border-b-[2px] border-foreground/10 shadow-sm",
           isExpanded ? "pointer-events-auto" : "pointer-events-none",
@@ -285,7 +285,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
           ref={listRef}
           className={cn(
             "flex flex-col list-none indent-0 min-h-0",
-            listScrolls ? "-m-1 p-1 overflow-y-auto overscroll-contain" : "p-0 m-0",
+            listScrolls ? "-m-1 p-1 overflow-y-auto overscroll-contain" : "p-0",
           )}
         >
           {sections.map(id => (
@@ -305,11 +305,11 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
         </ul>
 
         <div
-          className="mobile-menu-item flex shrink-0 items-center justify-between gap-3 h-11 mt-2 border-t border-foreground/10"
+          className="mobile-menu-item flex flex-wrap shrink-0 items-center justify-between gap-x-3 gap-y-1 min-h-11 mt-2 border-t border-foreground/10"
           style={initialItemStyle}
         >
           <ContactMenu variant="inline" />
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 ml-auto">
             <span aria-hidden className="w-px h-[22px] bg-foreground/15 shrink-0" />
             <ThemeToggle title={themeLabel} />
           </div>

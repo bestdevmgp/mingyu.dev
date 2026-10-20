@@ -7,7 +7,7 @@ export default function richText(value: string): ReactNode {
   TOKEN.lastIndex = 0;
 
   const out: ReactNode[] = [];
-  let emphasis: string[] = [];
+  const emphasis: string[] = [];
   let cursor = 0;
   let key = 0;
 

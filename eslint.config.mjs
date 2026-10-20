@@ -1,20 +1,7 @@
 import next from "eslint-config-next";
 import prettierRecommended from "eslint-plugin-prettier/recommended";
 
-const nodeGlobals = {
-  module: "readonly",
-  require: "readonly",
-  process: "readonly",
-  __dirname: "readonly",
-  __filename: "readonly",
-  exports: "writable",
-};
-
 const config = [
-  {
-    ignores: ["**/.next/**", "**/node_modules/**", "next-env.d.ts"],
-  },
-
   ...next,
 
   prettierRecommended,
@@ -27,10 +14,6 @@ const config = [
       },
     },
     rules: {
-      "prettier/prettier": "error",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/explicit-function-return-type": "off",
-      "react/react-in-jsx-scope": "off",
       "react/display-name": "off",
       "import/order": [
         "error",
@@ -58,11 +41,6 @@ const config = [
       ],
       "import/newline-after-import": ["error", { count: 1 }],
     },
-  },
-
-  {
-    files: ["**/*.{js,cjs,mjs}", "*.config.ts", "prisma.config.ts"],
-    languageOptions: { globals: nodeGlobals },
   },
 ];
 

@@ -71,9 +71,9 @@ const ProjectSkeleton = () => (
         <div className={`${bar} h-5 md:h-6 w-24`} />
       </div>
 
-      <ol className="list-none p-0 m-0 indent-0">
+      <ol className="list-none p-0 indent-0">
         {ITEMS.map(({ key, title, lines, image }) => (
-          <li key={`skeleton-item-${key}`} className="mb-6 md:mb-8 last:mb-0 indent-0">
+          <li key={`skeleton-item-${key}`} className="mb-6 md:mb-8 last:mb-0">
             <Line box="h-6" width={title} />
             <div className="flex flex-col mt-1.5 ml-5">
               {lines.map((lineWidth, index) => (

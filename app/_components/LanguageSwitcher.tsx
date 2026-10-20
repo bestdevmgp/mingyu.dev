@@ -4,18 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { Check } from "react-feather";
 
 import cn from "classnames";
-import { AnimatePresence, motion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import { LOCALE_COOKIE, locales, type Locale } from "@i18n/config";
 
-import arrowFocus from "@/utils/arrowFocus";
-import { beginLocaleSwitch } from "@/utils/localeSwitch";
-import useFocusScope from "@/utils/useFocusScope";
-import useOnClickOutside from "@/utils/useOnClickOutside";
-import useOnEscape from "@/utils/useOnEscape";
+import { beginLocaleSwitch, isLocaleSwitching, onLocaleSwitchEnd } from "@/utils/localeSwitch";
+import useDropdown from "@/utils/useDropdown";
 
+import DropdownPanel from "./DropdownPanel";
 import Tooltip from "./Tooltip";
 import { setLocale, track } from "./analytics/posthog";
 
@@ -53,6 +50,11 @@ const refocusTriggerAfterSwitch = (value: boolean) => {
   refocusTrigger = value;
 };
 
+let queuedSwitch: { locale: Locale; viaKeyboard: boolean; variant: "dropdown" | "inline" } | null = null;
+const queueSwitch = (value: typeof queuedSwitch) => {
+  queuedSwitch = value;
+};
+
 interface LanguageSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "dropdown" | "inline";
   hardNavigation?: boolean;
@@ -71,20 +73,7 @@ const LanguageSwitcher = ({
   const router = useRouter();
   const pathname = usePathname();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useOnClickOutside(ref, isOpen, () => setIsOpen(false));
-  useOnEscape(isOpen, () => setIsOpen(false));
-  useFocusScope(ref, isOpen, '[role="option"][aria-selected="true"]');
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const closeIfHidden = () => {
-      if (!ref.current?.getClientRects().length) setIsOpen(false);
-    };
-    window.addEventListener("resize", closeIfHidden);
-    return () => window.removeEventListener("resize", closeIfHidden);
-  }, [isOpen]);
+  const { isOpen, setIsOpen, ref } = useDropdown('[role="option"][aria-selected="true"]');
 
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const displayLocale = pendingLocale ?? activeLocale;
@@ -100,6 +89,11 @@ const LanguageSwitcher = ({
   const changeLocale = (nextLocale: Locale, viaKeyboard: boolean) => {
     setIsOpen(false);
     if (nextLocale === displayLocale) return;
+    if (isLocaleSwitching()) {
+      queueSwitch({ locale: nextLocale, viaKeyboard, variant });
+      setPendingLocale(nextLocale);
+      return;
+    }
     onLocaleChange?.(viaKeyboard);
     refocusTriggerAfterSwitch(variant === "dropdown" && viaKeyboard);
     setPendingLocale(nextLocale);
@@ -112,6 +106,21 @@ const LanguageSwitcher = ({
     else if (rootPath !== pathname) router.replace(rootPath);
     else router.refresh();
   };
+
+  const changeLocaleRef = useRef(changeLocale);
+  useEffect(() => {
+    changeLocaleRef.current = changeLocale;
+  });
+  useEffect(
+    () =>
+      onLocaleSwitchEnd(() => {
+        if (queuedSwitch?.variant !== variant) return;
+        const { locale, viaKeyboard } = queuedSwitch;
+        queueSwitch(null);
+        changeLocaleRef.current(locale, viaKeyboard);
+      }),
+    [variant],
+  );
 
   if (variant === "inline") {
     return (
@@ -179,40 +188,32 @@ const LanguageSwitcher = ({
         </button>
       </Tooltip>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.ul
-            role="listbox"
-            onKeyDown={arrowFocus('[role="option"]')}
-            initial={{ opacity: 0, y: -4, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.96 }}
-            transition={{ type: "spring", bounce: 0, duration: 0.2 }}
-            style={{ transformOrigin: "top right" }}
-            className="absolute right-[-2px] top-full mt-2 min-w-32 p-1 rounded-xl list-none indent-0
-              bg-background border border-foreground/10 shadow-lg shadow-black/5 z-50"
-          >
-            {locales.map(locale => (
-              <li key={locale} className="indent-0">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={locale === activeLocale}
-                  onClick={event => changeLocale(locale, event.detail === 0)}
-                  className={cn(
-                    "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors duration-200 -outline-offset-1",
-                    "hover:bg-foreground/5",
-                    locale === activeLocale ? "font-semibold text-foreground" : "font-normal text-foreground/70",
-                  )}
-                >
-                  {LOCALE_LABELS[locale]}
-                  {locale === activeLocale && <Check className="w-4 h-4 text-primary" strokeWidth={2} />}
-                </button>
-              </li>
-            ))}
-          </motion.ul>
-        )}
-      </AnimatePresence>
+      <DropdownPanel
+        as="ul"
+        isOpen={isOpen}
+        role="listbox"
+        itemSelector='[role="option"]'
+        className="min-w-32 list-none indent-0"
+      >
+        {locales.map(locale => (
+          <li key={locale}>
+            <button
+              type="button"
+              role="option"
+              aria-selected={locale === activeLocale}
+              onClick={event => changeLocale(locale, event.detail === 0)}
+              className={cn(
+                "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors duration-200 -outline-offset-1",
+                "hover:bg-foreground/5",
+                locale === activeLocale ? "font-semibold text-foreground" : "font-normal text-foreground/70",
+              )}
+            >
+              {LOCALE_LABELS[locale]}
+              {locale === activeLocale && <Check className="w-4 h-4 text-primary" strokeWidth={2} />}
+            </button>
+          </li>
+        ))}
+      </DropdownPanel>
     </div>
   );
 };

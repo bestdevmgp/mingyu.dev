@@ -1,6 +1,6 @@
 import type { PostHog } from "posthog-js";
 
-const KEY = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ?? process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const KEY = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const HOST =
   process.env.NEXT_PUBLIC_POSTHOG_PROXY_HOST ?? process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
 const UI_HOST = "https://eu.posthog.com";
@@ -57,7 +57,7 @@ const loadPostHog = async () => {
 };
 
 export async function bootPostHog() {
-  if (!KEY || !isAnalyticsEnabled() || booting || client) return;
+  if (!KEY || isLocalhost() || booting || client) return;
   booting = true;
 
   const posthog = await loadPostHog();

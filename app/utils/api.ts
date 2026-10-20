@@ -13,7 +13,6 @@ export function getSkillTable() {
 }
 
 export function getSkills(ids: number[]) {
-  if (!ids.length) return [];
   const wanted = new Set(ids);
   return content.skill.filter(skill => wanted.has(skill.id));
 }

@@ -36,9 +36,11 @@ const RestoreProjectScroll = () => {
       if (!target) return;
 
       const before = window.scrollY;
-      window.__lenis?.resize?.();
-      if (window.__lenis) window.__lenis.scrollTo(target, { immediate: true });
-      else target.scrollIntoView();
+      const lenis = window.__lenis;
+      if (lenis) {
+        lenis.resize();
+        lenis.scrollTo(target, { immediate: true });
+      } else target.scrollIntoView();
 
       const reached = target.getBoundingClientRect().top < window.innerHeight / 2;
       if (reached && Math.abs(window.scrollY - before) < SETTLED_TOLERANCE) finish();

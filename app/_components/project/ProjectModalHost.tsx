@@ -7,6 +7,8 @@ import { useLocale } from "next-intl";
 
 import { localePath, locales } from "@i18n/config";
 
+import afterPageLoad from "@/utils/afterPageLoad";
+
 import { pushedProjectPath, settleProjectPush, subscribeProjectPush } from "./projectHistory";
 
 type ProjectModalOverlayType = typeof import("./ProjectModalOverlay").default;
@@ -30,24 +32,6 @@ const preloadModalCode = () => {
   import("./ProjectModalClient").catch(() => {});
 };
 
-const IDLE_TIMEOUT = 2000;
-
-const afterPageLoad = (task: () => void) => {
-  const idle = "requestIdleCallback" in globalThis;
-  let handle: number | undefined;
-  const schedule = () => {
-    handle = idle ? window.requestIdleCallback(task, { timeout: IDLE_TIMEOUT }) : window.setTimeout(task, 200);
-  };
-  if (document.readyState === "complete") schedule();
-  else window.addEventListener("load", schedule, { once: true });
-  return () => {
-    window.removeEventListener("load", schedule);
-    if (handle === undefined) return;
-    if (idle) window.cancelIdleCallback(handle);
-    else window.clearTimeout(handle);
-  };
-};
-
 const PROJECT_PATH = new RegExp(`^(?:/(?:${locales.join("|")}))?/project/(\\d+)$`);
 
 const ProjectModalHost = () => {
@@ -57,7 +41,7 @@ const ProjectModalHost = () => {
   const locale = useLocale();
   const [, setOverlayLoaded] = useState(false);
 
-  useEffect(() => afterPageLoad(preloadModalCode), []);
+  useEffect(() => afterPageLoad(preloadModalCode, 200), []);
 
   useEffect(() => {
     if (pushedPath !== null && pathname === pushedPath) settleProjectPush();

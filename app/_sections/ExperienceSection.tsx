@@ -9,14 +9,10 @@ import { getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 
 function getExperience(locale: string) {
-  const expWithSkills = applyLocaleAll(content.experience, locale).map(({ skill_ids, ...exp }) => ({
+  return applyLocaleAll(content.experience, locale).map(({ skill_ids, links, ...exp }) => ({
     ...exp,
-    skills: getSkills(skill_ids),
-  }));
-
-  return expWithSkills.map(({ links, ...res }) => ({
     links: links as unknown as { href: string; label: string }[],
-    ...res,
+    skills: getSkills(skill_ids),
   }));
 }
 

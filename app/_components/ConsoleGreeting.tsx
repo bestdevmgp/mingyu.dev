@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import afterPageLoad from "@/utils/afterPageLoad";
+
 import { FLOWER_PATH, SPARKLE_PATH } from "./markPaths";
 
 const SHAPES = [
@@ -56,22 +58,7 @@ const greet = () => {
 };
 
 const ConsoleGreeting = () => {
-  useEffect(() => {
-    let idleId = 0;
-    const schedule = () => {
-      idleId = window.requestIdleCallback
-        ? window.requestIdleCallback(greet, { timeout: 2000 })
-        : window.setTimeout(greet, 1);
-    };
-
-    if (document.readyState === "complete") schedule();
-    else window.addEventListener("load", schedule, { once: true });
-
-    return () => {
-      window.removeEventListener("load", schedule);
-      if (idleId && window.cancelIdleCallback) window.cancelIdleCallback(idleId);
-    };
-  }, []);
+  useEffect(() => afterPageLoad(greet, 1), []);
 
   return null;
 };

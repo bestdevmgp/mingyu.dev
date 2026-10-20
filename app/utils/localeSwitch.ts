@@ -1,13 +1,18 @@
 const ANCHOR = "main section[id], main [data-reveal], main [data-reveal-stagger], main li, main h2, main h3, main p";
-const RELEASE_CAP = 3000;
+const FOLLOW_CAP = 3000;
+const RELEASE_CAP = 30000;
 
 let active = false;
+let following = false;
+let committed = false;
 let hash = "";
 let fallbackY = 0;
 let anchorIndex = -1;
 let anchorTop = 0;
-let detach: (() => void) | null = null;
-let capTimer = 0;
+let frame = 0;
+let followTimer = 0;
+let releaseTimer = 0;
+const endListeners = new Set<() => void>();
 
 const captureAnchor = () => {
   anchorIndex = -1;
@@ -46,37 +51,66 @@ const followAnchor = () => {
   if (Math.abs(delta) > 0.5) window.scrollTo(0, window.scrollY + delta);
 };
 
+const loop = () => {
+  if (!active || !following) return;
+  followAnchor();
+  frame = requestAnimationFrame(loop);
+};
+
+const onScroll = () => {
+  if (following) followAnchor();
+  else if (!committed) {
+    fallbackY = window.scrollY;
+    captureAnchor();
+  }
+};
+
 export const isLocaleSwitching = () => active;
+
+export const onLocaleSwitchEnd = (listener: () => void) => {
+  endListeners.add(listener);
+  return () => {
+    endListeners.delete(listener);
+  };
+};
 
 export const beginLocaleSwitch = () => {
   active = true;
+  following = true;
+  committed = false;
   hash = window.location.hash;
   fallbackY = window.scrollY;
   captureAnchor();
   document.documentElement.classList.add("locale-switching", "locale-switched");
 
-  let frame = requestAnimationFrame(function loop() {
-    if (!active) return;
-    followAnchor();
-    frame = requestAnimationFrame(loop);
-  });
-  window.addEventListener("scroll", followAnchor, { passive: true });
+  cancelAnimationFrame(frame);
+  frame = requestAnimationFrame(loop);
+  window.addEventListener("scroll", onScroll, { passive: true });
 
-  detach = () => {
-    window.removeEventListener("scroll", followAnchor);
-    cancelAnimationFrame(frame);
-  };
+  window.clearTimeout(followTimer);
+  window.clearTimeout(releaseTimer);
+  followTimer = window.setTimeout(() => {
+    following = false;
+  }, FOLLOW_CAP);
+  releaseTimer = window.setTimeout(endLocaleSwitch, RELEASE_CAP);
+};
 
-  window.clearTimeout(capTimer);
-  capTimer = window.setTimeout(endLocaleSwitch, RELEASE_CAP);
+export const markLocaleCommitted = () => {
+  if (!active || committed) return;
+  committed = true;
+  if (following) return;
+  following = true;
+  frame = requestAnimationFrame(loop);
 };
 
 export const endLocaleSwitch = () => {
   if (!active) return;
   active = false;
-  detach?.();
-  detach = null;
-  window.clearTimeout(capTimer);
+  following = false;
+  window.removeEventListener("scroll", onScroll);
+  cancelAnimationFrame(frame);
+  window.clearTimeout(followTimer);
+  window.clearTimeout(releaseTimer);
 
   const limit = window.innerHeight;
   document.querySelectorAll("[data-reveal]:not(.is-revealed)").forEach(el => {
@@ -90,4 +124,5 @@ export const endLocaleSwitch = () => {
   const lenis = window.__lenis;
   if (lenis && window.scrollY > lenis.limit) lenis.resize();
   lenis?.scrollTo(window.scrollY, { immediate: true });
+  endListeners.forEach(listener => listener());
 };

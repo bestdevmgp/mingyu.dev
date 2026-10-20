@@ -10,16 +10,18 @@ import useCarriedState from "@/utils/useCarriedState";
 import CTAButton from "./buttons/CTAButton";
 
 const BATCH_SIZE = 6;
+const STORAGE_PREFIX = "cardBatches:";
 
 const checkedKeys = new Set<string>();
 
-const savedCount = (key: string) => {
+const savedBatches = (key: string) => {
   if (checkedKeys.has(key)) return 0;
   checkedKeys.add(key);
   try {
     const [entry] = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
-    if (entry?.type === "reload" || entry?.type === "back_forward") return Number(sessionStorage.getItem(key)) || 0;
-    sessionStorage.removeItem(key);
+    if (entry?.type === "reload" || entry?.type === "back_forward")
+      return Number(sessionStorage.getItem(STORAGE_PREFIX + key)) || 0;
+    sessionStorage.removeItem(STORAGE_PREFIX + key);
   } catch {}
   return 0;
 };
@@ -41,7 +43,7 @@ const CardBatches = ({ carryKey, showMoreAnalytics, action, children }: CardBatc
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useLayoutEffect(() => {
-    const saved = savedCount(carryKey);
+    const saved = BATCH_SIZE * (savedBatches(carryKey) + 1);
     if (saved <= BATCH_SIZE) return;
     setShownCount(count => Math.max(count, saved));
     setRestoredCount(count => Math.max(count, saved));
@@ -49,42 +51,60 @@ const CardBatches = ({ carryKey, showMoreAnalytics, action, children }: CardBatc
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const showMore = () => {
-    if (!hasNext) return;
     const next = shownCount + BATCH_SIZE;
     setShownCount(next);
     try {
-      sessionStorage.setItem(carryKey, String(next));
+      sessionStorage.setItem(STORAGE_PREFIX + carryKey, String(next / BATCH_SIZE - 1));
     } catch {}
   };
 
   const batchStarts: number[] = [];
-  for (let start = BATCH_SIZE; start < shownCount; start += BATCH_SIZE) batchStarts.push(start);
+  for (let start = BATCH_SIZE; start < cards.length; start += BATCH_SIZE) batchStarts.push(start);
 
   return (
-    <div className="cards flex flex-col">
+    <div className="cards flex flex-col" data-carry={carryKey}>
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">{cards.slice(0, BATCH_SIZE)}</div>
 
-      {batchStarts.map((start, index) => {
-        const restored = BATCH_SIZE * (index + 1) < restoredCount;
+      {batchStarts.map(start => {
+        const grid = (
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 pt-6 md:pt-8">
+            {cards.slice(start, start + BATCH_SIZE)}
+          </div>
+        );
+        if (start >= shownCount)
+          return (
+            <div key={`batch-${start}`} data-batch={start / BATCH_SIZE} className="hidden">
+              {grid}
+            </div>
+          );
+        if (start < restoredCount) return <div key={`batch-${start}`}>{grid}</div>;
         return (
           <motion.div
             key={`batch-${start}`}
-            className={restored || openedBatches.includes(start) ? undefined : "overflow-hidden"}
-            initial={restored ? false : { height: 0 }}
+            className={openedBatches.includes(start) ? undefined : "overflow-hidden"}
+            initial={{ height: 0 }}
             animate={{ height: "auto" }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             onAnimationComplete={() => setOpenedBatches(starts => [...starts, start])}
           >
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 pt-6 md:pt-8">
-              {cards.slice(start, start + BATCH_SIZE)}
-            </div>
+            {grid}
           </motion.div>
         );
       })}
 
       {(hasNext || action) && (
-        <div className="flex justify-center gap-3 pt-6 md:pt-8">
-          {hasNext && <CTAButton label={t("showMore")} onClick={showMore} data-analytics={showMoreAnalytics} />}
+        <div
+          className="flex justify-center gap-3 pt-6 md:pt-8"
+          data-show-more={action ? undefined : batchStarts.length}
+        >
+          {hasNext && (
+            <CTAButton
+              label={t("showMore")}
+              onClick={showMore}
+              data-analytics={showMoreAnalytics}
+              data-show-more={action ? batchStarts.length : undefined}
+            />
+          )}
           {action}
         </div>
       )}

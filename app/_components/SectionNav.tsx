@@ -6,6 +6,7 @@ import cn from "classnames";
 import { useTranslations } from "next-intl";
 
 import type { NavSection } from "@/utils/api";
+import { SCROLL_KEYS } from "@/utils/scrollKeys";
 import useCarriedState from "@/utils/useCarriedState";
 
 const SECTION_COLORS: Record<NavSection, string> = {
@@ -28,10 +29,27 @@ const rgb = (hex: string) => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16
 const blend = (from: number[], to: number[], amount: number) =>
   `rgb(${from.map((channel, i) => Math.round(channel + (to[i] - channel) * amount)).join(", ")})`;
 
-const SCROLL_KEYS = new Set(["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "]);
+const SETTLE_MS = 200;
 
 const landingTop = (section: HTMLElement) =>
   section.getBoundingClientRect().top - (parseFloat(getComputedStyle(section).scrollMarginTop) || 0);
+
+const clickLanding = (section: HTMLElement) => {
+  const padding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+  const end = document.documentElement.scrollHeight - window.innerHeight;
+  return Math.min(Math.max(landingTop(section) + window.scrollY - padding, 0), end);
+};
+
+const holdAt = (anchors: number[], index: number, landing: number) => {
+  if (index < 0) return anchors;
+  const held = [...anchors];
+  held[index] = Math.min(held[index], landing);
+  for (let i = index + 1; i < held.length; i++) {
+    const floor = i === index + 1 ? held[index] + (landing + 2 - held[index]) / HOLD : held[i - 1] + 1;
+    held[i] = Math.max(held[i], floor);
+  }
+  return held;
+};
 
 const anchorsOf = (sections: HTMLElement[]) => {
   const anchors = sections.map(section => landingTop(section) + window.scrollY - ACTIVE_LINE);
@@ -80,12 +98,17 @@ const SectionNav = ({ sections }: SectionNavProps) => {
   useEffect(() => {
     const hero = document.getElementById("main");
     if (!hero) return;
-    const observer = new IntersectionObserver(([entry]) => setIsVisible(!entry.isIntersecting), { threshold: 0 });
+    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.intersectionRatio === 0), {
+      threshold: [0, 0.0001],
+    });
     observer.observe(hero);
     return () => observer.disconnect();
   }, [setIsVisible]);
 
   const pendingId = useRef<string | null>(null);
+  const pendingLanding = useRef(0);
+  const pendingSettled = useRef(false);
+  const settleTimer = useRef(0);
 
   useEffect(() => {
     const wide = window.matchMedia("(min-width: 80rem)");
@@ -134,18 +157,23 @@ const SectionNav = ({ sections }: SectionNavProps) => {
       const compute = () => {
         queued = false;
         const targets = sections.map(id => document.getElementById(id)).filter(el => el !== null);
-        const anchors = anchorsOf(targets);
+        const pending = pendingId.current;
+        const anchors = pending
+          ? holdAt(
+              anchorsOf(targets),
+              targets.findIndex(target => target.id === pending),
+              pendingLanding.current,
+            )
+          : anchorsOf(targets);
         placeIndicator(anchors);
+        if (pending) {
+          setActiveId(pending);
+          return;
+        }
         let current = "";
         targets.forEach((target, i) => {
           if (window.scrollY >= anchors[i]) current = target.id;
         });
-        const pending = pendingId.current;
-        if (pending) {
-          if (current === pending) pendingId.current = null;
-          setActiveId(pending);
-          return;
-        }
         setActiveId(current);
       };
       const update = () => {
@@ -155,18 +183,31 @@ const SectionNav = ({ sections }: SectionNavProps) => {
       };
       const release = () => {
         pendingId.current = null;
+        window.clearTimeout(settleTimer.current);
       };
       const releaseOnKey = (event: KeyboardEvent) => {
         if (SCROLL_KEYS.has(event.key)) release();
       };
+      const onScroll = () => {
+        if (pendingId.current) {
+          if (pendingSettled.current) release();
+          else {
+            window.clearTimeout(settleTimer.current);
+            settleTimer.current = window.setTimeout(() => {
+              pendingSettled.current = true;
+            }, SETTLE_MS);
+          }
+        }
+        update();
+      };
       update();
-      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("scroll", onScroll, { passive: true });
       window.addEventListener("resize", update);
       window.addEventListener("wheel", release, { passive: true });
       window.addEventListener("touchstart", release, { passive: true });
       window.addEventListener("keydown", releaseOnKey);
       detach = () => {
-        window.removeEventListener("scroll", update);
+        window.removeEventListener("scroll", onScroll);
         window.removeEventListener("resize", update);
         window.removeEventListener("wheel", release);
         window.removeEventListener("touchstart", release);
@@ -188,7 +229,15 @@ const SectionNav = ({ sections }: SectionNavProps) => {
   }, [sections, setActiveId]);
 
   const handleNavClick = (id: string) => {
+    const section = document.getElementById(id);
+    if (!section) return;
     pendingId.current = id;
+    pendingLanding.current = clickLanding(section);
+    pendingSettled.current = false;
+    window.clearTimeout(settleTimer.current);
+    settleTimer.current = window.setTimeout(() => {
+      pendingSettled.current = true;
+    }, SETTLE_MS);
     setActiveId(id);
   };
 

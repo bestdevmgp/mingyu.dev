@@ -13,13 +13,30 @@ const ScrollCue = () => {
   useEffect(() => {
     const target = document.querySelector("#competencies .section-eyebrow");
     if (!target) return;
+    const block = target.closest("[data-reveal]");
+    let first = true;
+    let reveal: MutationObserver | undefined;
     const io = new IntersectionObserver(([entry]) => {
+      const atMount = first;
+      first = false;
       if (!entry.isIntersecting || isLocaleSwitching()) return;
-      setHidden(true);
       io.disconnect();
+      if (!atMount || !block || block.classList.contains("is-revealed")) {
+        setHidden(true);
+        return;
+      }
+      reveal = new MutationObserver(() => {
+        if (!block.classList.contains("is-revealed") || isLocaleSwitching()) return;
+        setHidden(true);
+        reveal?.disconnect();
+      });
+      reveal.observe(block, { attributes: true, attributeFilter: ["class"] });
     });
     io.observe(target);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      reveal?.disconnect();
+    };
   }, [setHidden]);
 
   return (

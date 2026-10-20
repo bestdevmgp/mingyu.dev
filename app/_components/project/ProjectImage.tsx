@@ -54,7 +54,7 @@ const ProjectImage = ({ ref, className, src, alt, size, reveal, onClick }: Proje
           alt={alt}
           width={800}
           height={600}
-          style={{ maxWidth: "100%", height: "auto", aspectRatio: size && `${size[0]} / ${size[1]}` }}
+          style={{ aspectRatio: size && `${size[0]} / ${size[1]}` }}
           onLoad={settle}
           onClick={onClick}
         />

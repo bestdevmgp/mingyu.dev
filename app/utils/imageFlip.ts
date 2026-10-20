@@ -81,8 +81,6 @@ export const flipTo = (element: HTMLElement, to: FlipTransform, duration: number
   releaseAfterFlight(element);
 };
 
-export const prefersReducedMotion = () =>
-  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+export const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export const prefersSlowerMotion = () =>
-  typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+export const prefersSlowerMotion = () => window.matchMedia("(pointer: coarse)").matches;

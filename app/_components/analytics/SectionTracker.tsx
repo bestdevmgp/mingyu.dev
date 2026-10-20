@@ -127,23 +127,20 @@ const SectionTracker = () => {
       track("page_leave", leave);
     };
 
-    const observer = new IntersectionObserver(
-      entries => {
-        const at = performance.now();
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const id = entry.target.id;
-          if (visit.seen.has(id)) continue;
-          visit.seen.add(id);
-          track("section_viewed", {
-            section: id,
-            section_order: orderOf.get(id),
-            reached_after_ms: Math.round(at - visit.startedAt),
-          });
-        }
-      },
-      { threshold: 0 },
-    );
+    const observer = new IntersectionObserver(entries => {
+      const at = performance.now();
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const id = entry.target.id;
+        if (visit.seen.has(id)) continue;
+        visit.seen.add(id);
+        track("section_viewed", {
+          section: id,
+          section_order: orderOf.get(id),
+          reached_after_ms: Math.round(at - visit.startedAt),
+        });
+      }
+    });
     targets.forEach(t => observer.observe(t.el));
 
     const onScroll = () => {
@@ -169,8 +166,6 @@ const SectionTracker = () => {
       resume(at);
     };
 
-    const onPageHide = () => flush();
-
     const onClick = (event: MouseEvent) => {
       const target = (event.target as HTMLElement | null)?.closest?.("[data-analytics]");
       const name = target?.getAttribute("data-analytics");
@@ -179,14 +174,14 @@ const SectionTracker = () => {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pagehide", flush);
     document.addEventListener("click", onClick, true);
 
     return () => {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pagehide", flush);
       document.removeEventListener("click", onClick, true);
       if (rafId) cancelAnimationFrame(rafId);
       if (!isLocaleSwitching()) return;

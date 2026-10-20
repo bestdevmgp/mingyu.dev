@@ -22,8 +22,8 @@ interface ProjectData {
   links: Array<{ href: string; label: string }>;
   items: Array<{
     title: string;
-    content: string[] | null;
-    blobUrls: string[] | null;
+    content: string[];
+    blobUrls: string[];
     image_ratio: "PORTRAIT" | "LANDSCAPE" | "SQUARE" | null;
   }>;
   imageSizes: Record<string, [number, number]>;
@@ -108,21 +108,19 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
 
       <div id="project-modal-content" className="text-sm md:text-base flex flex-col gap-2">
         <p className="font-semibold text-base md:text-lg">{t("detail")}</p>
-        <ol className="list-decimal">
+        <ol>
           {items.map((item, index) => (
             <li key={`project-item-${index}`} className="mb-6 md:mb-8 last:mb-0">
               <span>{item.title}</span>
-              <div className="w-0.5 h-2" />
-              {item.content && (
-                <ul className="text-foreground/80 marker:text-foreground/60">
-                  {item.content.map((text, contentIndex) => (
-                    <li key={`project-desc-${index}-${contentIndex}`} className="mb-1 last:mb-0">
-                      {text}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {item.blobUrls && item.blobUrls.length > 0 && (
+              <div className="h-2" />
+              <ul className="text-foreground/80 marker:text-foreground/60">
+                {item.content.map((text, contentIndex) => (
+                  <li key={`project-desc-${index}-${contentIndex}`} className="mb-1 last:mb-0">
+                    {text}
+                  </li>
+                ))}
+              </ul>
+              {item.blobUrls.length > 0 && (
                 <div
                   className={cn(
                     "flex gap-4 mt-4",

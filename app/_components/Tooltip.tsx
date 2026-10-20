@@ -69,7 +69,8 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
   const show = useCallback(() => {
     const trigger = triggerRef.current;
     if (!trigger || suppressed.current) return;
-    if (trigger.matches(":disabled") || trigger.getAttribute("aria-expanded") === "true") return;
+    if (trigger.matches(':disabled, [aria-disabled="true"]') || trigger.getAttribute("aria-expanded") === "true")
+      return;
     window.clearTimeout(timer.current);
     release();
     if (phaseRef.current === "hidden" && !handOff) {

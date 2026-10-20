@@ -5,15 +5,22 @@ export function getProjectData(id: number, locale: string) {
   const project = getProject(id);
   if (!project) return null;
 
-  const { ProjectItem: items, links, skill_ids, ...res } = applyLocale(project, locale);
-  const responseItems = applyLocaleAll(items, locale);
-  const responseSkills = getSkills(skill_ids);
+  const { title, sub_title, period, member, links, ProjectItem, skill_ids } = applyLocale(project, locale);
+  const items = applyLocaleAll(ProjectItem, locale).map(({ title, content, image_ratio, blobUrls }) => ({
+    title,
+    content,
+    image_ratio,
+    blobUrls,
+  }));
 
   return {
-    ...res,
+    title,
+    sub_title,
+    period,
+    member,
     links: links as unknown as { href: string; label: string }[],
-    items: responseItems,
-    skills: responseSkills,
-    imageSizes: getImageSizes(responseItems.flatMap(item => item.blobUrls)),
+    items,
+    skills: getSkills(skill_ids).map(({ id, blobUrl, item }) => ({ id, blobUrl, item })),
+    imageSizes: getImageSizes(items.flatMap(item => item.blobUrls)),
   };
 }

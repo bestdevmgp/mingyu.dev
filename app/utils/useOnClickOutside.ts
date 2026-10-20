@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from "react";
+import { type RefObject, useEffect } from "react";
 
 type Handler = (event: MouseEvent | TouchEvent) => void;
 
@@ -10,7 +10,7 @@ function useOnClickOutside<T extends HTMLElement = HTMLElement>(
   useEffect(() => {
     if (!active) return;
     const listener = (event: MouseEvent | TouchEvent) => {
-      const el = ref?.current;
+      const el = ref.current;
 
       if (!el || el.contains(event.target as Node)) {
         return;

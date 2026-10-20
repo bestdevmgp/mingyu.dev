@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from "react";
+import { type RefObject, useEffect } from "react";
 
 const TABBABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 const FOCUSABLE = "a[href], button, [tabindex]";

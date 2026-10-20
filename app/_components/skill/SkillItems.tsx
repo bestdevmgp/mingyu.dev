@@ -73,8 +73,21 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
     return () => document.fonts?.removeEventListener("loadingdone", place);
   }, [activeCategoryX, activeCategoryWidth, activeCategoryOpacity]);
 
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const observer = new ResizeObserver(() => {
+      const button = nav.querySelector('[aria-pressed="true"]');
+      if (!button) return;
+      const { x, width } = pillBox(button, nav);
+      activeCategoryX.jump(x);
+      activeCategoryWidth.jump(width);
+    });
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, [activeCategoryX, activeCategoryWidth]);
+
   const handleCategoryClick = (e: React.MouseEvent, category: Category) => {
-    e.preventDefault();
     restoredCategory.current = undefined;
 
     if (activeCategory === category) {
@@ -105,7 +118,6 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
       >
         {[
           { name: t("backend"), value: CATEGORY.BACKEND },
-
           { name: t("devops"), value: CATEGORY.DEVOPS },
           { name: t("frontend"), value: CATEGORY.FRONTEND },
           { name: t("ai"), value: CATEGORY.AI },
@@ -115,7 +127,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             data-category={value}
             aria-pressed={activeCategory === value}
             className={cn(
-              "group text-sm sm:text-base font-semibold px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative focus-visible:z-10",
+              "group text-sm sm:text-base font-semibold whitespace-nowrap px-2 sm:px-3 py-1 rounded-full transition-all duration-200 relative focus-visible:z-10",
               "text-gray-400 dark:text-gray-500",
               activeCategory === value
                 ? "outline-offset-1"

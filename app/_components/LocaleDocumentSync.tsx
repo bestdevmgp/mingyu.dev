@@ -2,10 +2,11 @@
 
 import { useLayoutEffect } from "react";
 
-import { endLocaleSwitch } from "@/utils/localeSwitch";
+import { endLocaleSwitch, markLocaleCommitted } from "@/utils/localeSwitch";
 
 const LocaleDocumentSync = ({ locale }: { locale: string }) => {
   useLayoutEffect(() => {
+    markLocaleCommitted();
     if (document.documentElement.lang !== locale) document.documentElement.lang = locale;
 
     let middle = 0;

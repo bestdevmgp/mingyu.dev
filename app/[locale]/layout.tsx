@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   const description = t("description");
 
   return {
-    metadataBase: new URL("https://mingyu.dev"),
+    metadataBase: new URL(SITE_URL),
     title: { default: title, template: `%s - ${title}` },
     description,
     keywords: ["백엔드", "백엔드 개발자", "백엔드 개발자 포트폴리오", "backend developer", "portfolio"],
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
           alt: title,
         },
       ],
-      locale: OG_LOCALE[locale] ?? "ko_KR",
+      locale: OG_LOCALE[locale],
       type: "website",
     },
     alternates: {
