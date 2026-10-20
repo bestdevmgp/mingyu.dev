@@ -8,7 +8,7 @@ import { prefersReducedMotion } from "@/utils/imageFlip";
 
 const SHOW_DELAY = 300;
 const HIDE_DELAY = 200;
-const EXIT_FALLBACK = 250;
+const EXIT_FALLBACK = 175;
 const GAP = 8;
 const EDGE = 8;
 

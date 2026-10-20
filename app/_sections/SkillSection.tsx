@@ -2,10 +2,10 @@ import { getTranslations } from "next-intl/server";
 
 import SlideUpInView from "@/_components/SlideUpInView";
 import SkillItems from "@/_components/skill/SkillItems";
-import { getSkillTable } from "@/utils/api";
+import { getShownSkills } from "@/utils/api";
 
 export default async function SkillSection() {
-  const allSkills = getSkillTable().filter(skill => !skill.hidden);
+  const allSkills = getShownSkills();
   const t = await getTranslations("Skill");
 
   return (

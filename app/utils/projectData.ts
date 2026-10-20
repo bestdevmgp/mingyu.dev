@@ -18,7 +18,7 @@ export function getProjectData(id: number, locale: string) {
     sub_title,
     period,
     member,
-    links: links as unknown as { href: string; label: string }[],
+    links,
     items,
     skills: getSkills(skill_ids).map(({ id, blobUrl, item }) => ({ id, blobUrl, item })),
     imageSizes: getImageSizes(items.flatMap(item => item.blobUrls)),

@@ -7,17 +7,19 @@ import cn from "classnames";
 import { useTranslations } from "next-intl";
 
 import Shape from "@/assets/shape-sparkle-round.svg";
+import type { Link } from "@/lib/content";
+import type { SkillIcon } from "@/utils/api";
 import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
 
 import ReferenceLink from "./ReferenceLink";
 import SkillItem from "./skill/SkillItem";
 
-import type { experience, skill } from "@prisma/client";
+import type { experience } from "@prisma/client";
 
 interface ExpCardProps extends Omit<experience, "skill_ids" | "i18n" | "links"> {
-  skills: skill[];
-  links: Array<{ href: string; label: string }>;
+  skills: SkillIcon[];
+  links: Link[];
 }
 
 const ExpCard = ({

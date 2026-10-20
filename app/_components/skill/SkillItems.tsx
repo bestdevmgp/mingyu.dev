@@ -5,14 +5,13 @@ import cn from "classnames";
 import { motion, useSpring } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import type { SkillIcon } from "@/utils/api";
 import useCarriedState from "@/utils/useCarriedState";
 
 import SkillItem from "./SkillItem";
 
-import type { skill } from "@prisma/client";
-
 interface SkillItemsProps {
-  skills: skill[];
+  skills: SkillIcon[];
 }
 
 const CATEGORY = { BACKEND: "BACKEND", DEVOPS: "DEVOPS", FRONTEND: "FRONTEND", AI: "AI" } as const;

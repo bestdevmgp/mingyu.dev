@@ -1,6 +1,15 @@
 "use client";
 
-import { type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  type ComponentProps,
+  type Ref,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import cn from "classnames";
 import { motion, AnimatePresence } from "motion/react";
@@ -46,6 +55,101 @@ const TALL_FIT_RATIO = 0.92;
 const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
 const TOUCH_TIMING = { open: 560, close: 430, fade: 280 };
+
+type PressHandlers = ReturnType<typeof useTouchPress>[1];
+
+interface RoundButtonProps {
+  label: string;
+  shortcut: NonNullable<ComponentProps<typeof Tooltip>["shortcut"]>;
+  icon: string;
+  className?: string;
+  padding: string;
+  pressed: boolean;
+  press: PressHandlers;
+  onPress: () => void;
+  buttonRef?: Ref<HTMLButtonElement>;
+}
+
+const RoundButton = ({
+  label,
+  shortcut,
+  icon,
+  className,
+  padding,
+  pressed,
+  press,
+  onPress,
+  buttonRef,
+}: RoundButtonProps) => (
+  <Tooltip label={label} shortcut={shortcut}>
+    <button
+      ref={buttonRef}
+      onClick={e => {
+        e.stopPropagation();
+        onPress();
+      }}
+      {...press}
+      className={cn("group", className, "text-white rounded-full")}
+      aria-label={label}
+    >
+      <span
+        className={cn(
+          "block rounded-full",
+          padding,
+          "transition-[opacity,background-color] duration-200",
+          pressed
+            ? "bg-[#0f0f0f]/70 opacity-100"
+            : "bg-black/50 opacity-55 group-hover:bg-[#0f0f0f]/70 group-hover:opacity-100",
+        )}
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
+        </svg>
+      </span>
+    </button>
+  </Tooltip>
+);
+
+interface PillButtonProps {
+  label: string;
+  pressed: boolean;
+  press: PressHandlers;
+  onPress: () => void;
+  disabled?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}
+
+const PillButton = ({ label, pressed, press, onPress, disabled, className, children }: PillButtonProps) => (
+  <Tooltip label={label} side="top">
+    <button
+      onClick={e => {
+        e.stopPropagation();
+        if (!disabled) onPress();
+      }}
+      aria-disabled={disabled || undefined}
+      {...press}
+      className={cn(
+        "p-[11px] rounded-full transition-colors duration-200",
+        className,
+        disabled
+          ? "text-white/25 cursor-not-allowed"
+          : pressed
+            ? "text-white bg-[#000]/40"
+            : "text-white/55 hover:text-white hover:bg-[#000]/40",
+      )}
+      aria-label={label}
+    >
+      {children}
+    </button>
+  </Tooltip>
+);
+
+const ZoomIcon = ({ path }: { path: string }) => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={path} />
+  </svg>
+);
 
 export default function ImageModal({
   images,
@@ -498,30 +602,15 @@ export default function ImageModal({
               )}
 
               <div className="ml-auto pointer-events-auto">
-                <Tooltip label={t("close")} shortcut="Escape">
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      requestClose();
-                    }}
-                    {...closePress}
-                    className="group text-white rounded-full"
-                    aria-label={t("close")}
-                  >
-                    <span
-                      className={cn(
-                        "block rounded-full p-2 transition-[opacity,background-color] duration-200",
-                        closePressed
-                          ? "bg-[#0f0f0f]/70 opacity-100"
-                          : "bg-black/50 opacity-55 group-hover:bg-[#0f0f0f]/70 group-hover:opacity-100",
-                      )}
-                    >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </span>
-                  </button>
-                </Tooltip>
+                <RoundButton
+                  label={t("close")}
+                  shortcut="Escape"
+                  icon="M6 18L18 6M6 6l12 12"
+                  padding="p-2"
+                  pressed={closePressed}
+                  press={closePress}
+                  onPress={requestClose}
+                />
               </div>
             </div>
 
@@ -609,59 +698,31 @@ export default function ImageModal({
             {images.length > 1 && (
               <>
                 {currentIndex > 0 && (
-                  <Tooltip label={t("previous")} shortcut="ArrowLeft">
-                    <button
-                      ref={previousRef}
-                      onClick={e => {
-                        e.stopPropagation();
-                        goToPrevious();
-                      }}
-                      {...prevPress}
-                      className="group absolute left-4 top-1/2 -translate-y-1/2 text-white rounded-full z-10"
-                      aria-label={t("previous")}
-                    >
-                      <span
-                        className={cn(
-                          "block rounded-full p-3 transition-[opacity,background-color] duration-200",
-                          prevPressed
-                            ? "bg-[#0f0f0f]/70 opacity-100"
-                            : "bg-black/50 opacity-55 group-hover:bg-[#0f0f0f]/70 group-hover:opacity-100",
-                        )}
-                      >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </span>
-                    </button>
-                  </Tooltip>
+                  <RoundButton
+                    label={t("previous")}
+                    shortcut="ArrowLeft"
+                    icon="M15 19l-7-7 7-7"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+                    padding="p-3"
+                    pressed={prevPressed}
+                    press={prevPress}
+                    onPress={goToPrevious}
+                    buttonRef={previousRef}
+                  />
                 )}
 
                 {currentIndex < images.length - 1 && (
-                  <Tooltip label={t("next")} shortcut="ArrowRight">
-                    <button
-                      ref={nextRef}
-                      onClick={e => {
-                        e.stopPropagation();
-                        goToNext();
-                      }}
-                      {...nextPress}
-                      className="group absolute right-4 top-1/2 -translate-y-1/2 text-white rounded-full z-10"
-                      aria-label={t("next")}
-                    >
-                      <span
-                        className={cn(
-                          "block rounded-full p-3 transition-[opacity,background-color] duration-200",
-                          nextPressed
-                            ? "bg-[#0f0f0f]/70 opacity-100"
-                            : "bg-black/50 opacity-55 group-hover:bg-[#0f0f0f]/70 group-hover:opacity-100",
-                        )}
-                      >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </span>
-                    </button>
-                  </Tooltip>
+                  <RoundButton
+                    label={t("next")}
+                    shortcut="ArrowRight"
+                    icon="M9 5l7 7-7 7"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
+                    padding="p-3"
+                    pressed={nextPressed}
+                    press={nextPress}
+                    onPress={goToNext}
+                    buttonRef={nextRef}
+                  />
                 )}
               </>
             )}
@@ -670,74 +731,41 @@ export default function ImageModal({
               className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px]"
               onClick={e => e.stopPropagation()}
             >
-              <Tooltip label={t("zoomOut")} side="top">
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (zoom > MIN_ZOOM) handleZoomOut();
-                  }}
-                  aria-disabled={zoom <= MIN_ZOOM || undefined}
-                  {...zoomOutPress}
-                  className={cn(
-                    "p-[11px] rounded-full transition-colors duration-200",
-                    zoom <= MIN_ZOOM
-                      ? "text-white/25 cursor-not-allowed"
-                      : zoomOutPressed
-                        ? "text-white bg-[#000]/40"
-                        : "text-white/55 hover:text-white hover:bg-[#000]/40",
-                  )}
-                  aria-label={t("zoomOut")}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                  </svg>
-                </button>
-              </Tooltip>
+              <PillButton
+                label={t("zoomOut")}
+                disabled={zoom <= MIN_ZOOM}
+                pressed={zoomOutPressed}
+                press={zoomOutPress}
+                onPress={handleZoomOut}
+              >
+                <ZoomIcon path="M20 12H4" />
+              </PillButton>
 
-              <Tooltip label={t("resetZoom")} side="top">
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    resetZoom();
-                    setButtonZoom(true);
-                  }}
-                  {...resetPress}
-                  className={cn(
-                    "p-[11px] rounded-full transition-colors duration-200 text-sm",
-                    resetPressed ? "text-white bg-[#000]/40" : "text-white/55 hover:text-white hover:bg-[#000]/40",
-                  )}
-                  aria-label={t("resetZoom")}
-                >
-                  <span className="grid justify-items-center">
-                    <span className="invisible col-start-1 row-start-1">444%</span>
-                    <span className="col-start-1 row-start-1">{Math.round(zoom * 100)}%</span>
-                  </span>
-                </button>
-              </Tooltip>
+              <PillButton
+                label={t("resetZoom")}
+                className="text-sm"
+                pressed={resetPressed}
+                press={resetPress}
+                onPress={() => {
+                  resetZoom();
+                  setButtonZoom(true);
+                }}
+              >
+                <span className="grid justify-items-center">
+                  <span className="invisible col-start-1 row-start-1">444%</span>
+                  <span className="col-start-1 row-start-1">{Math.round(zoom * 100)}%</span>
+                </span>
+              </PillButton>
 
-              <Tooltip label={t("zoomIn")} side="top">
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (zoom < MAX_ZOOM) handleZoomIn();
-                  }}
-                  aria-disabled={zoom >= MAX_ZOOM || undefined}
-                  {...zoomInPress}
-                  className={cn(
-                    "p-[11px] rounded-full transition-colors duration-200",
-                    zoom >= MAX_ZOOM
-                      ? "text-white/25 cursor-not-allowed"
-                      : zoomInPressed
-                        ? "text-white bg-[#000]/40"
-                        : "text-white/55 hover:text-white hover:bg-[#000]/40",
-                  )}
-                  aria-label={t("zoomIn")}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </button>
-              </Tooltip>
+              <PillButton
+                label={t("zoomIn")}
+                disabled={zoom >= MAX_ZOOM}
+                pressed={zoomInPressed}
+                press={zoomInPress}
+                onPress={handleZoomIn}
+              >
+                <ZoomIcon path="M12 4v16m8-8H4" />
+              </PillButton>
             </div>
           </div>
         </motion.div>

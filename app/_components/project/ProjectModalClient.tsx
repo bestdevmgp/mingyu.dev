@@ -6,6 +6,7 @@ import cn from "classnames";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
+import type { Link } from "@/lib/content";
 import richText from "@/utils/richText";
 
 import ImageModal from "./ImageModal";
@@ -19,7 +20,7 @@ interface ProjectData {
   member: string;
   period: string;
   skills: Array<{ id: number; item: string; blobUrl: string }>;
-  links: Array<{ href: string; label: string }>;
+  links: Link[];
   items: Array<{
     title: string;
     content: string[];

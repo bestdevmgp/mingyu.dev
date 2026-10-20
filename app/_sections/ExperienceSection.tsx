@@ -11,7 +11,7 @@ import { applyLocaleAll } from "@/utils/localize";
 function getExperience(locale: string) {
   return applyLocaleAll(content.experience, locale).map(({ skill_ids, links, ...exp }) => ({
     ...exp,
-    links: links as unknown as { href: string; label: string }[],
+    links,
     skills: getSkills(skill_ids),
   }));
 }

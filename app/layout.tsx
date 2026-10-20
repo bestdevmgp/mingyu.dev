@@ -36,6 +36,7 @@ const BOOT_SCRIPT =
   "for(i=0;i<sessionStorage.length;i++){k=sessionStorage.key(i);if(k.indexOf('cardBatches:'))continue;n=+sessionStorage.getItem(k);if(!n)continue;" +
   "p=':root [data-carry=\"'+k.slice(12)+'\"] ';c+=p+'[data-show-more=\"'+n+'\"]{display:none}';for(s=1;s<=n;s++)c+=p+'[data-batch=\"'+s+'\"]{display:block}'}" +
   "if(c){var t=document.createElement('style');t.textContent=c;document.head.appendChild(t)}}catch(e){}})();" +
+  "addEventListener('animationend',function(e){var t=e.target;if(t.classList&&t.classList.contains('hero-rise'))t.setAttribute('data-risen','')});" +
   "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
   "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
   "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +

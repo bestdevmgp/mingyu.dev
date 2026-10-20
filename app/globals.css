@@ -567,6 +567,9 @@ main {
   animation-timing-function: linear;
   will-change: opacity, transform;
 }
+.hero-rise[data-risen] {
+  will-change: auto;
+}
 :root.loader-js .hero-rise {
   animation-play-state: paused;
 }
@@ -576,6 +579,7 @@ main {
 :root.locale-switched .hero-rise {
   animation: none;
   opacity: 1;
+  will-change: auto;
 }
 .hero-rise-1 {
   animation-name: hero-rise-1;
@@ -948,6 +952,7 @@ main {
   .hero-rise {
     animation: none !important;
     opacity: 1 !important;
+    will-change: auto;
   }
   .scroll-cue {
     animation: none !important;
