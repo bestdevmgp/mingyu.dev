@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import cn from "classnames";
 import { useTranslations } from "next-intl";
 
-import type { NavSection } from "@/utils/api";
+import isModifiedClick from "@/utils/isModifiedClick";
+import { prefersReducedMotion } from "@/utils/motionPreference";
+import navigationType from "@/utils/navigationType";
 import { SCROLL_KEYS } from "@/utils/scrollKeys";
+import { anchorsOf, landingOf, sectionElements, TOC_QUERY, type NavSection } from "@/utils/sectionLanding";
+import smoothScrollTo from "@/utils/smoothScrollTo";
 import useCarriedState from "@/utils/useCarriedState";
 
 const SECTION_COLORS: Record<NavSection, string> = {
@@ -18,7 +22,6 @@ const SECTION_COLORS: Record<NavSection, string> = {
   education: "#e2ff00",
 };
 
-const ACTIVE_LINE = 60;
 const LABEL_GAP = 10;
 const HOLD = 0.25;
 const BLEND_START = 0.8125;
@@ -31,17 +34,7 @@ const blend = (from: number[], to: number[], amount: number) =>
 
 const SETTLE_MS = 200;
 
-const landingTop = (section: HTMLElement) =>
-  section.getBoundingClientRect().top - (parseFloat(getComputedStyle(section).scrollMarginTop) || 0);
-
-const clickLanding = (section: HTMLElement) => {
-  const padding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
-  const end = document.documentElement.scrollHeight - window.innerHeight;
-  return Math.min(Math.max(landingTop(section) + window.scrollY - padding, 0), end);
-};
-
-const holdAt = (anchors: number[], index: number, landing: number) => {
-  if (index < 0) return anchors;
+const anchorsHeldAt = (anchors: number[], index: number, landing: number) => {
   const held = [...anchors];
   held[index] = Math.min(held[index], landing);
   for (let i = index + 1; i < held.length; i++) {
@@ -51,14 +44,7 @@ const holdAt = (anchors: number[], index: number, landing: number) => {
   return held;
 };
 
-const anchorsOf = (sections: HTMLElement[]) => {
-  const anchors = sections.map(section => landingTop(section) + window.scrollY - ACTIVE_LINE);
-  const end = document.documentElement.scrollHeight - window.innerHeight - 1;
-  const reachable = anchors.filter(anchor => anchor <= end).length;
-  const from = reachable ? anchors[reachable - 1] : 0;
-  const missing = anchors.length - reachable;
-  return anchors.map((anchor, i) => (i < reachable ? anchor : from + ((end - from) * (i - reachable + 1)) / missing));
-};
+let hashChecked = false;
 
 interface SectionNavProps {
   sections: NavSection[];
@@ -110,8 +96,26 @@ const SectionNav = ({ sections }: SectionNavProps) => {
   const pendingSettled = useRef(false);
   const settleTimer = useRef(0);
 
+  const armSettle = useCallback(() => {
+    pendingSettled.current = false;
+    window.clearTimeout(settleTimer.current);
+    settleTimer.current = window.setTimeout(() => {
+      pendingSettled.current = true;
+    }, SETTLE_MS);
+  }, []);
+
+  const hold = useCallback(
+    (id: string, landing: number) => {
+      pendingId.current = id;
+      pendingLanding.current = landing;
+      armSettle();
+      setActiveId(id);
+    },
+    [armSettle, setActiveId],
+  );
+
   useEffect(() => {
-    const wide = window.matchMedia("(min-width: 80rem)");
+    const wide = window.matchMedia(TOC_QUERY);
     const palette = sections.map(id => SECTION_COLORS[id]);
     const colors = palette.map(rgb);
     let detach: (() => void) | null = null;
@@ -151,28 +155,38 @@ const SectionNav = ({ sections }: SectionNavProps) => {
       indicator.style.backgroundColor = amount > 0 ? blend(colors[index], colors[next], amount) : palette[index];
     };
 
+    const landOnHash = () => {
+      const id = window.location.hash.slice(1);
+      const elements = sectionElements(sections);
+      if (!elements.some(element => element.id === id)) return;
+      const { natural, landing } = landingOf(elements, id);
+      if (landing === natural || Math.abs(window.scrollY - natural) > 1) return;
+      window.scrollTo(0, landing);
+      hold(id, landing);
+    };
+
     const attach = () => {
-      if (detach) return;
       let queued = false;
+      let traversing = false;
       const compute = () => {
         queued = false;
-        const targets = sections.map(id => document.getElementById(id)).filter(el => el !== null);
+        const elements = sectionElements(sections);
         const pending = pendingId.current;
         const anchors = pending
-          ? holdAt(
-              anchorsOf(targets),
-              targets.findIndex(target => target.id === pending),
+          ? anchorsHeldAt(
+              anchorsOf(elements),
+              elements.findIndex(element => element.id === pending),
               pendingLanding.current,
             )
-          : anchorsOf(targets);
+          : anchorsOf(elements);
         placeIndicator(anchors);
         if (pending) {
           setActiveId(pending);
           return;
         }
         let current = "";
-        targets.forEach((target, i) => {
-          if (window.scrollY >= anchors[i]) current = target.id;
+        elements.forEach((element, i) => {
+          if (window.scrollY >= anchors[i]) current = element.id;
         });
         setActiveId(current);
       };
@@ -191,14 +205,16 @@ const SectionNav = ({ sections }: SectionNavProps) => {
       const onScroll = () => {
         if (pendingId.current) {
           if (pendingSettled.current) release();
-          else {
-            window.clearTimeout(settleTimer.current);
-            settleTimer.current = window.setTimeout(() => {
-              pendingSettled.current = true;
-            }, SETTLE_MS);
-          }
+          else armSettle();
         }
         update();
+      };
+      const onNavigate = (event: NavigateEvent) => {
+        traversing = event.navigationType === "traverse";
+      };
+      const onPopState = () => {
+        if (traversing) traversing = false;
+        else window.setTimeout(landOnHash);
       };
       update();
       window.addEventListener("scroll", onScroll, { passive: true });
@@ -206,12 +222,16 @@ const SectionNav = ({ sections }: SectionNavProps) => {
       window.addEventListener("wheel", release, { passive: true });
       window.addEventListener("touchstart", release, { passive: true });
       window.addEventListener("keydown", releaseOnKey);
+      window.navigation?.addEventListener("navigate", onNavigate);
+      window.addEventListener("popstate", onPopState);
       detach = () => {
         window.removeEventListener("scroll", onScroll);
         window.removeEventListener("resize", update);
         window.removeEventListener("wheel", release);
         window.removeEventListener("touchstart", release);
         window.removeEventListener("keydown", releaseOnKey);
+        window.navigation?.removeEventListener("navigate", onNavigate);
+        window.removeEventListener("popstate", onPopState);
         detach = null;
       };
     };
@@ -221,24 +241,24 @@ const SectionNav = ({ sections }: SectionNavProps) => {
       else detach?.();
     };
     sync();
+    if (!hashChecked && wide.matches && navigationType() === "navigate") landOnHash();
+    hashChecked = true;
     wide.addEventListener("change", sync);
     return () => {
       wide.removeEventListener("change", sync);
       detach?.();
     };
-  }, [sections, setActiveId]);
+  }, [sections, setActiveId, armSettle, hold]);
 
-  const handleNavClick = (id: string) => {
-    const section = document.getElementById(id);
-    if (!section) return;
-    pendingId.current = id;
-    pendingLanding.current = clickLanding(section);
-    pendingSettled.current = false;
-    window.clearTimeout(settleTimer.current);
-    settleTimer.current = window.setTimeout(() => {
-      pendingSettled.current = true;
-    }, SETTLE_MS);
-    setActiveId(id);
+  const handleNavClick = (event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (isModifiedClick(event)) return;
+    const { natural, landing } = landingOf(sectionElements(sections), id);
+    if (landing !== natural && !prefersReducedMotion()) {
+      event.preventDefault();
+      smoothScrollTo(landing);
+      window.history.replaceState(null, "", `#${id}`);
+    }
+    hold(id, landing);
   };
 
   return (
@@ -264,7 +284,7 @@ const SectionNav = ({ sections }: SectionNavProps) => {
             key={`section-nav-${id}`}
             href={`#${id}`}
             aria-current={isActive ? "true" : undefined}
-            onClick={() => handleNavClick(id)}
+            onClick={event => handleNavClick(event, id)}
             className={cn("group flex items-center no-underline focus-visible:rounded-sm", !compact && "gap-2.5")}
           >
             <span

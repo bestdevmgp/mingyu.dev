@@ -2,6 +2,8 @@ import { Fragment, type ReactNode } from "react";
 
 const TOKEN = /<br\s*\/?>|<\/?(?:em|b|strong|i)>/gi;
 
+export const stripTags = (value: string) => value.replace(/<[^>]+>/g, "").trim();
+
 export default function richText(value: string): ReactNode {
   if (!value || !TOKEN.test(value)) return value;
   TOKEN.lastIndex = 0;

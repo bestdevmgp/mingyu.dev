@@ -3,6 +3,7 @@
 import cn from "classnames";
 import { useLocale, useTranslations } from "next-intl";
 
+import { EMAIL, GITHUB_URL, LINKEDIN_URL } from "@/lib/site";
 import { phoneDisplay, phoneHref } from "@/utils/phone";
 import useDropdown from "@/utils/useDropdown";
 
@@ -67,8 +68,8 @@ const CONTACTS: ContactItem[] = [
   {
     id: "email",
     label: "Email",
-    value: "me@mingyu.dev",
-    href: "mailto:me@mingyu.dev",
+    value: EMAIL,
+    href: `mailto:${EMAIL}`,
     iconClass: "w-[19.5px] h-[19.5px]",
     Icon: MailIcon,
   },
@@ -84,7 +85,7 @@ const CONTACTS: ContactItem[] = [
     id: "github",
     label: "GitHub",
     value: "github.com/bestdevmgp",
-    href: "https://github.com/bestdevmgp",
+    href: GITHUB_URL,
     external: true,
     iconClass: "w-[18.75px] h-[18.75px]",
     Icon: GitHubIcon,
@@ -93,7 +94,7 @@ const CONTACTS: ContactItem[] = [
     id: "linkedin",
     label: "LinkedIn",
     value: "linkedin.com/in/min-gyu",
-    href: "https://linkedin.com/in/min-gyu",
+    href: LINKEDIN_URL,
     external: true,
     iconClass: "w-[18px] h-[18px]",
     Icon: LinkedInIcon,
@@ -117,7 +118,7 @@ const ContactTriggerIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () => void }) => {
+const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick: () => void }) => {
   const { id, label, value, href, external, iconClass, Icon } = contact;
   return (
     <a
@@ -127,7 +128,7 @@ const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick?: () =
       rel={external ? "noopener noreferrer" : undefined}
       onClick={() => {
         track("contact_click", { channel: id, variant: "dropdown" });
-        onClick?.();
+        onClick();
       }}
       className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors duration-200 hover:bg-foreground/5 -outline-offset-1"
     >

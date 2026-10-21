@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import { landingOf, NAV_SECTIONS, sectionElements, TOC_QUERY } from "@/utils/sectionLanding";
+
 const WAIT_LIMIT = 8000;
 const RETRY_INTERVAL = 100;
 const SETTLED_TOLERANCE = 2;
@@ -37,12 +39,16 @@ const RestoreProjectScroll = () => {
 
       const before = window.scrollY;
       const lenis = window.__lenis;
-      if (lenis) {
-        lenis.resize();
-        lenis.scrollTo(target, { immediate: true });
-      } else target.scrollIntoView();
+      lenis?.resize();
+      const { natural, landing } = landingOf(sectionElements(NAV_SECTIONS), "projects");
+      const tall = window.matchMedia(TOC_QUERY).matches && landing !== natural;
+      if (lenis) lenis.scrollTo(tall ? landing : target, { immediate: true });
+      else if (tall) window.scrollTo(0, landing);
+      else target.scrollIntoView();
 
-      const reached = target.getBoundingClientRect().top < window.innerHeight / 2;
+      const reached = tall
+        ? Math.abs(window.scrollY - landing) < SETTLED_TOLERANCE
+        : target.getBoundingClientRect().top < window.innerHeight / 2;
       if (reached && Math.abs(window.scrollY - before) < SETTLED_TOLERANCE) finish();
     };
 

@@ -2,6 +2,7 @@ let traversed = false;
 let closing = false;
 let pushedPath: string | null = null;
 const listeners = new Set<() => void>();
+const titles = new Map<string, string>();
 
 const setPushedPath = (path: string | null) => {
   if (pushedPath === path) return;
@@ -17,10 +18,13 @@ if (typeof window !== "undefined") {
   });
 }
 
-export const markProjectPush = (path: string) => {
+export const markProjectPush = (path: string, title: string) => {
   traversed = false;
+  titles.set(path, title);
   setPushedPath(path);
 };
+
+export const projectTitle = (path: string) => titles.get(path);
 
 export const settleProjectPush = () => setPushedPath(null);
 

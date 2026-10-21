@@ -1,3 +1,5 @@
+import { EMAIL } from "@/lib/site";
+
 export function GET() {
-  return new Response(null, { status: 307, headers: { Location: "mailto:me@mingyu.dev" } });
+  return new Response(null, { status: 307, headers: { Location: `mailto:${EMAIL}` } });
 }

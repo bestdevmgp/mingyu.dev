@@ -22,7 +22,7 @@ const FeatureItem = ({ blobUrl, title, detail, index }: FeatureItemProps) => {
             src={blobUrl}
             fill
             sizes="320px"
-            alt={`feature-${title}`}
+            alt=""
           />
         </div>
       )}

@@ -4,11 +4,12 @@ import CardBatches from "@/_components/CardBatches";
 import SlideUpInView from "@/_components/SlideUpInView";
 import ProjectCard from "@/_components/project/ProjectCard";
 import ProjectModalHost from "@/_components/project/ProjectModalHost";
-import { getProjectsInOrder, getSkills } from "@/utils/api";
+import content from "@/lib/content";
+import { getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 
 function getProjects(locale: string) {
-  return applyLocaleAll(getProjectsInOrder(), locale).map(({ id, title, sub_title, skill_ids }) => ({
+  return applyLocaleAll(content.project, locale).map(({ id, title, sub_title, skill_ids }) => ({
     id,
     title,
     sub_title,

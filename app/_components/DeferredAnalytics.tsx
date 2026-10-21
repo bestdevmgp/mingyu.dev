@@ -34,13 +34,16 @@ const DeferredAnalytics = () => {
   const pathname = usePathname();
   const params = useParams();
   const projectRoute =
-    Boolean(params?.locale) && (PROJECT_PATH.test(pathname) || (LOCALE_PROJECT_PATH.test(pathname) && !params?.id));
+    Boolean(params.locale) && (PROJECT_PATH.test(pathname) || (LOCALE_PROJECT_PATH.test(pathname) && !params.id));
 
-  useEffect(() => afterPageLoad(() => setReady(true), 1), []);
-
-  useEffect(() => {
-    if (ready) void bootPostHog();
-  }, [ready]);
+  useEffect(
+    () =>
+      afterPageLoad(() => {
+        setReady(true);
+        void bootPostHog();
+      }, 1),
+    [],
+  );
 
   if (!ready || isLocalhost()) return null;
 

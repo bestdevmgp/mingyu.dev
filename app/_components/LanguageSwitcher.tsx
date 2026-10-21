@@ -57,13 +57,13 @@ const queueSwitch = (value: typeof queuedSwitch) => {
 
 interface LanguageSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "dropdown" | "inline";
-  hardNavigation?: boolean;
+  hardNavigation: boolean;
   onLocaleChange?: (viaKeyboard: boolean) => void;
 }
 
 const LanguageSwitcher = ({
   variant = "dropdown",
-  hardNavigation = false,
+  hardNavigation,
   onLocaleChange,
   className,
   ...props
@@ -100,10 +100,13 @@ const LanguageSwitcher = ({
     setLocaleCookie(nextLocale);
     track("locale_changed", { from: displayLocale, to: nextLocale });
     setLocale(nextLocale);
-    beginLocaleSwitch();
     const rootPath = pathname.replace(LOCALE_PREFIX, "") || "/";
-    if (hardNavigation) window.location.replace(rootPath + window.location.hash);
-    else if (rootPath !== pathname) router.replace(rootPath);
+    if (hardNavigation) {
+      window.location.replace(rootPath + window.location.hash);
+      return;
+    }
+    beginLocaleSwitch();
+    if (rootPath !== pathname) router.replace(rootPath);
     else router.refresh();
   };
 
@@ -192,11 +195,12 @@ const LanguageSwitcher = ({
         as="ul"
         isOpen={isOpen}
         role="listbox"
+        label={t("changeLanguage")}
         itemSelector='[role="option"]'
         className="min-w-32 list-none indent-0"
       >
         {locales.map(locale => (
-          <li key={locale}>
+          <li key={locale} role="none">
             <button
               type="button"
               role="option"

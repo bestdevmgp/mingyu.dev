@@ -4,20 +4,14 @@ import { useCallback } from "react";
 import { Moon, Sun } from "react-feather";
 
 import cn from "classnames";
-import { useTranslations } from "next-intl";
 
-import useIsDark from "@/utils/useIsDark";
-
-type ThemeToggleProps = React.HTMLAttributes<HTMLButtonElement>;
+type ThemeToggleProps = React.HTMLAttributes<HTMLButtonElement> & { label: string };
 
 const TRANSITION_MS = 300;
 
 let cleanupTimer = 0;
 
-const ThemeToggle = ({ className, ...props }: ThemeToggleProps) => {
-  const t = useTranslations("Header");
-  const dark = useIsDark();
-
+const ThemeToggle = ({ label, className, ...props }: ThemeToggleProps) => {
   const toggle = useCallback(() => {
     const root = document.documentElement;
 
@@ -35,7 +29,7 @@ const ThemeToggle = ({ className, ...props }: ThemeToggleProps) => {
     <button
       type="button"
       onClick={toggle}
-      aria-label={t(dark ? "switchToLight" : "switchToDark")}
+      aria-label={label}
       className={cn(
         "text-foreground/55 hover:text-foreground transition-colors duration-200 focus-visible:rounded-md",
         className,

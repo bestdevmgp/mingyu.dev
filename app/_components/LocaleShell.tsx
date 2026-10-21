@@ -1,21 +1,22 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 
-import LocaleDocumentSync from "@/_components/LocaleDocumentSync";
 import localeFontClass from "@/lib/localeFontClass";
 import notoFontFaces from "@/lib/notoFontFaces";
 
-const CLIENT_NAMESPACES = [
-  "Header",
-  "Nav",
-  "Skill",
-  "Experience",
-  "Project",
-  "Blog",
-  "ImageViewer",
-  "Common",
-  "NotFound",
-];
+import LocaleDocumentSync from "./LocaleDocumentSync";
+
+const CLIENT_MESSAGES: Record<string, string[] | null> = {
+  Header: null,
+  Nav: null,
+  Skill: ["backend", "devops", "frontend", "ai"],
+  Experience: ["showDetails", "hideDetails"],
+  Project: ["description", "skills", "member", "period", "links", "detail"],
+  Blog: ["readMore"],
+  ImageViewer: null,
+  Common: null,
+  NotFound: null,
+};
 
 interface LocaleShellProps {
   locale: string;
@@ -25,7 +26,12 @@ interface LocaleShellProps {
 
 const LocaleShell = async ({ locale, structuredData, children }: LocaleShellProps) => {
   const messages = await getMessages({ locale });
-  const clientMessages = Object.fromEntries(CLIENT_NAMESPACES.map(namespace => [namespace, messages[namespace]]));
+  const clientMessages = Object.fromEntries(
+    Object.entries(CLIENT_MESSAGES).map(([namespace, keys]) => {
+      const all = messages[namespace] as Record<string, unknown>;
+      return [namespace, keys ? Object.fromEntries(keys.map(key => [key, all[key]])) : all];
+    }),
+  );
 
   const fontFace = notoFontFaces[locale];
 

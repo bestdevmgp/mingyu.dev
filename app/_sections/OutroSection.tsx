@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import ContactLink from "@/_components/ContactLink";
 import SlideUpInView from "@/_components/SlideUpInView";
+import { EMAIL, GITHUB_URL, LINKEDIN_URL } from "@/lib/site";
 import { phoneDisplay, phoneHref } from "@/utils/phone";
 
 const OutroSection = async () => {
@@ -29,17 +30,17 @@ const OutroSection = async () => {
           <p className="font-semibold">Email</p>
           <ContactLink
             channel="email"
-            href="mailto:me@mingyu.dev"
+            href={`mailto:${EMAIL}`}
             target="_blank"
             className="col-span-2 w-fit focus-visible:rounded-sm"
           >
-            <p>me@mingyu.dev</p>
+            <p>{EMAIL}</p>
           </ContactLink>
 
           <p className="font-semibold">GitHub</p>
           <ContactLink
             channel="github"
-            href="https://github.com/bestdevmgp"
+            href={GITHUB_URL}
             target="_blank"
             className="col-span-2 w-fit focus-visible:rounded-sm"
           >
@@ -49,7 +50,7 @@ const OutroSection = async () => {
           <p className="font-semibold">LinkedIn</p>
           <ContactLink
             channel="linkedin"
-            href="https://www.linkedin.com/in/min-gyu"
+            href={LINKEDIN_URL}
             target="_blank"
             className="col-span-2 w-fit focus-visible:rounded-sm"
           >

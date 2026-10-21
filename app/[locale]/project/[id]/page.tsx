@@ -4,15 +4,13 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { languageAlternates, localePath } from "@i18n/config";
 
 import ProjectModalClient from "@/_components/project/ProjectModalClient";
-import { getImageSizes, getProject, getProjectIds } from "@/utils/api";
-import { applyLocale, applyLocaleAll } from "@/utils/localize";
+import { getProjectIds } from "@/utils/api";
 import { getProjectData } from "@/utils/projectData";
+import { stripTags } from "@/utils/richText";
 
 import HomeButton from "./HomeButton";
 
 import type { Metadata, ResolvingMetadata } from "next";
-
-const plain = (value: string) => value.replace(/<[^>]+>/g, "").trim();
 
 type ProjectParams = { params: Promise<{ id: string; locale: string }> };
 
@@ -24,15 +22,14 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: ProjectParams, parent: ResolvingMetadata): Promise<Metadata> {
   const { id, locale } = await params;
-  const row = getProject(Number(id));
-  if (!row) return {};
+  const project = getProjectData(Number(id), locale);
+  if (!project) return {};
 
-  const { title, sub_title, ProjectItem: items } = applyLocale(row, locale);
-  const name = plain(title);
-  const summary = plain(sub_title);
+  const name = stripTags(project.title);
+  const summary = stripTags(project.sub_title);
   const path = `/project/${id}`;
-  const photo = applyLocaleAll(items, locale).find(item => item.blobUrls.length)?.blobUrls[0];
-  const size = photo ? getImageSizes([photo])[photo] : undefined;
+  const photo = project.items.find(item => item.blobUrls.length)?.blobUrls[0];
+  const size = photo ? project.imageSizes[photo] : undefined;
   const { openGraph: site } = await parent;
   const t = await getTranslations({ locale, namespace: "Meta" });
 

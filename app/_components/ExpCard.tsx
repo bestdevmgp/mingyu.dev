@@ -17,7 +17,10 @@ import SkillItem from "./skill/SkillItem";
 
 import type { experience } from "@prisma/client";
 
-interface ExpCardProps extends Omit<experience, "skill_ids" | "i18n" | "links"> {
+interface ExpCardProps extends Pick<
+  experience,
+  "id" | "period" | "is_active" | "title" | "job_title" | "sub_title" | "site_url" | "items"
+> {
   skills: SkillIcon[];
   links: Link[];
 }
@@ -94,13 +97,15 @@ const ExpCard = ({
           )}
         </div>
 
-        <ul className="p-0 flex gap-2 list-none flex-wrap max-w-80 md:max-w-none">
-          {skills.map(skill => (
-            <li key={`experience-${id}-skill-${skill.id}`} className="indent-0">
-              <SkillItem size="xs" label={skill.item} imageUrl={skill.blobUrl} tappable />
-            </li>
-          ))}
-        </ul>
+        {skills.length > 0 && (
+          <ul className="p-0 flex gap-2 list-none flex-wrap max-w-80 md:max-w-none">
+            {skills.map(skill => (
+              <li key={`experience-${id}-skill-${skill.id}`} className="indent-0">
+                <SkillItem size="xs" label={skill.item} imageUrl={skill.blobUrl} tappable />
+              </li>
+            ))}
+          </ul>
+        )}
 
         {items.length > 0 && (
           <>

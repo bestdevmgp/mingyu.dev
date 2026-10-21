@@ -9,20 +9,30 @@ import { getSkills } from "@/utils/api";
 import { applyLocaleAll } from "@/utils/localize";
 
 function getExperience(locale: string) {
-  return applyLocaleAll(content.experience, locale).map(({ skill_ids, links, ...exp }) => ({
-    ...exp,
-    links,
-    skills: getSkills(skill_ids),
+  return applyLocaleAll(content.experience, locale).map(exp => ({
+    category: exp.category,
+    card: {
+      id: exp.id,
+      period: exp.period,
+      is_active: exp.is_active,
+      title: exp.title,
+      job_title: exp.job_title,
+      sub_title: exp.sub_title,
+      site_url: exp.site_url,
+      items: exp.items,
+      links: exp.links,
+      skills: getSkills(exp.skill_ids),
+    },
   }));
 }
 
 export default async function ExperienceSection() {
   const t = await getTranslations("Experience");
-  const data = getExperience(await getLocale());
+  const experiences = getExperience(await getLocale());
 
-  const interns = data.filter(({ category }) => category === "INTERN");
-  const activities = data.filter(({ category }) => category === "ACTIVITY");
-  const projects = data.filter(({ category }) => category === "PROJECT");
+  const interns = experiences.filter(({ category }) => category === "INTERN");
+  const activities = experiences.filter(({ category }) => category === "ACTIVITY");
+  const projects = experiences.filter(({ category }) => category === "PROJECT");
 
   return (
     <section id="career">
@@ -31,12 +41,12 @@ export default async function ExperienceSection() {
         <p className="section-title">{t.rich("title", { br: () => <br /> })}</p>
 
         {[
-          { title: t("groupIntern"), data: interns },
-          { title: t("groupProject"), data: projects },
-          { title: t("groupActivity"), data: activities },
+          { title: t("groupIntern"), rows: interns },
+          { title: t("groupProject"), rows: projects },
+          { title: t("groupActivity"), rows: activities },
         ]
-          .filter(({ data }) => data.length > 0)
-          .map(({ title, data }) => (
+          .filter(({ rows }) => rows.length > 0)
+          .map(({ title, rows }) => (
             <React.Fragment key={`exp-${title}`}>
               <div className="flex gap-4 items-center md:max-w-[768px] mx-auto mt-12 mb-8">
                 <div className="w-full h-px bg-linear-to-l from-foreground/15" />
@@ -45,8 +55,8 @@ export default async function ExperienceSection() {
               </div>
 
               <div className="flex flex-col gap-8 md:gap-10">
-                {data.map(props => (
-                  <ExpCard key={`exp-${title}-card-${props.id}`} {...props} />
+                {rows.map(({ card }) => (
+                  <ExpCard key={`exp-${title}-card-${card.id}`} {...card} />
                 ))}
               </div>
             </React.Fragment>

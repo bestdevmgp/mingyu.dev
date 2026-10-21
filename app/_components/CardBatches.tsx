@@ -5,6 +5,7 @@ import { Children, useLayoutEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import navigationType from "@/utils/navigationType";
 import useCarriedState from "@/utils/useCarriedState";
 
 import CTAButton from "./buttons/CTAButton";
@@ -18,9 +19,8 @@ const savedBatches = (key: string) => {
   if (checkedKeys.has(key)) return 0;
   checkedKeys.add(key);
   try {
-    const [entry] = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
-    if (entry?.type === "reload" || entry?.type === "back_forward")
-      return Number(sessionStorage.getItem(STORAGE_PREFIX + key)) || 0;
+    const type = navigationType();
+    if (type === "reload" || type === "back_forward") return Number(sessionStorage.getItem(STORAGE_PREFIX + key)) || 0;
     sessionStorage.removeItem(STORAGE_PREFIX + key);
   } catch {}
   return 0;

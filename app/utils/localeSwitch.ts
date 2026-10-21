@@ -1,4 +1,4 @@
-const ANCHOR = "main section[id], main [data-reveal], main [data-reveal-stagger], main li, main h2, main h3, main p";
+const ANCHOR = "main section[id], main [data-reveal], main [data-reveal-stagger], main li, main h2, main p";
 const FOLLOW_CAP = 3000;
 const RELEASE_CAP = 30000;
 

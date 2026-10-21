@@ -1,8 +1,6 @@
-"use client";
-
 import { useRef, useState } from "react";
 
-const SCROLL_THRESHOLD = 10;
+export const TAP_SLOP = 10;
 
 export default function useTouchPress() {
   const [isPressed, setIsPressed] = useState(false);
@@ -17,7 +15,7 @@ export default function useTouchPress() {
     onTouchMove: (event: React.TouchEvent) => {
       const touch = event.touches[0];
       const moved = Math.hypot(touch.clientX - origin.current.x, touch.clientY - origin.current.y);
-      if (moved > SCROLL_THRESHOLD) setIsPressed(false);
+      if (moved > TAP_SLOP) setIsPressed(false);
     },
     onTouchEnd: () => setIsPressed(false),
     onTouchCancel: () => setIsPressed(false),

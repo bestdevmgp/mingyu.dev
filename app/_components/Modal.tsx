@@ -16,11 +16,12 @@ import useOnClickOutside from "@/utils/useOnClickOutside";
 import Tooltip from "./Tooltip";
 
 interface ModalProps extends React.PropsWithChildren {
-  onClose?: () => void;
-  labelledBy?: string;
+  onClose: () => void;
+  labelledBy: string;
+  label?: string;
 }
 
-const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
+const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
   const router = useRouter();
   const t = useTranslations("Common");
   const locale = useLocale();
@@ -104,7 +105,7 @@ const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
 
   useEffect(() => {
     if (isOpen) return;
-    onClose?.();
+    onClose();
     const timer = setTimeout(exit, 200);
     return () => clearTimeout(timer);
   }, [isOpen, exit, onClose]);
@@ -143,6 +144,7 @@ const Modal = ({ children, onClose, labelledBy }: ModalProps) => {
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby={labelledBy}
+                    aria-label={label}
                     data-lenis-prevent
                     className="
                     w-[calc(100vw-1.75rem)] md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-1.75rem)] md:max-h-[calc(100vh-4rem)] my-3.5 md:my-8 p-6 md:p-8

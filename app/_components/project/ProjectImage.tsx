@@ -13,6 +13,7 @@ interface ProjectImageProps {
   src: string;
   alt: string;
   size?: [number, number];
+  sizes: string;
   reveal: boolean;
   onClick: () => void;
 }
@@ -21,7 +22,7 @@ const FADE_SECONDS = 0.3;
 
 const settledSources = new Set<string>();
 
-const ProjectImage = ({ ref, className, src, alt, size, reveal, onClick }: ProjectImageProps) => {
+const ProjectImage = ({ ref, className, src, alt, size, sizes, reveal, onClick }: ProjectImageProps) => {
   const [loaded, setLoaded] = useState(() => settledSources.has(src));
   const settle = () => {
     settledSources.add(src);
@@ -54,6 +55,7 @@ const ProjectImage = ({ ref, className, src, alt, size, reveal, onClick }: Proje
           alt={alt}
           width={800}
           height={600}
+          sizes={sizes}
           style={{ aspectRatio: size && `${size[0]} / ${size[1]}` }}
           onLoad={settle}
           onClick={onClick}

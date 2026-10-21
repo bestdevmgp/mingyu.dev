@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { createPortal } from "react-dom";
 import { ArrowLeft, ArrowRight } from "react-feather";
 
-import { prefersReducedMotion } from "@/utils/imageFlip";
+import { prefersReducedMotion } from "@/utils/motionPreference";
 
 const SHOW_DELAY = 300;
 const HIDE_DELAY = 200;
@@ -32,6 +32,8 @@ interface TooltipProps {
 
 export default function Tooltip({ label, shortcut, side = "bottom", children }: TooltipProps) {
   const [phase, setPhase] = useState<Phase>("hidden");
+  const [exitLabel, setExitLabel] = useState(label);
+  if (phase !== "exit" && exitLabel !== label) setExitLabel(label);
   const phaseRef = useRef<Phase>("hidden");
   const triggerRef = useRef<HTMLElement | null>(null);
   const tipRef = useRef<HTMLDivElement>(null);
@@ -69,8 +71,7 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
   const show = useCallback(() => {
     const trigger = triggerRef.current;
     if (!trigger || suppressed.current) return;
-    if (trigger.matches(':disabled, [aria-disabled="true"]') || trigger.getAttribute("aria-expanded") === "true")
-      return;
+    if (trigger.matches('[aria-disabled="true"]') || trigger.getAttribute("aria-expanded") === "true") return;
     window.clearTimeout(timer.current);
     release();
     if (phaseRef.current === "hidden" && !handOff) {
@@ -205,7 +206,7 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
               if (event.animationName === "tooltip-out" && phaseRef.current === "exit") dismiss();
             }}
           >
-            {label}
+            {phase === "exit" ? exitLabel : label}
             {shortcut && <kbd>{KEYCAPS[shortcut]}</kbd>}
           </div>,
           document.body,

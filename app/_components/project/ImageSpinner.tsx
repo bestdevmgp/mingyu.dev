@@ -1,4 +1,4 @@
-import { SPARKLE_PATH } from "@/_components/markPaths";
+import { SPARKLE_PATH } from "../markPaths";
 
 const ImageSpinner = ({ label }: { label: string }) => (
   <div className="image-spinner-wrap absolute inset-0 flex items-center justify-center pointer-events-none">

@@ -6,7 +6,7 @@ import cn from "classnames";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-import type { Link } from "@/lib/content";
+import type { getProjectData } from "@/utils/projectData";
 import richText from "@/utils/richText";
 
 import ImageModal from "./ImageModal";
@@ -14,21 +14,16 @@ import ProjectImage from "./ProjectImage";
 import ReferenceLink from "../ReferenceLink";
 import SkillItem from "../skill/SkillItem";
 
-interface ProjectData {
-  title: string;
-  sub_title: string;
-  member: string;
-  period: string;
-  skills: Array<{ id: number; item: string; blobUrl: string }>;
-  links: Link[];
-  items: Array<{
-    title: string;
-    content: string[];
-    blobUrls: string[];
-    image_ratio: "PORTRAIT" | "LANDSCAPE" | "SQUARE" | null;
-  }>;
-  imageSizes: Record<string, [number, number]>;
-}
+type ProjectData = NonNullable<ReturnType<typeof getProjectData>>;
+
+const thumbnailSizes = (perRow: number) => {
+  const gaps = 16 * (perRow - 1);
+  return [
+    `(min-width: 960px) ${Math.ceil((810 - gaps) / perRow)}px`,
+    `(min-width: 768px) calc((100vw - ${150 + gaps}px) / ${perRow})`,
+    `calc((100vw - ${52 + gaps}px) / ${perRow})`,
+  ].join(", ");
+};
 
 interface ProjectModalClientProps {
   id: number;
@@ -78,7 +73,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
     <>
       <div id="project-modal-header" className="flex flex-col gap-3 md:gap-6">
         <div className="relative w-8 md:w-12 h-8 md:h-12">
-          <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} fill alt="shape" />
+          <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} fill alt="" />
         </div>
 
         <p id="project-modal-title" className="text-xl md:text-2xl font-semibold leading-normal mb-4">
@@ -146,6 +141,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
                       src={imageUrl}
                       alt={`${item.title} ${imgIndex + 1}`}
                       size={imageSizes[imageUrl]}
+                      sizes={thumbnailSizes(item.image_ratio === "PORTRAIT" ? item.blobUrls.length : 1)}
                       reveal={revealImages}
                       onClick={() => handleImageClick(imgIndex, index)}
                     />

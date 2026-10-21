@@ -11,10 +11,10 @@ const QUEUE_LIMIT = 50;
 
 let client: PostHog | null = null;
 let booting = false;
+let switchedLocale: string | null = null;
 const queue: { name: string; props?: Props }[] = [];
 
-export const isLocalhost = () =>
-  typeof window !== "undefined" && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+export const isLocalhost = () => /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
 
 export const isAnalyticsEnabled = () => Boolean(KEY) && !isLocalhost();
 
@@ -40,10 +40,12 @@ export function track(name: string, props?: Props) {
     client.capture(name, props);
     return;
   }
-  if (queue.length < QUEUE_LIMIT) queue.push({ name, props });
+  if (queue.length < QUEUE_LIMIT)
+    queue.push({ name, props: { locale: switchedLocale ?? document.documentElement.lang, ...props } });
 }
 
 export function setLocale(locale: string) {
+  switchedLocale = locale;
   client?.register({ locale });
 }
 
@@ -57,7 +59,7 @@ const loadPostHog = async () => {
 };
 
 export async function bootPostHog() {
-  if (!KEY || isLocalhost() || booting || client) return;
+  if (!KEY || isLocalhost() || booting) return;
   booting = true;
 
   const posthog = await loadPostHog();
@@ -74,7 +76,7 @@ export async function bootPostHog() {
 
   const visits = nextVisitCount();
   posthog.register({
-    locale: document.documentElement.lang || "ko",
+    locale: switchedLocale ?? document.documentElement.lang,
     ...(visits === null ? {} : { visit_count: visits }),
   });
 

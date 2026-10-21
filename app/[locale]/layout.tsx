@@ -3,12 +3,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { languageAlternates, locales, localePath } from "@i18n/config";
 
 import LocaleShell from "@/_components/LocaleShell";
+import { EMAIL, GITHUB_URL, LINKEDIN_URL, SITE_URL } from "@/lib/site";
 
 import type { Metadata } from "next";
 
-const SITE_URL = "https://mingyu.dev";
-
-const PROFILES = ["https://github.com/bestdevmgp", "https://linkedin.com/in/min-gyu"];
+const PROFILES = [GITHUB_URL, LINKEDIN_URL];
 
 const NAME_VARIANTS = ["박민규", "Mingyu Park", "パク・ミンギュ", "朴珉圭"];
 
@@ -30,7 +29,7 @@ const personSchema = (name: string, jobTitle: string | string[], description: st
     description,
     url: SITE_URL,
     image: `${SITE_URL}/opengraph-image.jpg`,
-    email: "mailto:me@mingyu.dev",
+    email: `mailto:${EMAIL}`,
     sameAs: PROFILES,
   }).replace(/</g, "\\u003c");
 
@@ -59,7 +58,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
     metadataBase: new URL(SITE_URL),
     title: { default: title, template: `%s - ${title}` },
     description,
-    keywords: ["백엔드", "백엔드 개발자", "백엔드 개발자 포트폴리오", "backend developer", "portfolio"],
+    keywords: t.raw("keywords"),
     openGraph: {
       title,
       description,

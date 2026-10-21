@@ -16,19 +16,11 @@ import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
-import {
-  flipFrom,
-  flipTo,
-  getCenteredBox,
-  getFlipTransform,
-  getVisibleImageBox,
-  prefersReducedMotion,
-  prefersSlowerMotion,
-  type Box,
-} from "@/utils/imageFlip";
+import { flipFrom, flipTo, getCenteredBox, getFlipTransform, getVisibleImageBox } from "@/utils/imageFlip";
+import { isCoarsePointer, prefersReducedMotion } from "@/utils/motionPreference";
 import { SCROLL_KEYS } from "@/utils/scrollKeys";
 import useFocusScope from "@/utils/useFocusScope";
-import useTouchPress from "@/utils/useTouchPress";
+import useTouchPress, { TAP_SLOP } from "@/utils/useTouchPress";
 
 import ImageSpinner from "./ImageSpinner";
 import Tooltip from "../Tooltip";
@@ -39,8 +31,8 @@ interface ImageModalProps {
   initialIndex: number;
   isOpen: boolean;
   onClose: () => void;
-  getThumbnail?: (index: number) => HTMLImageElement | null;
-  imageSizes?: Record<string, [number, number]>;
+  getThumbnail: (index: number) => HTMLImageElement | null;
+  imageSizes: Record<string, [number, number]>;
 }
 
 const MIN_ZOOM = 0.5;
@@ -84,10 +76,7 @@ const RoundButton = ({
   <Tooltip label={label} shortcut={shortcut}>
     <button
       ref={buttonRef}
-      onClick={e => {
-        e.stopPropagation();
-        onPress();
-      }}
+      onClick={onPress}
       {...press}
       className={cn("group", className, "text-white rounded-full")}
       aria-label={label}
@@ -112,6 +101,7 @@ const RoundButton = ({
 
 interface PillButtonProps {
   label: string;
+  ariaLabel?: string;
   pressed: boolean;
   press: PressHandlers;
   onPress: () => void;
@@ -120,11 +110,10 @@ interface PillButtonProps {
   children: React.ReactNode;
 }
 
-const PillButton = ({ label, pressed, press, onPress, disabled, className, children }: PillButtonProps) => (
+const PillButton = ({ label, ariaLabel, pressed, press, onPress, disabled, className, children }: PillButtonProps) => (
   <Tooltip label={label} side="top">
     <button
-      onClick={e => {
-        e.stopPropagation();
+      onClick={() => {
         if (!disabled) onPress();
       }}
       aria-disabled={disabled || undefined}
@@ -138,7 +127,7 @@ const PillButton = ({ label, pressed, press, onPress, disabled, className, child
             ? "text-white bg-[#000]/40"
             : "text-white/55 hover:text-white hover:bg-[#000]/40",
       )}
-      aria-label={label}
+      aria-label={ariaLabel ?? label}
     >
       {children}
     </button>
@@ -162,17 +151,17 @@ export default function ImageModal({
 }: ImageModalProps) {
   const t = useTranslations("ImageViewer");
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [openedIndex, setOpenedIndex] = useState<number | null>(null);
+  if (isOpen && openedIndex !== initialIndex) {
+    setOpenedIndex(initialIndex);
+    setCurrentIndex(initialIndex);
+  } else if (!isOpen && openedIndex !== null) setOpenedIndex(null);
   const [zoom, setZoom] = useState(1);
   const [buttonZoom, setButtonZoom] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isPinching, setIsPinching] = useState(false);
   const [isTouching, setIsTouching] = useState(false);
-  const [pinchStart, setPinchStart] = useState({ distance: 0, zoom: 1 });
-  const [lastTouchTime, setLastTouchTime] = useState(0);
-  const [touchStartPos, setTouchStartPos] = useState({ x: 0, y: 0 });
-  const [hasMoved, setHasMoved] = useState(false);
   const [aspect, setAspect] = useState<number | null>(null);
   const [loadedIndex, setLoadedIndex] = useState<number | null>(null);
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
@@ -190,6 +179,11 @@ export default function ImageModal({
   const imageContentRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const pinchStartRef = useRef({ distance: 0, zoom: 1 });
+  const lastTouchTimeRef = useRef(0);
+  const touchStartPosRef = useRef({ x: 0, y: 0 });
+  const hasMovedRef = useRef(false);
   const multiTouchRef = useRef(false);
   const pinchDistanceRef = useRef(0);
   const pinchDirectionRef = useRef(0);
@@ -199,7 +193,7 @@ export default function ImageModal({
   const focusAfterStepRef = useRef<RefObject<HTMLButtonElement | null> | null>(null);
   useFocusScope(overlayRef, isOpen);
 
-  const measureVisualBox = useCallback((): Box | null => {
+  const measureVisualBox = useCallback(() => {
     const wrapper = flipRef.current;
     const content = imageContentRef.current;
     if (!wrapper || !content) return null;
@@ -210,11 +204,15 @@ export default function ImageModal({
     wrapper.style.transition = "none";
     wrapper.style.transform = "none";
     const rect = content.getBoundingClientRect();
+    const frame = wrapper.getBoundingClientRect();
     wrapper.style.transform = inFlight === "none" ? "" : inFlight;
     void wrapper.offsetWidth;
     wrapper.style.transition = transition;
 
-    return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
+    return {
+      box: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+      pivot: { x: frame.left + frame.width / 2, y: frame.top + frame.height / 2 },
+    };
   }, []);
 
   const fitToPane = useCallback((ratio: number) => {
@@ -228,7 +226,7 @@ export default function ImageModal({
 
   const knownRatio = useCallback(
     (index: number) => {
-      const size = imageSizes?.[images[index]];
+      const size = imageSizes[images[index]];
       return size ? size[0] / size[1] : null;
     },
     [images, imageSizes],
@@ -275,10 +273,10 @@ export default function ImageModal({
     isClosingRef.current = true;
 
     const wrapper = flipRef.current;
-    const thumbnail = getThumbnail?.(currentIndex) ?? null;
+    const thumbnail = getThumbnail(currentIndex);
     const origin = thumbnail ? getVisibleImageBox(thumbnail) : null;
     const target = measureVisualBox();
-    const transform = origin && target ? getFlipTransform(origin, target) : null;
+    const transform = origin && target ? getFlipTransform(origin, target.box, target.pivot) : null;
 
     if (wrapper && transform && !prefersReducedMotion()) flipTo(wrapper, transform, timing.close, FLIP_EASING);
 
@@ -287,7 +285,7 @@ export default function ImageModal({
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (prefersSlowerMotion()) setTiming(TOUCH_TIMING);
+    if (isCoarsePointer()) setTiming(TOUCH_TIMING);
   }, []);
 
   useLayoutEffect(() => {
@@ -297,7 +295,7 @@ export default function ImageModal({
     setLoadedIndex(null);
     resetZoom();
 
-    const thumbnail = getThumbnail?.(initialIndex) ?? null;
+    const thumbnail = getThumbnail(initialIndex);
     setOriginSrc(thumbnail?.currentSrc || null);
 
     const ratio = knownRatio(initialIndex) ?? (thumbnail ? thumbnail.naturalWidth / thumbnail.naturalHeight : NaN);
@@ -380,22 +378,21 @@ export default function ImageModal({
     };
   };
 
-  const applyZoom = (nextZoom: number, anchor?: { x: number; y: number }, fromButton = false) => {
-    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, nextZoom));
+  const zoomBy = (factor: number, anchor = { x: 0, y: 0 }, fromButton = false) => {
+    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * factor));
     if (clamped === zoom) return;
 
     const ratio = clamped / zoom;
-    const shifted = anchor
-      ? { x: position.x - anchor.x * (ratio - 1), y: position.y - anchor.y * (ratio - 1) }
-      : { x: position.x * ratio, y: position.y * ratio };
-
     setButtonZoom(fromButton);
     setZoom(clamped);
-    setPosition(constrainPosition(shifted.x, shifted.y, clamped));
+    setPosition(
+      constrainPosition(
+        position.x * ratio - anchor.x * (ratio - 1),
+        position.y * ratio - anchor.y * (ratio - 1),
+        clamped,
+      ),
+    );
   };
-
-  const zoomBy = (factor: number, anchor?: { x: number; y: number }, fromButton = false) =>
-    applyZoom(zoom * factor, anchor, fromButton);
 
   const handleZoomIn = () => zoomBy(ZOOM_STEP, undefined, true);
   const handleZoomOut = () => zoomBy(1 / ZOOM_STEP, undefined, true);
@@ -437,44 +434,40 @@ export default function ImageModal({
   };
 
   const handleImageClick = (e: React.MouseEvent) => {
-    if (Date.now() - lastTouchTime < 300) {
+    if (Date.now() - lastTouchTimeRef.current < 300) {
       return;
     }
 
-    e.stopPropagation();
-
     const movedFromDown = Math.hypot(e.clientX - mouseDownPosRef.current.x, e.clientY - mouseDownPosRef.current.y);
-    if (movedFromDown < 10 && isOutsideImage(e.clientX, e.clientY)) {
+    if (movedFromDown < TAP_SLOP && isOutsideImage(e.clientX, e.clientY)) {
       requestClose();
     }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
     mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
     if (isOutsideImage(e.clientX, e.clientY)) return;
 
     setButtonZoom(false);
     setIsDragging(true);
-    setDragStart({
+    dragStartRef.current = {
       x: e.clientX - position.x,
       y: e.clientY - position.y,
-    });
+    };
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
-    setPosition(constrainPosition(e.clientX - dragStart.x, e.clientY - dragStart.y, zoom));
+    setPosition(constrainPosition(e.clientX - dragStartRef.current.x, e.clientY - dragStartRef.current.y, zoom));
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
   };
 
-  const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
-    const dx = touch1.clientX - touch2.clientX;
-    const dy = touch1.clientY - touch2.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  };
+  const getDistance = (touch1: React.Touch, touch2: React.Touch) =>
+    Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
@@ -487,19 +480,19 @@ export default function ImageModal({
       pinchDistanceRef.current = distance;
       pinchDirectionRef.current = 0;
       setIsPinching(true);
-      setPinchStart({ distance, zoom });
-      setHasMoved(false);
+      pinchStartRef.current = { distance, zoom };
+      hasMovedRef.current = false;
     } else if (e.touches.length === 1) {
-      setTouchStartPos({ x: touch.clientX, y: touch.clientY });
-      setHasMoved(false);
+      touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
+      hasMovedRef.current = false;
 
       if (isOutsideImage(touch.clientX, touch.clientY)) return;
 
       setIsDragging(true);
-      setDragStart({
+      dragStartRef.current = {
         x: touch.clientX - position.x,
         y: touch.clientY - position.y,
-      });
+      };
     }
   };
 
@@ -510,50 +503,45 @@ export default function ImageModal({
       if (!delta || (Math.sign(delta) !== pinchDirectionRef.current && Math.abs(delta) < PINCH_DEADZONE)) return;
       pinchDirectionRef.current = Math.sign(delta);
       pinchDistanceRef.current = distance;
-      const scale = distance / pinchStart.distance;
-      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStart.zoom * scale));
+      const scale = distance / pinchStartRef.current.distance;
+      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStartRef.current.zoom * scale));
       setZoom(newZoom);
       setPosition(constrainPosition(position.x, position.y, newZoom));
-      setHasMoved(true);
+      hasMovedRef.current = true;
     } else if (e.touches.length === 1) {
       const touch = e.touches[0];
-      const moveDistance = Math.sqrt(
-        Math.pow(touch.clientX - touchStartPos.x, 2) + Math.pow(touch.clientY - touchStartPos.y, 2),
-      );
-
-      if (moveDistance > 10) {
-        setHasMoved(true);
-      }
+      const start = touchStartPosRef.current;
+      if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > TAP_SLOP) hasMovedRef.current = true;
 
       if (isDragging) {
-        setPosition(constrainPosition(touch.clientX - dragStart.x, touch.clientY - dragStart.y, zoom));
+        setPosition(
+          constrainPosition(touch.clientX - dragStartRef.current.x, touch.clientY - dragStartRef.current.y, zoom),
+        );
       }
     }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    setLastTouchTime(Date.now());
+    lastTouchTimeRef.current = Date.now();
 
     if (e.touches.length === 0) {
       setIsTouching(false);
-      if (!hasMoved && !multiTouchRef.current && isOutsideImage(touchStartPos.x, touchStartPos.y)) {
-        e.stopPropagation();
-        requestClose();
-      }
+      const start = touchStartPosRef.current;
+      if (!hasMovedRef.current && !multiTouchRef.current && isOutsideImage(start.x, start.y)) requestClose();
 
       setIsDragging(false);
       setIsPinching(false);
-      setHasMoved(false);
+      hasMovedRef.current = false;
     } else if (e.touches.length === 1 && isPinching) {
       setIsPinching(false);
-      setHasMoved(false);
+      hasMovedRef.current = false;
 
       const touch = e.touches[0];
       setIsDragging(true);
-      setDragStart({
+      dragStartRef.current = {
         x: touch.clientX - position.x,
         y: touch.clientY - position.y,
-      });
+      };
     }
   };
 
@@ -561,10 +549,11 @@ export default function ImageModal({
     setIsTouching(false);
     setIsDragging(false);
     setIsPinching(false);
-    setHasMoved(false);
+    hasMovedRef.current = false;
   };
 
   const showOrigin = Boolean(originSrc) && currentIndex === initialIndex && loadedIndex !== currentIndex;
+  const zoomPercent = `${Math.round(zoom * 100)}%`;
 
   return (
     <AnimatePresence onExitComplete={resetZoom}>
@@ -727,10 +716,7 @@ export default function ImageModal({
               </>
             )}
 
-            <div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px]"
-              onClick={e => e.stopPropagation()}
-            >
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px]">
               <PillButton
                 label={t("zoomOut")}
                 disabled={zoom <= MIN_ZOOM}
@@ -743,6 +729,7 @@ export default function ImageModal({
 
               <PillButton
                 label={t("resetZoom")}
+                ariaLabel={`${zoomPercent}, ${t("resetZoom")}`}
                 className="text-sm"
                 pressed={resetPressed}
                 press={resetPress}
@@ -753,7 +740,7 @@ export default function ImageModal({
               >
                 <span className="grid justify-items-center">
                   <span className="invisible col-start-1 row-start-1">444%</span>
-                  <span className="col-start-1 row-start-1">{Math.round(zoom * 100)}%</span>
+                  <span className="col-start-1 row-start-1">{zoomPercent}</span>
                 </span>
               </PillButton>
 

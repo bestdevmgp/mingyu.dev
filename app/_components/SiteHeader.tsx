@@ -8,7 +8,9 @@ import { stagger, useAnimate } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Sparkle from "@/assets/shape-sparkle-round.svg";
-import type { NavSection } from "@/utils/api";
+import isModifiedClick from "@/utils/isModifiedClick";
+import type { NavSection } from "@/utils/sectionLanding";
+import smoothScrollTo from "@/utils/smoothScrollTo";
 import useCarriedState from "@/utils/useCarriedState";
 import useFocusScope from "@/utils/useFocusScope";
 import useIsDark from "@/utils/useIsDark";
@@ -202,10 +204,10 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
   useFocusScope(scope, isExpanded, ".mobile-menu a", resumeBelow);
 
   const scrollToTop = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isModifiedClick(event)) return;
     event.preventDefault();
     setIsExpanded(false);
-    if (window.__lenis) window.__lenis.scrollTo(0);
-    else window.scrollTo({ top: 0, behavior: "smooth" });
+    smoothScrollTo(0);
     window.history.replaceState(null, "", window.location.pathname + window.location.search);
   };
 
@@ -237,7 +239,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
         <Sparkle className="shrink-0 text-lime" aria-hidden="true" />
         <p
           className={cn(
-            "text-sm md:text-base whitespace-nowrap leading-none min-w-0 truncate py-1",
+            "text-sm md:text-base leading-none min-w-0 truncate py-1",
 
             nameNudge[locale],
           )}
@@ -251,7 +253,10 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
         <div className="hidden xl:flex items-center gap-[13px]">
           <LanguageSwitcher hardNavigation={homeHref !== undefined} />
           <Tooltip label={themeLabel}>
-            <ThemeToggle className="[&_svg]:w-5 [&_svg]:h-5 [&_svg]:[stroke-width:2.6] [&_svg:last-child]:translate-y-[0.5px]" />
+            <ThemeToggle
+              label={themeLabel}
+              className="[&_svg]:w-5 [&_svg]:h-5 [&_svg]:[stroke-width:2.6] [&_svg:last-child]:translate-y-[0.5px]"
+            />
           </Tooltip>
           <ContactMenu />
         </div>
@@ -311,7 +316,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
           <ContactMenu variant="inline" />
           <div className="flex items-center gap-3 ml-auto">
             <span aria-hidden className="w-px h-[22px] bg-foreground/15 shrink-0" />
-            <ThemeToggle title={themeLabel} />
+            <ThemeToggle label={themeLabel} title={themeLabel} />
           </div>
         </div>
 

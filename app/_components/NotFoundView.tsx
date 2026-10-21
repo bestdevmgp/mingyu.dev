@@ -5,18 +5,20 @@ import { Home } from "react-feather";
 
 import { useTranslations } from "next-intl";
 
-import SiteHeader from "@/_components/SiteHeader";
-import CTAButton from "@/_components/buttons/CTAButton";
 import monocleStill from "@/assets/emoji/face-with-monocle-still.webp";
 import monocle from "@/assets/emoji/face-with-monocle.webp";
-import type { NavSection } from "@/utils/api";
+import { prefersReducedMotion } from "@/utils/motionPreference";
+import type { NavSection } from "@/utils/sectionLanding";
+
+import SiteHeader from "./SiteHeader";
+import CTAButton from "./buttons/CTAButton";
 
 const NotFoundView = ({ sections }: { sections: NavSection[] }) => {
   const t = useTranslations("NotFound");
   const [animated, setAnimated] = useState(false);
 
   useEffect(() => {
-    if (!window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
+    if (prefersReducedMotion()) return;
     let cancelled = false;
     const loadAnimation = () => {
       const image = new Image();

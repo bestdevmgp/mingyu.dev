@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import isModifiedClick from "@/utils/isModifiedClick";
+import { isCoarsePointer, prefersReducedMotion } from "@/utils/motionPreference";
 import { SCROLL_KEYS } from "@/utils/scrollKeys";
 
 import type Lenis from "lenis";
@@ -14,22 +16,32 @@ declare global {
 
 const SmoothScroll = () => {
   useEffect(() => {
+    let routerState: unknown = null;
+    const rememberRouterState = () => {
+      if (window.history.state?.__NA) routerState = window.history.state;
+    };
+    const restoreRouterState = () => {
+      if (!window.history.state && routerState) window.history.replaceState(routerState, "", window.location.href);
+    };
     const keepRouterState = (event: MouseEvent) => {
       if (!(event.target as Element).closest?.('a[href^="#"]')) return;
-      const state = window.history.state;
-      if (!state?.__NA) return;
-      setTimeout(() => {
-        if (!window.history.state) window.history.replaceState(state, "", window.location.href);
-      });
+      rememberRouterState();
+      setTimeout(restoreRouterState);
     };
     document.addEventListener("click", keepRouterState);
-    return () => document.removeEventListener("click", keepRouterState);
+    window.addEventListener("blur", rememberRouterState);
+    window.addEventListener("popstate", restoreRouterState);
+    return () => {
+      document.removeEventListener("click", keepRouterState);
+      window.removeEventListener("blur", rememberRouterState);
+      window.removeEventListener("popstate", restoreRouterState);
+    };
   }, []);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
 
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    const isTouch = isCoarsePointer();
 
     let lenis: Lenis | null = null;
     let rafId = 0;
@@ -61,6 +73,7 @@ const SmoothScroll = () => {
     }
 
     const onAnchorClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || isModifiedClick(event)) return;
       const anchor = (event.target as HTMLElement).closest?.('a[href^="#"]') as HTMLAnchorElement | null;
       const href = anchor?.getAttribute("href");
       if (!href || href === "#") return;

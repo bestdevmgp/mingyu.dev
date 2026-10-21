@@ -7,8 +7,9 @@ import { useLocale } from "next-intl";
 import { localePath } from "@i18n/config";
 
 import type { SkillIcon } from "@/utils/api";
+import isModifiedClick from "@/utils/isModifiedClick";
 import { isLocaleSwitching } from "@/utils/localeSwitch";
-import richText from "@/utils/richText";
+import richText, { stripTags } from "@/utils/richText";
 
 import { markProjectPush, projectClosing } from "./projectHistory";
 import CardFrame from "../CardFrame";
@@ -22,9 +23,6 @@ interface ProjectCardProps {
   skills: SkillIcon[];
 }
 
-const isModifiedClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
-  event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
-
 const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   const path = localePath(useLocale(), `/project/${id}`);
 
@@ -34,16 +32,16 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   };
 
   const onOpen = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if ((projectClosing() || isLocaleSwitching()) && !isModifiedClick(event)) {
+    const modified = isModifiedClick(event);
+    if (!modified) {
       event.preventDefault();
-      return;
+      if (projectClosing() || isLocaleSwitching() || window.location.pathname === path) return;
     }
     dropSectionHash();
-    track("project_opened", { project_id: id, project_title: title.replace(/<[^>]+>/g, "") });
-    if (event.defaultPrevented || isModifiedClick(event)) return;
-    event.preventDefault();
-    if (window.location.pathname === path) return;
-    markProjectPush(path);
+    const plainTitle = stripTags(title);
+    track("project_opened", { project_id: id, project_title: plainTitle });
+    if (modified) return;
+    markProjectPush(path, plainTitle);
     window.history.pushState({ projectModal: true }, "", path);
   };
 
@@ -65,13 +63,13 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
           <Image
             className="group-hover:hidden object-contain"
             src={`/assets/shape-variant-${id % 9}.svg`}
-            alt="shape"
+            alt=""
             fill
           />
           <Image
             className="hidden group-hover:block object-contain"
             src={`/assets/shape-variant-${id % 9}-invert.svg`}
-            alt="shape"
+            alt=""
             fill
           />
         </div>

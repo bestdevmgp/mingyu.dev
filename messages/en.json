@@ -88,6 +88,7 @@
     "title": "Mingyu Park | Backend Developer",
     "name": "Mingyu Park",
     "jobTitle": ["Developer", "Backend Developer"],
-    "description": "I'm Mingyu Park, a backend developer. I design and build web application servers centered on Spring Boot."
+    "description": "I'm Mingyu Park, a backend developer. I design and build web application servers centered on Spring Boot.",
+    "keywords": ["backend", "backend developer", "backend developer portfolio", "portfolio"]
   }
 }

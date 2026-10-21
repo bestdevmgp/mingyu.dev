@@ -11,12 +11,13 @@ interface DropdownPanelProps {
   as: keyof typeof PANELS;
   isOpen: boolean;
   role: "listbox" | "menu";
+  label?: string;
   itemSelector: string;
   className: string;
   children: React.ReactNode;
 }
 
-const DropdownPanel = ({ as, isOpen, role, itemSelector, className, children }: DropdownPanelProps) => {
+const DropdownPanel = ({ as, isOpen, role, label, itemSelector, className, children }: DropdownPanelProps) => {
   const Panel = PANELS[as];
 
   return (
@@ -24,6 +25,7 @@ const DropdownPanel = ({ as, isOpen, role, itemSelector, className, children }: 
       {isOpen && (
         <Panel
           role={role}
+          aria-label={label}
           onKeyDown={arrowFocus(itemSelector)}
           initial={{ opacity: 0, y: -4, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}

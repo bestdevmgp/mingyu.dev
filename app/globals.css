@@ -107,7 +107,7 @@ header :is(a[href], button) {
   scroll-margin-top: -1.5rem;
 }
 
-.mobile-menu ul :is(a[href], button) {
+.mobile-menu ul a[href] {
   scroll-margin-block: 0.25rem;
 }
 

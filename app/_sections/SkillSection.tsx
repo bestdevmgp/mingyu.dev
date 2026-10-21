@@ -5,7 +5,7 @@ import SkillItems from "@/_components/skill/SkillItems";
 import { getShownSkills } from "@/utils/api";
 
 export default async function SkillSection() {
-  const allSkills = getShownSkills();
+  const shownSkills = getShownSkills();
   const t = await getTranslations("Skill");
 
   return (
@@ -13,7 +13,7 @@ export default async function SkillSection() {
       <SlideUpInView>
         <h2 className="section-eyebrow">{t("eyebrow")}</h2>
         <p className="section-title">{t("title")}</p>
-        <SkillItems skills={allSkills} />
+        <SkillItems skills={shownSkills} />
       </SlideUpInView>
     </section>
   );

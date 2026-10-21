@@ -35,7 +35,6 @@ const SectionTracker = () => {
       const el = document.getElementById(id);
       if (el) targets.push({ id, order, el });
     });
-    if (!targets.length) return;
 
     const orderOf = new Map(targets.map(t => [t.id, t.order]));
     const rankOf = (id: string) => orderOf.get(id) ?? 0;

@@ -19,7 +19,10 @@ const [intro, skill, experience, education, blog, project] = await Promise.all([
   prisma.experience.findMany({ orderBy: { index: "asc" } }),
   prisma.education.findMany({ orderBy: { id: "asc" } }),
   prisma.blog.findMany({ orderBy: { id: "asc" } }),
-  prisma.project.findMany({ include: { ProjectItem: { orderBy: { row_number: "asc" } } } }),
+  prisma.project.findMany({
+    orderBy: { row_number: "asc" },
+    include: { ProjectItem: { orderBy: { row_number: "asc" } } },
+  }),
 ]);
 await prisma.$disconnect();
 

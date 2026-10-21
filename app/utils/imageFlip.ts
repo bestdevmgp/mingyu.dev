@@ -1,6 +1,4 @@
-"use client";
-
-export interface Box {
+interface Box {
   left: number;
   top: number;
   width: number;
@@ -44,12 +42,17 @@ export const getCenteredBox = (container: HTMLElement, size: { width: number; he
   };
 };
 
-export const getFlipTransform = (from: Box, to: Box): FlipTransform | null => {
+const centerOf = (box: Box) => ({ x: box.left + box.width / 2, y: box.top + box.height / 2 });
+
+export const getFlipTransform = (from: Box, to: Box, pivot = centerOf(to)): FlipTransform | null => {
   if (!to.width || !from.width) return null;
+  const scale = from.width / to.width;
+  const fromCenter = centerOf(from);
+  const toCenter = centerOf(to);
   return {
-    x: from.left + from.width / 2 - (to.left + to.width / 2),
-    y: from.top + from.height / 2 - (to.top + to.height / 2),
-    scale: from.width / to.width,
+    x: fromCenter.x - pivot.x - scale * (toCenter.x - pivot.x),
+    y: fromCenter.y - pivot.y - scale * (toCenter.y - pivot.y),
+    scale,
   };
 };
 
@@ -80,7 +83,3 @@ export const flipTo = (element: HTMLElement, to: FlipTransform, duration: number
   element.style.transform = toCss(to);
   releaseAfterFlight(element);
 };
-
-export const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-export const prefersSlowerMotion = () => window.matchMedia("(pointer: coarse)").matches;
