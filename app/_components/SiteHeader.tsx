@@ -4,11 +4,12 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { Menu, X } from "react-feather";
 
 import cn from "classnames";
-import { stagger, useAnimate } from "motion/react";
+import { type AnimationSequence, stagger, useAnimate } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Sparkle from "@/assets/shape-sparkle-round.svg";
 import isModifiedClick from "@/utils/isModifiedClick";
+import { isLocaleSwitching } from "@/utils/localeSwitch";
 import type { NavSection } from "@/utils/sectionLanding";
 import smoothScrollTo from "@/utils/smoothScrollTo";
 import useCarriedState from "@/utils/useCarriedState";
@@ -31,7 +32,28 @@ const nameNudge: Record<string, string> = {
 
 const staggerMenuItems = stagger(0.06, { startDelay: 0.0875 });
 
-let closeMenuAfterSwitch = false;
+const menuSequence = (open: boolean): AnimationSequence => [
+  [
+    ".mobile-menu",
+    { clipPath: open ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)" },
+    { type: "spring", bounce: 0, duration: 0.35 },
+  ],
+  [
+    ".mobile-menu-item",
+    { opacity: open ? 1 : 0 },
+    { duration: 0.175, delay: open ? staggerMenuItems : 0, at: "-0.175" },
+  ],
+];
+
+const runningMenuAnimation = () => {
+  const animation = document.querySelector(".mobile-menu")?.getAnimations()[0];
+  if (animation?.playState !== "running" || typeof animation.currentTime !== "number") return null;
+  return { time: animation.currentTime, at: performance.now() };
+};
+
+const LANGUAGE_CLOSE_DELAY = 200;
+
+let menuCloseAt = 0;
 let refocusMenuAfterSwitch = false;
 
 interface SiteHeaderProps {
@@ -49,9 +71,12 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
   const [isExpanded, setIsExpanded] = useCarriedState("header.menu", false);
   const glass = !atTop || homeHref !== undefined;
   const [carriedOpen] = useState(isExpanded);
+  const [closingFrom] = useState(() => (isLocaleSwitching() && !isExpanded ? runningMenuAnimation() : null));
+  const [closeQueuedAt, setCloseQueuedAt] = useState(() => (isLocaleSwitching() ? menuCloseAt : 0));
   const [scope, animate] = useAnimate();
-  const initialClip = carriedOpen ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)";
-  const initialItemStyle = carriedOpen ? { opacity: 1 } : undefined;
+  const startsOpen = carriedOpen || closingFrom !== null;
+  const initialClip = startsOpen ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)";
+  const initialItemStyle = startsOpen ? { opacity: 1 } : undefined;
 
   useLayoutEffect(() => {
     const header = scope.current;
@@ -85,36 +110,35 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
       didMountRef.current = true;
       return;
     }
-    animate([
-      [
-        ".mobile-menu",
-        { clipPath: isExpanded ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)" },
-        { type: "spring", bounce: 0, duration: 0.35 },
-      ],
-      [
-        ".mobile-menu-item",
-        { opacity: isExpanded ? 1 : 0 },
-        { duration: 0.175, delay: isExpanded ? staggerMenuItems : 0, at: "-0.175" },
-      ],
-    ]);
+    animate(menuSequence(isExpanded));
   }, [isExpanded, animate]);
+
+  useLayoutEffect(() => {
+    if (!closingFrom) return;
+    animate(menuSequence(false)).time = (closingFrom.time + performance.now() - closingFrom.at) / 1000;
+  }, [animate, closingFrom]);
+
+  useEffect(() => {
+    if (!closeQueuedAt) return;
+    const timer = setTimeout(
+      () => {
+        menuCloseAt = 0;
+        setIsExpanded(false);
+      },
+      Math.max(0, closeQueuedAt - performance.now()),
+    );
+    return () => clearTimeout(timer);
+  }, [closeQueuedAt, setIsExpanded]);
 
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    if (!closeMenuAfterSwitch) return;
-    let refocus = 0;
+    if (!refocusMenuAfterSwitch) return;
     const frame = requestAnimationFrame(() => {
-      closeMenuAfterSwitch = false;
-      setIsExpanded(false);
-      if (!refocusMenuAfterSwitch) return;
       refocusMenuAfterSwitch = false;
-      refocus = requestAnimationFrame(() => menuButtonRef.current?.focus({ preventScroll: true, focusVisible: true }));
+      menuButtonRef.current?.focus({ preventScroll: true, focusVisible: true });
     });
-    return () => {
-      cancelAnimationFrame(frame);
-      cancelAnimationFrame(refocus);
-    };
-  }, [locale, setIsExpanded]);
+    return () => cancelAnimationFrame(frame);
+  }, [locale]);
 
   const pickedSection = useRef<HTMLElement | null>(null);
   const resumeBelow = useCallback(
@@ -324,8 +348,9 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
           variant="inline"
           hardNavigation={homeHref !== undefined}
           onLocaleChange={viaKeyboard => {
-            closeMenuAfterSwitch = true;
             refocusMenuAfterSwitch = viaKeyboard;
+            menuCloseAt = performance.now() + LANGUAGE_CLOSE_DELAY;
+            setCloseQueuedAt(menuCloseAt);
           }}
           className="mobile-menu-item shrink-0 py-2.5 border-t border-foreground/10"
           style={initialItemStyle}
