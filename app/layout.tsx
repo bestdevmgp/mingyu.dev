@@ -8,17 +8,18 @@ import ThemeScript from "@/_components/ThemeScript";
 import "./globals.css";
 
 const BOOT_SCRIPT =
-  "(function(){var r=document.documentElement,MIN=400,SOFT=800,FADE=600,done=0,at=performance.now();" +
-  "r.classList.add('loader-js');" +
+  "(function(){var r=document.documentElement,MIN=300,SOFT=800,FADE=600,done=0,at=performance.now();" +
+  "r.classList.add('loader-js');requestAnimationFrame(function(){at=performance.now()});" +
   "function block(e){e.preventDefault()}" +
   "addEventListener('touchmove',block,{passive:false});" +
   "function gone(){r.classList.add('loader-gone')}" +
   "function hide(){removeEventListener('touchmove',block);r.classList.add('loader-done');setTimeout(gone,FADE)}" +
   "function wait(left){if(left>0)setTimeout(hide,left);else hide()}" +
+  "function minLeft(){return MIN-(performance.now()-at)}" +
   "function finish(){if(done)return;done=1;" +
   "var h=document.querySelector('.site-loader-hole'),a=h&&h.getAnimations&&h.getAnimations()[0];" +
-  "if(!a)return wait(MIN-(performance.now()-at));" +
-  "a.ready.then(function(){var e=a.effect,t=e.getTiming();wait(t.delay+e.getKeyframes()[1].computedOffset*t.duration-a.currentTime)},hide)}" +
+  "if(!a)return wait(minLeft());" +
+  "a.ready.then(function(){var e=a.effect,t=e.getTiming();wait(Math.max(t.delay+e.getKeyframes()[1].computedOffset*t.duration-a.currentTime,minLeft()))},hide)}" +
   "function ready(){var p=document.fonts&&document.fonts.ready;setTimeout(finish,SOFT);" +
   "if(p&&p.then)p.then(function(){requestAnimationFrame(finish)},finish);else requestAnimationFrame(finish)}" +
   "if(document.readyState==='loading')addEventListener('DOMContentLoaded',ready,{once:true});else ready()})();" +

@@ -732,20 +732,20 @@ main {
 .site-loader-hole {
   transform: scale(0);
   transform-origin: 8px 8px;
-  animation: site-loader-hole 4.75s ease-out 0.05s infinite;
+  animation: site-loader-hole 4.45s ease-out 0.05s infinite;
 }
 .site-loader-funnel {
   transform-origin: 12px 12px;
-  animation: site-loader-funnel 4.75s ease-out 0.05s infinite;
+  animation: site-loader-funnel 4.45s ease-out 0.05s infinite;
 }
 .site-loader-cover {
   transform: scaleX(0);
   transform-origin: -1px 12px;
-  animation: site-loader-cover 4.75s ease-out 0.05s infinite;
+  animation: site-loader-cover 4.45s ease-out 0.05s infinite;
 }
 .site-loader-flower {
   transform-origin: 12px 12px;
-  animation: site-loader-flower 4.75s ease-out 0.05s infinite;
+  animation: site-loader-flower 4.45s ease-out 0.05s infinite;
 }
 :root.loader-done .site-loader {
   opacity: 0;
@@ -764,53 +764,53 @@ main {
   0% {
     transform: scale(0);
   }
-  6.31579%,
-  78.9474% {
+  5.61798%,
+  77.5281% {
     transform: scale(0.73);
   }
-  85.2632%,
+  83.1461%,
   100% {
     transform: scale(0);
   }
 }
 @keyframes site-loader-funnel {
   0%,
-  10.5263% {
+  10.1124% {
     transform: scaleY(1);
   }
-  16.8421%,
-  68.4211% {
+  15.7303%,
+  67.4157% {
     transform: scaleY(-1);
   }
-  74.7368%,
+  73.0337%,
   100% {
     transform: scaleY(1);
   }
 }
 @keyframes site-loader-cover {
   0%,
-  21.0526% {
+  20.2247% {
     transform: scaleX(0);
   }
-  27.3684%,
-  57.8947% {
+  25.8427%,
+  57.3034% {
     transform: scaleX(1);
   }
-  64.2105%,
+  62.9213%,
   100% {
     transform: scaleX(0);
   }
 }
 @keyframes site-loader-flower {
   0%,
-  31.5789% {
+  30.3371% {
     transform: rotate(0deg);
   }
-  37.8947%,
-  47.3684% {
+  35.9551%,
+  47.191% {
     transform: rotate(90deg);
   }
-  53.6842%,
+  52.809%,
   100% {
     transform: rotate(0deg);
   }
