@@ -15,7 +15,7 @@ const fontPreload = (file: string) =>
   `</fonts/${file}>; rel=preload; as="font"; crossorigin="anonymous"; type="font/woff2"`;
 
 const FONT_PRELOAD: Record<string, string> = {
-  ko: fontPreload("pretendard-core-v6.woff2"),
+  ko: fontPreload("pretendard-core-v7.woff2"),
   en: fontPreload("inter-v3.woff2"),
 };
 

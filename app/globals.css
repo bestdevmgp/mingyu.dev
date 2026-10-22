@@ -135,7 +135,7 @@ body {
 
 @font-face {
   font-family: "Pretendard";
-  src: url("/fonts/pretendard-ext-v6.woff2") format("woff2");
+  src: url("/fonts/pretendard-ext-v7.woff2") format("woff2");
   font-weight: 400 800;
   font-style: normal;
   font-display: swap;
@@ -146,7 +146,7 @@ body {
 }
 @font-face {
   font-family: "Pretendard";
-  src: url("/fonts/pretendard-core-v6.woff2") format("woff2");
+  src: url("/fonts/pretendard-core-v7.woff2") format("woff2");
   font-weight: 400 800;
   font-style: normal;
   font-display: swap;
@@ -181,8 +181,8 @@ body {
     U+D0DC-D0DD, U+D130, U+D134, U+D14C-D14D, U+D150, U+D15C, U+D1A0, U+D1B5, U+D280, U+D29C, U+D2B8-D2B9, U+D2F0,
     U+D300, U+D305, U+D30C, U+D328-D329, U+D398, U+D3B8, U+D3C9, U+D3EC-D3ED, U+D3F4, U+D3FC, U+D45C, U+D478, U+D480,
     U+D488, U+D4E8, U+D504, U+D50C, U+D53D, U+D544, U+D551, U+D558-D559, U+D55C, U+D560, U+D568-D569, U+D56D,
-    U+D574-D575, U+D588-D589, U+D5A5, U+D5C8, U+D5D8, U+D604, U+D611, U+D615, U+D638, U+D654-D655, U+D658, U+D65C,
-    U+D68C-D68D, U+D6A8, U+D6C4, U+D750, U+D76C;
+    U+D574-D575, U+D588-D589, U+D5A5, U+D5C8, U+D5D8, U+D604, U+D611, U+D615, U+D638, U+D648, U+D654-D655, U+D658,
+    U+D65C, U+D68C-D68D, U+D6A8, U+D6C4, U+D750, U+D76C;
 }
 
 @font-face {
