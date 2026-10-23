@@ -44,7 +44,7 @@ const PINCH_WHEEL_MAX_STEP = 0.15;
 const PINCH_DEADZONE = 2;
 const FIT_RATIO = 0.7;
 const TALL_FIT_RATIO = 0.92;
-const FLIP_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+const FLIP_EASING = "ease";
 const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
 const TOUCH_TIMING = { open: 560, close: 430, fade: 280 };
 
