@@ -10,12 +10,14 @@ import {
   useRef,
   useState,
 } from "react";
+import { flushSync } from "react-dom";
 
 import cn from "classnames";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, animate, type Variants } from "motion/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
+import afterPageLoad from "@/utils/afterPageLoad";
 import { flipFrom, flipTo, getCenteredBox, getFlipTransform, getVisibleImageBox } from "@/utils/imageFlip";
 import { isCoarsePointer, prefersReducedMotion } from "@/utils/motionPreference";
 import { SCROLL_KEYS } from "@/utils/scrollKeys";
@@ -37,16 +39,114 @@ interface ImageModalProps {
 
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 5;
+const MAX_PERCENT = 999;
 const ZOOM_STEP = 1.5;
+const DOUBLE_TAP_ZOOM = 2;
+const DOUBLE_TAP_MS = 300;
+const DOUBLE_TAP_SLOP = 30;
+const CHROME_IDLE = 2000;
 const WHEEL_SENSITIVITY = 0.0015;
 const PINCH_WHEEL_SENSITIVITY = 0.01;
 const PINCH_WHEEL_MAX_STEP = 0.15;
 const PINCH_DEADZONE = 2;
 const FIT_RATIO = 0.7;
 const TALL_FIT_RATIO = 0.92;
-const FLIP_EASING = "ease";
-const POINTER_TIMING = { open: 420, close: 320, fade: 220 };
-const TOUCH_TIMING = { open: 560, close: 430, fade: 280 };
+const PRELOAD_REACH = 2;
+const PRELOAD_FALLBACK_DELAY = 200;
+const SLIDE_GAP = 20;
+const SLIDE_SPRING = { stiffness: 225, damping: 30 };
+const EDGE_STRETCH = 60;
+const EDGE_LEAN = 28;
+const EDGE_LEAN_OUT = 0.15;
+const EDGE_LEAN_BACK = 0.375;
+const FLICK_SPEED = 0.35;
+const FLICK_WINDOW = 100;
+const WHEEL_GESTURE_GAP = 120;
+const WHEEL_SWIPE_COMMIT = 100;
+const WHEEL_EDGE_PUSH = 20;
+const WHEEL_MIN_INTERVAL = 8;
+const WHEEL_SETTLED_RATIO = 0.15;
+const WHEEL_SETTLED_SPEED = 0.12;
+const WHEEL_RENEW_RISES = 3;
+const FLIP_CURVE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
+const FLIP_EASING = `cubic-bezier(${FLIP_CURVE.join(", ")})`;
+const PHOTO_FADE = 0.09;
+const POINTER_TIMING = { open: 240, close: 240 };
+const TOUCH_TIMING = { open: 320, close: 320 };
+
+interface Swipe {
+  mode: "pending" | "swipe" | "pan" | "none";
+  base: number;
+  zoomed: boolean;
+  samples: { time: number; x: number }[];
+}
+
+interface WheelGesture {
+  axis: "x" | "y";
+  mode: "pan" | "swipe" | "done";
+  origin: number;
+  offset: number;
+  time: number;
+  direction: number;
+  speed: number;
+  peak: number;
+  settled: boolean;
+  rises: number;
+}
+
+const rubberBand = (offset: number, size: number) =>
+  Math.sign(offset) * size * (1 - 1 / ((Math.abs(offset) * 0.55) / size + 1));
+
+interface EdgeMask {
+  alpha: number;
+  fade?: { stop: () => void };
+}
+
+interface ShownArea {
+  top: number;
+  bottom: number;
+}
+
+const shownArea = (thumbnail: HTMLElement | null, pane: HTMLElement): ShownArea | null => {
+  if (!thumbnail) return null;
+  const paneTop = pane.getBoundingClientRect().top;
+  const popup = thumbnail.closest<HTMLElement>('[role="dialog"]');
+  if (popup) {
+    const top = popup.getBoundingClientRect().top + popup.clientTop - paneTop;
+    return { top, bottom: top + popup.clientHeight };
+  }
+  const header = document.querySelector("header");
+  return { top: (header?.getBoundingClientRect().bottom ?? paneTop) - paneTop, bottom: pane.clientHeight };
+};
+
+const paintEdgeMask = (pane: HTMLElement, area: ShownArea, alpha: number) => {
+  const hidden = `rgb(0 0 0 / ${alpha})`;
+  pane.style.maskImage =
+    alpha < 1
+      ? `linear-gradient(${hidden} ${area.top}px, #000 ${area.top}px, #000 ${area.bottom}px, ${hidden} ${area.bottom}px)`
+      : "";
+};
+
+const fadeEdgeMask = (mask: EdgeMask, pane: HTMLElement, area: ShownArea, to: number, delay = 0) => {
+  mask.fade?.stop();
+  paintEdgeMask(pane, area, mask.alpha);
+  mask.fade = animate(mask.alpha, to, {
+    delay,
+    duration: PHOTO_FADE,
+    ease: "easeOut",
+    onUpdate: alpha => {
+      mask.alpha = alpha;
+      paintEdgeMask(pane, area, alpha);
+    },
+  });
+};
+
+const fitBox = (ratio: number, pane: { width: number; height: number }, fill: boolean) => {
+  const widthRatio = fill ? 1 : pane.height > pane.width ? TALL_FIT_RATIO : FIT_RATIO;
+  const heightRatio = fill ? 1 : FIT_RATIO;
+  const width = Math.min(pane.width * widthRatio, pane.height * ratio * heightRatio);
+  return { width, height: width / ratio };
+};
 
 type PressHandlers = ReturnType<typeof useTouchPress>[1];
 
@@ -163,21 +263,28 @@ export default function ImageModal({
   const [isPinching, setIsPinching] = useState(false);
   const [isTouching, setIsTouching] = useState(false);
   const [aspect, setAspect] = useState<number | null>(null);
-  const [loadedIndex, setLoadedIndex] = useState<number | null>(null);
+  const [loaded, setLoaded] = useState<ReadonlySet<number>>(() => new Set());
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
+  const [paneSize, setPaneSize] = useState<{ width: number; height: number } | null>(null);
   const [originSrc, setOriginSrc] = useState<string | null>(null);
-  const [timing, setTiming] = useState(POINTER_TIMING);
+  const [coarsePointer, setCoarsePointer] = useState(false);
+  const [preloadReach, setPreloadReach] = useState(0);
+  const [closeFlies, setCloseFlies] = useState(false);
+  const [heading, setHeading] = useState<number | null>(null);
+  const [chromeHidden, setChromeHidden] = useState(false);
   const [closePressed, closePress] = useTouchPress();
   const [prevPressed, prevPress] = useTouchPress();
   const [nextPressed, nextPress] = useTouchPress();
   const [zoomOutPressed, zoomOutPress] = useTouchPress();
   const [resetPressed, resetPress] = useTouchPress();
   const [zoomInPressed, zoomInPress] = useTouchPress();
+  const timing = coarsePointer ? TOUCH_TIMING : POINTER_TIMING;
 
   const overlayRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const imageContentRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
   const dragStartRef = useRef({ x: 0, y: 0 });
   const pinchStartRef = useRef({ distance: 0, zoom: 1 });
@@ -188,10 +295,37 @@ export default function ImageModal({
   const pinchDistanceRef = useRef(0);
   const pinchDirectionRef = useRef(0);
   const isClosingRef = useRef(false);
+  const trackOffsetRef = useRef(0);
+  const pendingOffsetRef = useRef(0);
+  const indexRef = useRef(initialIndex);
+  const slideRef = useRef<{ target: number; velocity: number; stop: () => void } | null>(null);
+  const swipeRef = useRef<Swipe | null>(null);
+  const wheelGestureRef = useRef<WheelGesture | null>(null);
+  const wheelTimerRef = useRef(0);
+  const lastTapRef = useRef<{ time: number; x: number; y: number } | null>(null);
+  const tapTimerRef = useRef(0);
+  const chromeTimerRef = useRef(0);
+  const hoveredRef = useRef<Element | null>(null);
+  const edgeMaskRef = useRef<EdgeMask>({ alpha: 1 });
   const previousRef = useRef<HTMLButtonElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const focusAfterStepRef = useRef<RefObject<HTMLButtonElement | null> | null>(null);
   useFocusScope(overlayRef, isOpen);
+
+  const restartIdle = useCallback(() => {
+    window.clearTimeout(chromeTimerRef.current);
+    chromeTimerRef.current = window.setTimeout(() => {
+      if (hoveredRef.current?.closest("button") || document.activeElement?.matches("button:focus-visible")) return;
+      setChromeHidden(true);
+    }, CHROME_IDLE);
+  }, []);
+
+  const wakeChrome = (e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse") return;
+    hoveredRef.current = e.target as Element;
+    setChromeHidden(false);
+    restartIdle();
+  };
 
   const measureVisualBox = useCallback(() => {
     const wrapper = flipRef.current;
@@ -215,14 +349,13 @@ export default function ImageModal({
     };
   }, []);
 
-  const fitToPane = useCallback((ratio: number) => {
-    const pane = imageRef.current;
-    if (!pane) return null;
-
-    const widthRatio = pane.offsetHeight > pane.offsetWidth ? TALL_FIT_RATIO : FIT_RATIO;
-    const width = Math.min(pane.offsetWidth * widthRatio, pane.offsetHeight * ratio * FIT_RATIO);
-    return { width, height: width / ratio };
-  }, []);
+  const fitToPane = useCallback(
+    (ratio: number) => {
+      const pane = imageRef.current;
+      return pane ? fitBox(ratio, { width: pane.offsetWidth, height: pane.offsetHeight }, coarsePointer) : null;
+    },
+    [coarsePointer],
+  );
 
   const knownRatio = useCallback(
     (index: number) => {
@@ -241,6 +374,8 @@ export default function ImageModal({
   const showImage = useCallback(
     (index: number) => {
       setCurrentIndex(index);
+      setPreloadReach(0);
+      setHeading(null);
       resetZoom();
       const ratio = knownRatio(index);
       if (!ratio) return;
@@ -250,50 +385,91 @@ export default function ImageModal({
     [knownRatio, fitToPane, resetZoom],
   );
 
-  const goToNext = useCallback(() => {
-    if (currentIndex >= images.length - 1) return;
-    if (currentIndex + 1 === images.length - 1 && document.activeElement === nextRef.current)
-      focusAfterStepRef.current = previousRef;
-    showImage(currentIndex + 1);
-  }, [currentIndex, images.length, showImage]);
+  const setTrack = useCallback((offset: number) => {
+    trackOffsetRef.current = offset;
+    const track = trackRef.current;
+    if (track) track.style.transform = offset ? `translate3d(${offset}px, 0, 0)` : "";
+  }, []);
 
-  const goToPrevious = useCallback(() => {
-    if (currentIndex <= 0) return;
-    if (currentIndex === 1 && document.activeElement === previousRef.current) focusAfterStepRef.current = nextRef;
-    showImage(currentIndex - 1);
-  }, [currentIndex, showImage]);
+  const stopSlide = useCallback(() => {
+    const slide = slideRef.current;
+    slideRef.current = null;
+    slide?.stop();
+    return slide;
+  }, []);
+
+  const goTo = useCallback(
+    (index: number) => {
+      stopSlide();
+      if (index === images.length - 1 && document.activeElement === nextRef.current)
+        focusAfterStepRef.current = previousRef;
+      if (index === 0 && document.activeElement === previousRef.current) focusAfterStepRef.current = nextRef;
+      showImage(index);
+    },
+    [images.length, showImage, stopSlide],
+  );
 
   useLayoutEffect(() => {
     focusAfterStepRef.current?.current?.focus();
     focusAfterStepRef.current = null;
   }, [currentIndex]);
 
+  useLayoutEffect(() => {
+    indexRef.current = currentIndex;
+    setTrack(pendingOffsetRef.current);
+    pendingOffsetRef.current = 0;
+  }, [currentIndex, setTrack]);
+
   const requestClose = useCallback(() => {
     if (isClosingRef.current) return;
     isClosingRef.current = true;
+    stopSlide();
+    window.clearTimeout(wheelTimerRef.current);
+    window.clearTimeout(tapTimerRef.current);
+    window.clearTimeout(chromeTimerRef.current);
 
     const wrapper = flipRef.current;
     const thumbnail = getThumbnail(currentIndex);
     const origin = thumbnail ? getVisibleImageBox(thumbnail) : null;
     const target = measureVisualBox();
     const transform = origin && target ? getFlipTransform(origin, target.box, target.pivot) : null;
+    const flies = wrapper !== null && transform !== null && !prefersReducedMotion();
 
-    if (wrapper && transform && !prefersReducedMotion()) flipTo(wrapper, transform, timing.close, FLIP_EASING);
+    const pane = imageRef.current;
+    const area = flies && pane ? shownArea(thumbnail, pane) : null;
+    if (flies) flipTo(wrapper, transform, timing.close, FLIP_EASING);
+    if (pane && area) fadeEdgeMask(edgeMaskRef.current, pane, area, 0);
 
+    setCloseFlies(flies);
     onClose();
-  }, [currentIndex, getThumbnail, measureVisualBox, timing.close, onClose]);
+  }, [currentIndex, getThumbnail, measureVisualBox, stopSlide, timing.close, onClose]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (isCoarsePointer()) setTiming(TOUCH_TIMING);
+    if (isCoarsePointer()) setCoarsePointer(true);
   }, []);
 
   useLayoutEffect(() => {
     if (!isOpen) return;
     isClosingRef.current = false;
-    setCurrentIndex(initialIndex);
-    setLoadedIndex(null);
+    swipeRef.current = null;
+    wheelGestureRef.current = null;
+    lastTapRef.current = null;
+    hoveredRef.current = null;
+    window.clearTimeout(tapTimerRef.current);
+    window.clearTimeout(chromeTimerRef.current);
+    edgeMaskRef.current.fade?.stop();
+    edgeMaskRef.current.alpha = 1;
+    setTrack(0);
+    setLoaded(new Set());
+    setPreloadReach(0);
+    setHeading(null);
+    setChromeHidden(false);
+    if (!isCoarsePointer()) restartIdle();
     resetZoom();
+
+    const pane = imageRef.current;
+    if (pane) setPaneSize({ width: pane.offsetWidth, height: pane.offsetHeight });
 
     const thumbnail = getThumbnail(initialIndex);
     setOriginSrc(thumbnail?.currentSrc || null);
@@ -305,7 +481,6 @@ export default function ImageModal({
     setAspect(ratio);
     setFitted(size);
 
-    const pane = imageRef.current;
     const wrapper = flipRef.current;
     const content = imageContentRef.current;
     const origin = thumbnail ? getVisibleImageBox(thumbnail) : null;
@@ -315,8 +490,14 @@ export default function ImageModal({
     content.style.height = `${size.height}px`;
 
     const transform = getFlipTransform(origin, getCenteredBox(pane, size));
-    if (transform) flipFrom(wrapper, transform, timing.open, FLIP_EASING);
-  }, [isOpen, initialIndex, getThumbnail, knownRatio, fitToPane, resetZoom, timing.open]);
+    if (!transform) return;
+    flipFrom(wrapper, transform, timing.open, FLIP_EASING);
+
+    const area = shownArea(thumbnail, pane);
+    if (!area) return;
+    edgeMaskRef.current.alpha = 0;
+    fadeEdgeMask(edgeMaskRef.current, pane, area, 1, timing.open / 1000 - PHOTO_FADE);
+  }, [isOpen, initialIndex, getThumbnail, knownRatio, fitToPane, resetZoom, restartIdle, setTrack, timing.open]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
@@ -329,37 +510,29 @@ export default function ImageModal({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (e.key === "Escape") requestClose();
-        else if (e.key === "ArrowLeft") goToPrevious();
-        else goToNext();
-        return;
-      }
-
-      if (SCROLL_KEYS.has(e.key) && !(e.key === " " && e.target instanceof HTMLButtonElement)) e.preventDefault();
-    };
-
-    window.addEventListener("keydown", handleKeyDown, { capture: true });
-    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
-  }, [isOpen, requestClose, goToPrevious, goToNext]);
-
-  useEffect(() => {
     const pane = imageRef.current;
-    if (!isOpen || !pane || !aspect) return;
+    if (!isOpen || !pane) return;
 
-    const fit = () => setFitted(fitToPane(aspect));
+    const fit = () => {
+      const width = pane.offsetWidth;
+      const height = pane.offsetHeight;
+      setPaneSize(previous => (previous?.width === width && previous.height === height ? previous : { width, height }));
+      if (aspect) setFitted(fitToPane(aspect));
+    };
 
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(pane);
     return () => observer.disconnect();
   }, [isOpen, aspect, fitToPane]);
+
+  useEffect(() => {
+    if (!isOpen || preloadReach >= PRELOAD_REACH) return;
+    for (let index = currentIndex - preloadReach; index <= currentIndex + preloadReach; index++)
+      if (index >= 0 && index < images.length && !loaded.has(index)) return;
+
+    return afterPageLoad(() => setPreloadReach(reach => reach + 1), PRELOAD_FALLBACK_DELAY);
+  }, [isOpen, currentIndex, images.length, loaded, preloadReach]);
 
   const constrainPosition = (newX: number, newY: number, currentZoom: number) => {
     const container = imageRef.current;
@@ -378,8 +551,14 @@ export default function ImageModal({
     };
   };
 
+  const naturalWidth = imageSizes[images[currentIndex]]?.[0];
+  const fitScale = fitted && naturalWidth ? fitted.width / naturalWidth : 1;
+  const naturalZoom = 1 / fitScale;
+  const minZoom = Math.min(MIN_ZOOM, naturalZoom);
+  const maxZoom = Math.max(Math.min(MAX_ZOOM, MAX_PERCENT / 100 / fitScale), naturalZoom);
+
   const zoomBy = (factor: number, anchor = { x: 0, y: 0 }, fromButton = false) => {
-    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * factor));
+    const clamped = Math.max(minZoom, Math.min(maxZoom, zoom * factor));
     if (clamped === zoom) return;
 
     const ratio = clamped / zoom;
@@ -397,33 +576,276 @@ export default function ImageModal({
   const handleZoomIn = () => zoomBy(ZOOM_STEP, undefined, true);
   const handleZoomOut = () => zoomBy(1 / ZOOM_STEP, undefined, true);
 
-  const zoomByRef = useRef(zoomBy);
+  const markLoaded = (index: number) =>
+    setLoaded(previous => (previous.has(index) ? previous : new Set(previous).add(index)));
+
+  const paneWidth = () => imageRef.current?.offsetWidth ?? 0;
+
+  const resist = (offset: number) => {
+    const blocked = offset > 0 ? currentIndex === 0 : currentIndex === images.length - 1;
+    return blocked ? rubberBand(offset, EDGE_STRETCH) : offset;
+  };
+
+  const holdEdge = (offset: number, origin: number) => {
+    const held = currentIndex === images.length - 1 ? Math.max(offset, Math.min(origin, 0)) : offset;
+    return currentIndex === 0 ? Math.min(held, Math.max(origin, 0)) : held;
+  };
+
+  const settleSlide = (target: number, velocity = 0, lean = 0) => {
+    stopSlide();
+    const index = indexRef.current;
+    const land = () => (target === index ? setTrack(0) : goTo(target));
+
+    const from = trackOffsetRef.current;
+    const to = (index - target) * (paneWidth() + SLIDE_GAP);
+    const leaning = lean !== 0 && from * lean >= 0 && Math.abs(from) < Math.abs(lean);
+    if ((from === to && !velocity && !leaning) || prefersReducedMotion()) return land();
+
+    const outward = target === index ? Math.sign(from || velocity) : 0;
+    const blocked = outward > 0 ? index === 0 : outward < 0 && index === images.length - 1;
+    const direction = Math.sign(to - from);
+    const limit = Math.abs(to - from) * Math.sqrt(SLIDE_SPRING.stiffness);
+    const toward = direction * velocity > limit ? direction * limit : velocity;
+    const start = blocked && outward * velocity > 0 ? 0 : toward;
+    setHeading(target === index ? null : target);
+    let controls: { stop: () => void } | null = null;
+    let sample = { time: performance.now(), value: from };
+    const slide = { target, velocity: start, stop: () => controls?.stop() };
+    slideRef.current = slide;
+    const onUpdate = (value: number) => {
+      const time = performance.now();
+      if (time > sample.time) slide.velocity = ((value - sample.value) / (time - sample.time)) * 1000;
+      sample = { time, value };
+      setTrack(value);
+    };
+    const onComplete = () => {
+      if (slideRef.current !== slide) return;
+      slideRef.current = null;
+      land();
+    };
+    controls = leaning
+      ? animate(from, [from, lean, to], {
+          duration: EDGE_LEAN_OUT + EDGE_LEAN_BACK,
+          times: [0, EDGE_LEAN_OUT / (EDGE_LEAN_OUT + EDGE_LEAN_BACK), 1],
+          ease: [
+            [0.33, 0.33, 0.8, 1],
+            [0.15, 0, 0.2, 1],
+          ],
+          onUpdate,
+          onComplete,
+        })
+      : animate(from, to, { type: "spring", ...SLIDE_SPRING, velocity: start, onUpdate, onComplete });
+  };
+
+  const takeOverSlide = () => {
+    const slide = stopSlide();
+    const index = indexRef.current;
+    if (!slide) return { swapped: false, velocity: 0 };
+    if (slide.target !== index) {
+      pendingOffsetRef.current = trackOffsetRef.current + (slide.target - index) * (paneWidth() + SLIDE_GAP);
+      flushSync(() => goTo(slide.target));
+    }
+    return { swapped: slide.target !== index, velocity: slide.velocity };
+  };
+
+  const slideBy = (direction: number) => {
+    const { velocity } = takeOverSlide();
+    const index = indexRef.current;
+    const target = index + direction;
+    if (target >= 0 && target < images.length) settleSlide(target, velocity);
+    else settleSlide(index, velocity, -direction * EDGE_LEAN);
+  };
+
+  const slideByRef = useRef(slideBy);
   useEffect(() => {
-    zoomByRef.current = zoomBy;
+    slideByRef.current = slideBy;
+  });
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (e.key === "Escape") requestClose();
+        else slideByRef.current(e.key === "ArrowLeft" ? -1 : 1);
+        return;
+      }
+
+      if (e.key === "Tab") {
+        flushSync(() => setChromeHidden(false));
+        if (!isCoarsePointer()) restartIdle();
+      }
+
+      if (SCROLL_KEYS.has(e.key) && !(e.key === " " && e.target instanceof HTMLButtonElement)) e.preventDefault();
+    };
+
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
+  }, [isOpen, requestClose, restartIdle]);
+
+  const releaseSwipe = (swipe: Swipe, time: number) => {
+    const offset = trackOffsetRef.current;
+    if (!offset) return;
+
+    const recent = swipe.samples.filter(sample => time - sample.time <= FLICK_WINDOW);
+    const first = recent[0];
+    const last = recent[recent.length - 1];
+    const speed = last && last.time > first.time ? (last.x - first.x) / (last.time - first.time) : 0;
+    const width = paneWidth();
+    const moved = offset - swipe.base;
+    let target = currentIndex;
+    if (Math.abs(speed) > FLICK_SPEED && Math.abs(moved) > (swipe.zoomed ? width * 0.2 : TAP_SLOP)) {
+      if (Math.sign(speed) === Math.sign(moved)) target += speed < 0 ? 1 : -1;
+    } else if (Math.abs(offset) > width / 2) target += offset < 0 ? 1 : -1;
+
+    settleSlide(target >= 0 && target < images.length ? target : currentIndex, speed * 1000);
+  };
+
+  const toggleZoomAt = (point: { x: number; y: number }) => {
+    if (zoom !== 1) {
+      resetZoom();
+      setButtonZoom(true);
+      return;
+    }
+
+    const rect = imageRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    zoomBy(
+      Math.min(DOUBLE_TAP_ZOOM, maxZoom),
+      { x: point.x - rect.left - rect.width / 2, y: point.y - rect.top - rect.height / 2 },
+      true,
+    );
+  };
+
+  const handleTap = (point: { x: number; y: number }, time: number) => {
+    const last = lastTapRef.current;
+    window.clearTimeout(tapTimerRef.current);
+    if (!last || time - last.time > DOUBLE_TAP_MS || Math.hypot(point.x - last.x, point.y - last.y) > DOUBLE_TAP_SLOP) {
+      lastTapRef.current = { time, ...point };
+      tapTimerRef.current = window.setTimeout(() => setChromeHidden(hidden => !hidden), DOUBLE_TAP_MS);
+      return;
+    }
+
+    lastTapRef.current = null;
+    toggleZoomAt(point);
+  };
+
+  const handleWheel = (e: WheelEvent) => {
+    const pane = imageRef.current;
+    if (!pane) return;
+
+    const zoomWithWheel = () => {
+      const step = e.ctrlKey
+        ? Math.max(-PINCH_WHEEL_MAX_STEP, Math.min(PINCH_WHEEL_MAX_STEP, e.deltaY * PINCH_WHEEL_SENSITIVITY))
+        : e.deltaY * WHEEL_SENSITIVITY;
+      const rect = pane.getBoundingClientRect();
+      zoomBy(Math.exp(-step), {
+        x: e.clientX - rect.left - rect.width / 2,
+        y: e.clientY - rect.top - rect.height / 2,
+      });
+    };
+    if (e.ctrlKey) return zoomWithWheel();
+
+    const magnitude = Math.abs(e.deltaX);
+    let gesture = wheelGestureRef.current;
+    const speed = gesture ? magnitude / Math.max(e.timeStamp - gesture.time, WHEEL_MIN_INTERVAL) : 0;
+    let started = false;
+    let swapped = false;
+    const renewed =
+      gesture?.axis === "x" &&
+      gesture.mode !== "swipe" &&
+      magnitude >= 1 &&
+      (Math.sign(e.deltaX) === -gesture.direction ||
+        (gesture.settled && speed > gesture.speed && gesture.rises + 1 >= WHEEL_RENEW_RISES));
+    if (!gesture || e.timeStamp - gesture.time > WHEEL_GESTURE_GAP || renewed) {
+      started = true;
+      const axis = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? "x" : "y";
+      swapped = axis === "x" && takeOverSlide().swapped;
+      const probe = constrainPosition(position.x - Math.sign(e.deltaX), position.y, zoom);
+      const canPan = !swapped && !trackOffsetRef.current && Math.abs(probe.x - position.x) > 0.5;
+      gesture = {
+        axis,
+        mode: canPan ? "pan" : "swipe",
+        origin: trackOffsetRef.current,
+        offset: trackOffsetRef.current,
+        time: e.timeStamp,
+        direction: Math.sign(e.deltaX),
+        speed,
+        peak: speed,
+        settled: false,
+        rises: 0,
+      };
+    }
+
+    const elapsed = Math.max(e.timeStamp - gesture.time, WHEEL_MIN_INTERVAL);
+    if (gesture.axis === "y") {
+      wheelGestureRef.current = { ...gesture, time: e.timeStamp };
+      return zoomWithWheel();
+    }
+
+    let { mode, offset } = gesture;
+    if (mode === "pan") {
+      setButtonZoom(false);
+      setPosition(constrainPosition(position.x - e.deltaX, position.y, zoom));
+    } else if (mode === "swipe" && !swapped) {
+      offset -= e.deltaX;
+      setTrack(holdEdge(offset, gesture.origin));
+      const moved = offset - gesture.origin;
+      const target = currentIndex + (moved < 0 ? 1 : -1);
+      const exists = target >= 0 && target < images.length;
+      if (Math.abs(moved) >= (exists ? WHEEL_SWIPE_COMMIT : WHEEL_EDGE_PUSH)) {
+        mode = "done";
+        settleSlide(
+          exists ? target : currentIndex,
+          (-e.deltaX / elapsed) * 1000,
+          exists ? 0 : Math.sign(moved) * EDGE_LEAN,
+        );
+      }
+    }
+
+    const committed = gesture.mode === "swipe" && mode === "done";
+    const peak = committed ? speed : Math.max(gesture.peak, speed);
+    const latest = {
+      ...gesture,
+      mode,
+      offset,
+      time: e.timeStamp,
+      direction: magnitude >= 1 ? Math.sign(e.deltaX) : gesture.direction,
+      speed,
+      peak,
+      settled:
+        !committed &&
+        !started &&
+        (gesture.settled || speed <= Math.max(WHEEL_SETTLED_SPEED, peak * WHEEL_SETTLED_RATIO)),
+      rises: speed > gesture.speed ? gesture.rises + 1 : 0,
+    };
+    wheelGestureRef.current = latest;
+    window.clearTimeout(wheelTimerRef.current);
+    wheelTimerRef.current = window.setTimeout(() => {
+      if (wheelGestureRef.current === latest && latest.mode === "swipe" && trackOffsetRef.current)
+        settleSlide(indexRef.current);
+    }, WHEEL_GESTURE_GAP);
+  };
+
+  const wheelHandlerRef = useRef(handleWheel);
+  useEffect(() => {
+    wheelHandlerRef.current = handleWheel;
   });
 
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!isOpen || !overlay) return;
 
-    const handleWheel = (e: WheelEvent) => {
+    const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-
-      const pane = imageRef.current;
-      if (!pane) return;
-
-      const step = e.ctrlKey
-        ? Math.max(-PINCH_WHEEL_MAX_STEP, Math.min(PINCH_WHEEL_MAX_STEP, e.deltaY * PINCH_WHEEL_SENSITIVITY))
-        : e.deltaY * WHEEL_SENSITIVITY;
-      const rect = pane.getBoundingClientRect();
-      zoomByRef.current(Math.exp(-step), {
-        x: e.clientX - rect.left - rect.width / 2,
-        y: e.clientY - rect.top - rect.height / 2,
-      });
+      wheelHandlerRef.current(e);
     };
 
-    overlay.addEventListener("wheel", handleWheel, { passive: false });
-    return () => overlay.removeEventListener("wheel", handleWheel);
+    overlay.addEventListener("wheel", onWheel, { passive: false });
+    return () => overlay.removeEventListener("wheel", onWheel);
   }, [isOpen]);
 
   const isOutsideImage = (clientX: number, clientY: number) => {
@@ -442,6 +864,11 @@ export default function ImageModal({
     if (movedFromDown < TAP_SLOP && isOutsideImage(e.clientX, e.clientY)) {
       requestClose();
     }
+  };
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    if (Date.now() - lastTouchTimeRef.current < 300 || isOutsideImage(e.clientX, e.clientY)) return;
+    toggleZoomAt({ x: e.clientX, y: e.clientY });
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -476,6 +903,10 @@ export default function ImageModal({
     setButtonZoom(false);
 
     if (e.touches.length === 2) {
+      if (swipeRef.current) {
+        swipeRef.current = null;
+        settleSlide(indexRef.current);
+      }
       const distance = getDistance(e.touches[0], e.touches[1]);
       pinchDistanceRef.current = distance;
       pinchDirectionRef.current = 0;
@@ -486,7 +917,16 @@ export default function ImageModal({
       touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
       hasMovedRef.current = false;
 
-      if (isOutsideImage(touch.clientX, touch.clientY)) return;
+      const { swapped } = takeOverSlide();
+      const base = trackOffsetRef.current;
+      const pan = !swapped && !base && zoom > 1 && !isOutsideImage(touch.clientX, touch.clientY);
+      swipeRef.current = {
+        mode: pan ? "pan" : base ? "swipe" : "pending",
+        base,
+        zoomed: pan,
+        samples: [{ time: e.timeStamp, x: touch.clientX }],
+      };
+      if (!pan) return;
 
       setIsDragging(true);
       dragStartRef.current = {
@@ -504,7 +944,7 @@ export default function ImageModal({
       pinchDirectionRef.current = Math.sign(delta);
       pinchDistanceRef.current = distance;
       const scale = distance / pinchStartRef.current.distance;
-      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, pinchStartRef.current.zoom * scale));
+      const newZoom = Math.max(minZoom, Math.min(maxZoom, pinchStartRef.current.zoom * scale));
       setZoom(newZoom);
       setPosition(constrainPosition(position.x, position.y, newZoom));
       hasMovedRef.current = true;
@@ -513,10 +953,28 @@ export default function ImageModal({
       const start = touchStartPosRef.current;
       if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > TAP_SLOP) hasMovedRef.current = true;
 
-      if (isDragging) {
-        setPosition(
-          constrainPosition(touch.clientX - dragStartRef.current.x, touch.clientY - dragStartRef.current.y, zoom),
-        );
+      const swipe = swipeRef.current;
+      if (!swipe) {
+        if (isDragging) {
+          setPosition(
+            constrainPosition(touch.clientX - dragStartRef.current.x, touch.clientY - dragStartRef.current.y, zoom),
+          );
+        }
+        return;
+      }
+
+      swipe.samples.push({ time: e.timeStamp, x: touch.clientX });
+      while (swipe.samples.length > 2 && e.timeStamp - swipe.samples[0].time > FLICK_WINDOW) swipe.samples.shift();
+
+      if (swipe.mode === "pending" && hasMovedRef.current)
+        swipe.mode = Math.abs(touch.clientX - start.x) > Math.abs(touch.clientY - start.y) ? "swipe" : "none";
+
+      if (swipe.mode === "swipe") setTrack(resist(swipe.base + touch.clientX - start.x));
+      else if (swipe.mode === "pan") {
+        const x = touch.clientX - dragStartRef.current.x;
+        const next = constrainPosition(x, touch.clientY - dragStartRef.current.y, zoom);
+        setPosition(next);
+        setTrack(resist(x - next.x));
       }
     }
   };
@@ -526,8 +984,11 @@ export default function ImageModal({
 
     if (e.touches.length === 0) {
       setIsTouching(false);
+      const swipe = swipeRef.current;
+      swipeRef.current = null;
       const start = touchStartPosRef.current;
-      if (!hasMovedRef.current && !multiTouchRef.current && isOutsideImage(start.x, start.y)) requestClose();
+      if (!hasMovedRef.current && !multiTouchRef.current && !swipe?.base) handleTap(start, e.timeStamp);
+      if (swipe) releaseSwipe(swipe, e.timeStamp);
 
       setIsDragging(false);
       setIsPinching(false);
@@ -550,13 +1011,35 @@ export default function ImageModal({
     setIsDragging(false);
     setIsPinching(false);
     hasMovedRef.current = false;
+    swipeRef.current = null;
+    if (trackOffsetRef.current) settleSlide(indexRef.current);
   };
 
-  const showOrigin = Boolean(originSrc) && currentIndex === initialIndex && loadedIndex !== currentIndex;
-  const zoomPercent = `${Math.round(zoom * 100)}%`;
+  const slides = Array.from({ length: PRELOAD_REACH * 2 + 1 }, (_, i) => currentIndex - PRELOAD_REACH + i).filter(
+    index => index >= 0 && index < images.length,
+  );
+  const zoomPercent = `${Math.round(zoom * fitScale * 100)}%`;
+
+  const overlayVariants: Variants = {
+    exit: (flies: boolean) => ({
+      opacity: 0,
+      transition: flies
+        ? { delay: timing.close / 1000, duration: PHOTO_FADE, ease: "easeOut" }
+        : { duration: timing.close / 1000, ease: "easeIn" },
+    }),
+  };
+  const chromeFade = {
+    variants: {
+      exit: (flies: boolean) =>
+        flies ? { opacity: 0, transition: { duration: timing.close / 1000, ease: FLIP_CURVE } } : {},
+    } satisfies Variants,
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    transition: { duration: timing.open / 1000, ease: FLIP_CURVE },
+  } as const;
 
   return (
-    <AnimatePresence onExitComplete={resetZoom}>
+    <AnimatePresence custom={closeFlies} onExitComplete={resetZoom}>
       {isOpen && (
         <motion.div
           key="image-modal"
@@ -567,46 +1050,50 @@ export default function ImageModal({
           tabIndex={-1}
           data-lenis-prevent
           className="fixed inset-0 z-50 flex items-center justify-center select-none touch-none outline-none [--focus-ring:rgb(255,255,255)]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: timing.close / 1000, ease: "easeIn" } }}
-          transition={{ duration: timing.fade / 1000, ease: "easeOut" }}
+          variants={overlayVariants}
+          exit="exit"
+          onPointerMove={wakeChrome}
+          onPointerDown={wakeChrome}
         >
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-xs" />
+          <motion.div {...chromeFade} className="absolute inset-0 bg-black/90 backdrop-blur-xs" />
 
-          <div
-            className="relative w-full h-full flex items-center justify-center p-2 md:p-4"
-            onMouseDown={e => {
-              if (e.target === e.currentTarget) mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
-            }}
-            onClick={e => {
-              if (e.target === e.currentTarget) handleImageClick(e);
-            }}
-          >
-            <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20 pointer-events-none">
-              {images.length > 1 && (
-                <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm pointer-events-auto">
-                  {currentIndex + 1} / {images.length}
+          <div className="relative w-full h-full flex items-center justify-center">
+            <motion.div {...chromeFade} className="absolute top-4 left-4 right-4 z-20 pointer-events-none">
+              <div
+                inert={chromeHidden}
+                className={cn(
+                  "flex justify-between items-center transition-opacity duration-200",
+                  chromeHidden && "opacity-0",
+                )}
+              >
+                {images.length > 1 && (
+                  <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm pointer-events-auto">
+                    {(heading ?? currentIndex) + 1} / {images.length}
+                  </div>
+                )}
+
+                <div className="ml-auto pointer-events-auto">
+                  <RoundButton
+                    label={t("close")}
+                    shortcut="Escape"
+                    icon="M6 18L18 6M6 6l12 12"
+                    padding="p-2"
+                    pressed={closePressed}
+                    press={closePress}
+                    onPress={requestClose}
+                  />
                 </div>
-              )}
-
-              <div className="ml-auto pointer-events-auto">
-                <RoundButton
-                  label={t("close")}
-                  shortcut="Escape"
-                  icon="M6 18L18 6M6 6l12 12"
-                  padding="p-2"
-                  pressed={closePressed}
-                  press={closePress}
-                  onPress={requestClose}
-                />
               </div>
-            </div>
+            </motion.div>
 
-            <div
+            <motion.div
               ref={imageRef}
-              className="relative w-full h-full flex items-center justify-center overflow-hidden select-none"
+              className="relative w-full h-full overflow-hidden select-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: PHOTO_FADE, ease: "easeOut" }}
               onClick={handleImageClick}
+              onDoubleClick={handleDoubleClick}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -619,141 +1106,178 @@ export default function ImageModal({
                 cursor: isDragging ? "grabbing" : "var(--cursor-default)",
               }}
             >
-              <div ref={flipRef} className="flex items-center justify-center">
-                <div
-                  ref={imageContentRef}
-                  className={cn(
-                    "relative",
-                    !isTouching && "transition-transform",
-                    !isTouching && (buttonZoom ? "ease-[ease]" : "ease-out"),
-                    !isDragging && !isPinching && "duration-300",
-                  )}
-                  style={{
-                    width: fitted ? `${fitted.width}px` : "100%",
-                    height: fitted ? `${fitted.height}px` : "100%",
-                    transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
-                    willChange: isDragging || isPinching ? "transform" : "auto",
-                    cursor: isDragging ? "grabbing" : "grab",
-                  }}
-                >
-                  {showOrigin && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={originSrc!}
-                      alt=""
-                      aria-hidden
-                      draggable={false}
-                      className="absolute inset-0 w-full h-full object-contain"
-                    />
-                  )}
+              <div ref={trackRef} className="absolute inset-0">
+                {slides.map(index => {
+                  const current = index === currentIndex;
+                  const distance = Math.abs(index - currentIndex);
+                  const showsOrigin = Boolean(originSrc) && index === initialIndex && !loaded.has(index);
+                  const ratio = current ? null : knownRatio(index);
+                  const box = current ? fitted : ratio && paneSize ? fitBox(ratio, paneSize, coarsePointer) : null;
 
-                  <Image
-                    src={images[currentIndex]}
-                    alt={`${title} ${currentIndex + 1}`}
-                    width={1200}
-                    height={800}
-                    sizes="100vw"
-                    quality={85}
-                    className={cn(
-                      "relative w-full h-full object-contain image-reveal",
-                      loadedIndex !== currentIndex && !showOrigin && "image-reveal-pending",
+                  return (
+                    <div
+                      key={index}
+                      className="absolute inset-0"
+                      style={
+                        current
+                          ? undefined
+                          : { transform: `translateX(calc(${index - currentIndex} * (100% + ${SLIDE_GAP}px)))` }
+                      }
+                      aria-hidden={current ? undefined : true}
+                    >
+                      <div
+                        ref={current ? flipRef : undefined}
+                        className="w-full h-full flex items-center justify-center"
+                      >
+                        <div
+                          ref={current ? imageContentRef : undefined}
+                          className={cn(
+                            "relative",
+                            current && !isTouching && "transition-transform",
+                            current && !isTouching && (buttonZoom ? "ease-[ease]" : "ease-out"),
+                            current && !isDragging && !isPinching && "duration-300",
+                          )}
+                          style={{
+                            width: box ? `${box.width}px` : "100%",
+                            height: box ? `${box.height}px` : "100%",
+                            ...(current
+                              ? {
+                                  transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+                                  willChange: isDragging || isPinching ? "transform" : "auto",
+                                  cursor: isDragging ? "grabbing" : "grab",
+                                }
+                              : {}),
+                          }}
+                        >
+                          {showsOrigin && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={originSrc!}
+                              alt=""
+                              aria-hidden
+                              draggable={false}
+                              className="absolute inset-0 w-full h-full object-contain"
+                            />
+                          )}
+
+                          {(distance <= preloadReach || loaded.has(index)) && (
+                            <Image
+                              src={images[index]}
+                              alt={`${title} ${index + 1}`}
+                              width={1200}
+                              height={800}
+                              sizes="100vw"
+                              quality={85}
+                              className={cn(
+                                "relative w-full h-full object-contain image-reveal",
+                                !loaded.has(index) && !showsOrigin && "image-reveal-pending",
+                              )}
+                              preload={current}
+                              loading={current ? undefined : "eager"}
+                              draggable={false}
+                              onLoad={e => {
+                                if (current && !knownRatio(index))
+                                  setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
+                                markLoaded(index);
+                              }}
+                              onError={() => markLoaded(index)}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <AnimatePresence>
+                        {distance <= 1 && !loaded.has(index) && !showsOrigin && (
+                          <motion.div
+                            key="image-spinner"
+                            className="absolute inset-0"
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.14, ease: "easeOut" }}
+                          >
+                            <ImageSpinner label={t("loading")} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            <motion.div {...chromeFade} className="absolute inset-0 pointer-events-none">
+              <div
+                inert={chromeHidden}
+                className={cn("absolute inset-0 transition-opacity duration-200", chromeHidden && "opacity-0")}
+              >
+                {images.length > 1 && (
+                  <>
+                    {currentIndex > 0 && (
+                      <RoundButton
+                        label={t("previous")}
+                        shortcut="ArrowLeft"
+                        icon="M15 19l-7-7 7-7"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-auto"
+                        padding="p-3"
+                        pressed={prevPressed}
+                        press={prevPress}
+                        onPress={() => slideBy(-1)}
+                        buttonRef={previousRef}
+                      />
                     )}
-                    preload
-                    draggable={false}
-                    onLoad={e => {
-                      if (!knownRatio(currentIndex))
-                        setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
-                      setLoadedIndex(currentIndex);
-                    }}
-                    onError={() => setLoadedIndex(currentIndex)}
-                  />
+
+                    {currentIndex < images.length - 1 && (
+                      <RoundButton
+                        label={t("next")}
+                        shortcut="ArrowRight"
+                        icon="M9 5l7 7-7 7"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 pointer-events-auto"
+                        padding="p-3"
+                        pressed={nextPressed}
+                        press={nextPress}
+                        onPress={() => slideBy(1)}
+                        buttonRef={nextRef}
+                      />
+                    )}
+                  </>
+                )}
+
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px] pointer-events-auto">
+                  <PillButton
+                    label={t("zoomOut")}
+                    disabled={zoom <= minZoom}
+                    pressed={zoomOutPressed}
+                    press={zoomOutPress}
+                    onPress={handleZoomOut}
+                  >
+                    <ZoomIcon path="M20 12H4" />
+                  </PillButton>
+
+                  <PillButton
+                    label={t("resetZoom")}
+                    ariaLabel={`${zoomPercent}, ${t("resetZoom")}`}
+                    className="text-sm"
+                    pressed={resetPressed}
+                    press={resetPress}
+                    onPress={() => zoomBy(naturalZoom / zoom, undefined, true)}
+                  >
+                    <span className="grid justify-items-center">
+                      <span className="invisible col-start-1 row-start-1">444%</span>
+                      <span className="col-start-1 row-start-1">{zoomPercent}</span>
+                    </span>
+                  </PillButton>
+
+                  <PillButton
+                    label={t("zoomIn")}
+                    disabled={zoom >= maxZoom}
+                    pressed={zoomInPressed}
+                    press={zoomInPress}
+                    onPress={handleZoomIn}
+                  >
+                    <ZoomIcon path="M12 4v16m8-8H4" />
+                  </PillButton>
                 </div>
               </div>
-
-              <AnimatePresence>
-                {loadedIndex !== currentIndex && !showOrigin && (
-                  <motion.div
-                    key="image-spinner"
-                    className="absolute inset-0"
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.14, ease: "easeOut" }}
-                  >
-                    <ImageSpinner label={t("loading")} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {images.length > 1 && (
-              <>
-                {currentIndex > 0 && (
-                  <RoundButton
-                    label={t("previous")}
-                    shortcut="ArrowLeft"
-                    icon="M15 19l-7-7 7-7"
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
-                    padding="p-3"
-                    pressed={prevPressed}
-                    press={prevPress}
-                    onPress={goToPrevious}
-                    buttonRef={previousRef}
-                  />
-                )}
-
-                {currentIndex < images.length - 1 && (
-                  <RoundButton
-                    label={t("next")}
-                    shortcut="ArrowRight"
-                    icon="M9 5l7 7-7 7"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
-                    padding="p-3"
-                    pressed={nextPressed}
-                    press={nextPress}
-                    onPress={goToNext}
-                    buttonRef={nextRef}
-                  />
-                )}
-              </>
-            )}
-
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px]">
-              <PillButton
-                label={t("zoomOut")}
-                disabled={zoom <= MIN_ZOOM}
-                pressed={zoomOutPressed}
-                press={zoomOutPress}
-                onPress={handleZoomOut}
-              >
-                <ZoomIcon path="M20 12H4" />
-              </PillButton>
-
-              <PillButton
-                label={t("resetZoom")}
-                ariaLabel={`${zoomPercent}, ${t("resetZoom")}`}
-                className="text-sm"
-                pressed={resetPressed}
-                press={resetPress}
-                onPress={() => {
-                  resetZoom();
-                  setButtonZoom(true);
-                }}
-              >
-                <span className="grid justify-items-center">
-                  <span className="invisible col-start-1 row-start-1">444%</span>
-                  <span className="col-start-1 row-start-1">{zoomPercent}</span>
-                </span>
-              </PillButton>
-
-              <PillButton
-                label={t("zoomIn")}
-                disabled={zoom >= MAX_ZOOM}
-                pressed={zoomInPressed}
-                press={zoomInPress}
-                onPress={handleZoomIn}
-              >
-                <ZoomIcon path="M12 4v16m8-8H4" />
-              </PillButton>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       )}
