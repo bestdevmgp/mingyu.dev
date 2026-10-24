@@ -3,8 +3,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { languageAlternates, localePath } from "@i18n/config";
 
+import SiteHeader from "@/_components/SiteHeader";
 import ProjectModalClient from "@/_components/project/ProjectModalClient";
-import { getProjectIds } from "@/utils/api";
+import { getNavSections, getProjectIds } from "@/utils/api";
 import { getProjectData } from "@/utils/projectData";
 import { stripTags } from "@/utils/richText";
 
@@ -56,9 +57,12 @@ export default async function ProjectPage({ params }: ProjectParams) {
   if (!projectData) notFound();
 
   return (
-    <div className="w-full md:w-[calc(100vw-4rem)] md:max-w-4xl mx-auto px-4 md:px-[33px] py-8 md:py-12">
-      <ProjectModalClient id={Number(id)} projectData={projectData} />
-      <HomeButton />
-    </div>
+    <>
+      <SiteHeader sections={getNavSections()} homeHref={localePath(locale)} />
+      <div className="w-full md:w-[calc(100vw-4rem)] md:max-w-4xl mx-auto px-4 md:px-[33px] pt-22 pb-8 md:pt-26 md:pb-12">
+        <ProjectModalClient id={Number(id)} projectData={projectData} />
+        <HomeButton />
+      </div>
+    </>
   );
 }

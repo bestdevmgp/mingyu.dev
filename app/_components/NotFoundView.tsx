@@ -41,7 +41,7 @@ const NotFoundView = ({ sections }: { sections: NavSection[] }) => {
 
   return (
     <>
-      <SiteHeader sections={sections} homeHref="/" />
+      <SiteHeader sections={sections} homeHref="/" hardNavigation />
       <main className="flex flex-col items-center justify-center px-5 pt-14 pb-[calc(var(--vh0,1vh)*12)] [@media(max-height:500px)]:pb-0">
         <div className="hero-rise hero-rise-1 flex flex-col md:flex-row [@media(max-height:500px)]:flex-row items-center gap-4 md:gap-7">
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -59,9 +59,10 @@ let refocusMenuAfterSwitch = false;
 interface SiteHeaderProps {
   sections: NavSection[];
   homeHref?: string;
+  hardNavigation?: boolean;
 }
 
-const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
+const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderProps) => {
   const t = useTranslations("Header");
   const tNav = useTranslations("Nav");
   const locale = useLocale();
@@ -235,6 +236,13 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
     window.history.replaceState(null, "", window.location.pathname + window.location.search);
   };
 
+  const leaveForHome = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isModifiedClick(event)) return;
+    try {
+      sessionStorage.removeItem("from-project");
+    } catch {}
+  };
+
   return (
     <header
       ref={scope}
@@ -258,7 +266,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
       <a
         className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0 focus-visible:rounded-md"
         href={homeHref ?? "#top"}
-        onClick={homeHref ? undefined : scrollToTop}
+        onClick={homeHref ? leaveForHome : scrollToTop}
       >
         <Sparkle className="shrink-0 text-lime" aria-hidden="true" />
         <p
@@ -275,7 +283,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
 
       <div className="flex items-center gap-2 shrink-0">
         <div className="hidden xl:flex items-center gap-[13px]">
-          <LanguageSwitcher hardNavigation={homeHref !== undefined} />
+          <LanguageSwitcher hardNavigation={hardNavigation} />
           <Tooltip label={themeLabel}>
             <ThemeToggle
               label={themeLabel}
@@ -322,7 +330,8 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
               <a
                 href={`${homeHref ?? ""}#${id}`}
                 className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80 focus-visible:rounded-sm"
-                onClick={() => {
+                onClick={event => {
+                  if (homeHref) leaveForHome(event);
                   pickedSection.current = document.getElementById(id);
                   setIsExpanded(false);
                 }}
@@ -346,7 +355,7 @@ const SiteHeader = ({ sections, homeHref }: SiteHeaderProps) => {
 
         <LanguageSwitcher
           variant="inline"
-          hardNavigation={homeHref !== undefined}
+          hardNavigation={hardNavigation}
           onLocaleChange={viaKeyboard => {
             refocusMenuAfterSwitch = viaKeyboard;
             menuCloseAt = performance.now() + LANGUAGE_CLOSE_DELAY;
