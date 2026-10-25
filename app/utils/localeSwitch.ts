@@ -17,6 +17,7 @@ let followTimer = 0;
 let releaseTimer = 0;
 let revealedSections = new Set<string>();
 let revealWatcher: MutationObserver | null = null;
+const startListeners = new Set<() => void>();
 const endListeners = new Set<() => void>();
 
 const sectionOf = (el: Element) => el.closest("section[id]")?.id ?? "";
@@ -111,6 +112,13 @@ export const recaptureLocaleAnchor = () => {
   captureAnchor();
 };
 
+export const onLocaleSwitchStart = (listener: () => void) => {
+  startListeners.add(listener);
+  return () => {
+    startListeners.delete(listener);
+  };
+};
+
 export const onLocaleSwitchEnd = (listener: () => void) => {
   endListeners.add(listener);
   return () => {
@@ -140,6 +148,7 @@ export const beginLocaleSwitch = ({ hold = true } = {}) => {
     following = false;
   }, FOLLOW_CAP);
   releaseTimer = window.setTimeout(endLocaleSwitch, RELEASE_CAP);
+  startListeners.forEach(listener => listener());
 };
 
 export const markLocaleCommitted = () => {
