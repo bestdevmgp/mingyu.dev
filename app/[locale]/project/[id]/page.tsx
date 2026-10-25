@@ -59,10 +59,10 @@ export default async function ProjectPage({ params }: ProjectParams) {
   return (
     <>
       <SiteHeader sections={getNavSections()} homeHref={localePath(locale)} />
-      <div className="w-full md:w-[calc(100vw-4rem)] md:max-w-4xl mx-auto px-4 md:px-[33px] pt-22 pb-8 md:pt-26 md:pb-12">
+      <main className="w-full md:w-[calc(100vw-4rem)] md:max-w-4xl mx-auto px-4 md:px-[33px] pt-22 pb-8 md:pt-26 md:pb-12">
         <ProjectModalClient id={Number(id)} projectData={projectData} />
         <HomeButton />
-      </div>
+      </main>
     </>
   );
 }

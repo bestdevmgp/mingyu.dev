@@ -138,7 +138,6 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
             onPointerUp={releasePress}
             onPointerCancel={releasePress}
             onPointerLeave={releasePress}
-            onTouchStart={e => e.stopPropagation()}
             style={{ touchAction: "manipulation" }}
           >
             <span

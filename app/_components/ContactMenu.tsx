@@ -64,7 +64,7 @@ interface ContactItem {
   Icon: (props: SvgProps) => React.ReactElement;
 }
 
-const CONTACTS: ContactItem[] = [
+const contactsFor = (locale: string): ContactItem[] => [
   {
     id: "email",
     label: "Email",
@@ -76,8 +76,8 @@ const CONTACTS: ContactItem[] = [
   {
     id: "phone",
     label: "Phone",
-    value: "010-3672-3858",
-    href: "tel:01036723858",
+    value: phoneDisplay(locale),
+    href: phoneHref(locale),
     iconClass: "w-[19.5px] h-[19.5px]",
     Icon: PhoneIcon,
   },
@@ -150,9 +150,7 @@ const ContactMenu = ({ variant = "dropdown" }: ContactMenuProps) => {
   const locale = useLocale();
   const { isOpen, setIsOpen, ref } = useDropdown('[role="menu"] a');
 
-  const contacts = CONTACTS.map(contact =>
-    contact.id === "phone" ? { ...contact, value: phoneDisplay(locale), href: phoneHref(locale) } : contact,
-  );
+  const contacts = contactsFor(locale);
 
   if (variant === "inline") {
     return (

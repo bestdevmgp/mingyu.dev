@@ -97,8 +97,11 @@ const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
   }, [close]);
 
   useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("scroll-locked");
     window.__lenis?.stop();
     return () => {
+      root.classList.remove("scroll-locked");
       window.__lenis?.start();
     };
   }, []);

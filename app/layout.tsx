@@ -4,6 +4,7 @@ import SiteLoader from "@/_components/SiteLoader";
 import SmoothScroll from "@/_components/SmoothScroll";
 import TextCursor from "@/_components/TextCursor";
 import ThemeScript from "@/_components/ThemeScript";
+import { REVEAL_INSET_PERCENT } from "@/utils/reveal";
 
 import "./globals.css";
 
@@ -25,7 +26,9 @@ const BOOT_SCRIPT =
   "if(document.readyState==='loading')addEventListener('DOMContentLoaded',ready,{once:true});else ready()})();" +
   "(function(){var d=document.documentElement,w=0;function s(){d.style.setProperty('--vh0',window.innerHeight/100+'px');w=window.innerWidth}s();addEventListener('resize',function(){if(window.innerWidth!==w)s()})})();" +
   "(function(){var r=document.documentElement;if(!window.IntersectionObserver)return;r.classList.add('reveal-js');" +
-  "function s(){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px -9% 0px'});" +
+  "function s(){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('is-revealed');io.unobserve(e.target)}})},{rootMargin:'0px 0px -" +
+  REVEAL_INSET_PERCENT +
+  "% 0px'});" +
   "function w(n){if(n.nodeType!==1)return;if(n.matches('[data-reveal]:not(.is-revealed)'))io.observe(n);" +
   "n.querySelectorAll('[data-reveal]:not(.is-revealed)').forEach(function(el){io.observe(el)})}w(document.body);" +
   "new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(w)})}).observe(document.body,{childList:true,subtree:true})}" +

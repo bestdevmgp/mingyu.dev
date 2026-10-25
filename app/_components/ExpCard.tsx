@@ -41,6 +41,7 @@ const ExpCard = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPressed, pressHandlers] = useTouchPress();
   const detailId = useId();
+  const shownPeriod = period.replace(" ~ ", " ~\n");
 
   const toggleDetail = () => {
     setIsExpanded(!isExpanded);
@@ -48,9 +49,11 @@ const ExpCard = ({
 
   return (
     <div className="grid sm:grid-cols-3 sm:gap-x-10 sm:items-start">
-      <div className="flex gap-2.5 sm:justify-end items-center mb-3">
+      <div className="flex gap-2.5 sm:justify-end items-center mb-3 md:-ml-8 lg:-ml-10">
         <Shape className={is_active ? "text-primary" : "text-foreground/30"} />
-        <p className="text-sm md:text-base font-normal text-foreground/60">{period}</p>
+        <p className="text-sm md:text-base font-normal text-foreground/60 sm:max-md:whitespace-pre-line">
+          {shownPeriod}
+        </p>
       </div>
 
       <div className="pl-6 sm:pl-0 sm:col-span-2 flex flex-col gap-3">
@@ -110,7 +113,7 @@ const ExpCard = ({
         {items.length > 0 && (
           <>
             <button
-              className="group/toggle text-primary/75 flex items-center gap-1 mt-2 focus-visible:outline-none"
+              className="group/toggle self-start text-primary/75 flex items-center gap-1 mt-2 focus-visible:outline-none"
               onClick={toggleDetail}
               aria-expanded={isExpanded}
               aria-controls={detailId}

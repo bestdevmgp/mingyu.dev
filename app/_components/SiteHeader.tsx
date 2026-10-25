@@ -236,13 +236,6 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
     window.history.replaceState(null, "", window.location.pathname + window.location.search);
   };
 
-  const leaveForHome = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (isModifiedClick(event)) return;
-    try {
-      sessionStorage.removeItem("from-project");
-    } catch {}
-  };
-
   return (
     <header
       ref={scope}
@@ -266,7 +259,7 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
       <a
         className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0 focus-visible:rounded-md"
         href={homeHref ?? "#top"}
-        onClick={homeHref ? leaveForHome : scrollToTop}
+        onClick={homeHref ? undefined : scrollToTop}
       >
         <Sparkle className="shrink-0 text-lime" aria-hidden="true" />
         <p
@@ -330,8 +323,7 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
               <a
                 href={`${homeHref ?? ""}#${id}`}
                 className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80 focus-visible:rounded-sm"
-                onClick={event => {
-                  if (homeHref) leaveForHome(event);
+                onClick={() => {
                   pickedSection.current = document.getElementById(id);
                   setIsExpanded(false);
                 }}

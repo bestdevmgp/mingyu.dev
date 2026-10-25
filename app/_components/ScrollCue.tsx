@@ -4,7 +4,6 @@ import { useEffect } from "react";
 
 import cn from "classnames";
 
-import { isLocaleSwitching } from "@/utils/localeSwitch";
 import useCarriedState from "@/utils/useCarriedState";
 
 const ScrollCue = () => {
@@ -19,14 +18,14 @@ const ScrollCue = () => {
     const io = new IntersectionObserver(([entry]) => {
       const atMount = first;
       first = false;
-      if (!entry.isIntersecting || isLocaleSwitching()) return;
+      if (!entry.isIntersecting) return;
       io.disconnect();
       if (!atMount || !block || block.classList.contains("is-revealed")) {
         setHidden(true);
         return;
       }
       reveal = new MutationObserver(() => {
-        if (!block.classList.contains("is-revealed") || isLocaleSwitching()) return;
+        if (!block.classList.contains("is-revealed")) return;
         setHidden(true);
         reveal?.disconnect();
       });

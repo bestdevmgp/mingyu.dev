@@ -1,3 +1,5 @@
+import { isLocaleSwitchNavigation } from "@/utils/localeSwitch";
+
 import type { PostHog } from "posthog-js";
 
 const KEY = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
@@ -13,6 +15,7 @@ let client: PostHog | null = null;
 let booting = false;
 let switchedLocale: string | null = null;
 const queue: { name: string; props?: Props }[] = [];
+const localeChangeListeners = new Set<() => void>();
 
 export const isLocalhost = () => /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
 
@@ -44,7 +47,15 @@ export function track(name: string, props?: Props) {
     queue.push({ name, props: { locale: switchedLocale ?? document.documentElement.lang, ...props } });
 }
 
+export const beforeLocaleChange = (listener: () => void) => {
+  localeChangeListeners.add(listener);
+  return () => {
+    localeChangeListeners.delete(listener);
+  };
+};
+
 export function setLocale(locale: string) {
+  localeChangeListeners.forEach(listener => listener());
   switchedLocale = locale;
   client?.register({ locale });
 }
@@ -72,6 +83,7 @@ export async function bootPostHog() {
     person_profiles: "identified_only",
     disable_capture_url_hashes: true,
     persistence: "localStorage+cookie",
+    before_send: event => (event?.event === "$pageview" && isLocaleSwitchNavigation() ? null : event),
   });
 
   const visits = nextVisitCount();

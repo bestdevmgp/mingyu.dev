@@ -117,6 +117,10 @@ header :is(a[href], button) {
   }
 }
 
+html.scroll-locked {
+  overflow: clip;
+}
+
 #modal-content {
   scrollbar-gutter: stable;
 }
@@ -135,7 +139,7 @@ body {
 
 @font-face {
   font-family: "Pretendard";
-  src: url("/fonts/pretendard-ext-v7.woff2") format("woff2");
+  src: url("/fonts/pretendard-ext-v8.woff2") format("woff2");
   font-weight: 400 800;
   font-style: normal;
   font-display: swap;
@@ -146,7 +150,7 @@ body {
 }
 @font-face {
   font-family: "Pretendard";
-  src: url("/fonts/pretendard-core-v7.woff2") format("woff2");
+  src: url("/fonts/pretendard-core-v8.woff2") format("woff2");
   font-weight: 400 800;
   font-style: normal;
   font-display: swap;
@@ -400,10 +404,8 @@ nav[data-selecting] [aria-pressed="true"] > span {
     transform 0.6s ease-out;
   transition-delay: calc(0.1s + var(--reveal-index, 0) * 0.2s);
 }
-:root.locale-switching [data-reveal],
-:root.locale-switching [data-reveal-stagger] {
-  opacity: 1;
-  transform: none;
+:root.locale-switching [data-reveal].is-revealed,
+:root.locale-switching [data-reveal].is-revealed [data-reveal-stagger] {
   transition: none;
 }
 :root.locale-switching,

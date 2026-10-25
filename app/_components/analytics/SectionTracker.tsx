@@ -4,11 +4,12 @@ import { useEffect } from "react";
 
 import { isLocaleSwitching } from "@/utils/localeSwitch";
 
-import { isAnalyticsEnabled, track } from "./posthog";
+import { beforeLocaleChange, isAnalyticsEnabled, track } from "./posthog";
 
 const SECTIONS = ["main", "competencies", "skills", "career", "projects", "blog", "education", "contact"] as const;
 
 const MIN_DWELL_MS = 1000;
+const BOTTOM_TOLERANCE = 2;
 
 type Target = { id: string; order: number; el: HTMLElement };
 
@@ -73,10 +74,14 @@ const SectionTracker = () => {
       return Math.min(100, ((window.scrollY + window.innerHeight) / height) * 100);
     };
 
+    const atBottom = () =>
+      window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - BOTTOM_TOLERANCE;
+
     const sample = () => {
       visit.maxScroll = Math.max(visit.maxScroll, scrollPct());
       const id = currentSection();
-      if (rankOf(id) > rankOf(visit.deepest)) visit.deepest = id;
+      const reached = atBottom() ? targets[targets.length - 1].id : id;
+      if (rankOf(reached) > rankOf(visit.deepest)) visit.deepest = reached;
       return id;
     };
 
@@ -93,15 +98,7 @@ const SectionTracker = () => {
       activeSince = at;
     };
 
-    const flush = () => {
-      const at = performance.now();
-      sample();
-      bank(at);
-      if (visit.engagedFrom) {
-        visit.engagedBase += at - visit.engagedFrom;
-        visit.engagedFrom = 0;
-      }
-
+    const reportDwell = () =>
       visit.dwell.forEach((total, id) => {
         const delta = total - (visit.reported.get(id) ?? 0);
         if (delta < MIN_DWELL_MS) return;
@@ -113,6 +110,24 @@ const SectionTracker = () => {
           total_visible_ms: Math.round(total),
         });
       });
+
+    const reportBeforeLocaleChange = () => {
+      const at = performance.now();
+      bank(at);
+      reportDwell();
+      if (visit.engagedFrom) resume(at);
+    };
+
+    const flush = () => {
+      const at = performance.now();
+      sample();
+      bank(at);
+      if (visit.engagedFrom) {
+        visit.engagedBase += at - visit.engagedFrom;
+        visit.engagedFrom = 0;
+      }
+
+      reportDwell();
 
       const leave = {
         max_section: visit.deepest,
@@ -175,6 +190,7 @@ const SectionTracker = () => {
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pagehide", flush);
     document.addEventListener("click", onClick, true);
+    const stopLocaleWatch = beforeLocaleChange(reportBeforeLocaleChange);
 
     return () => {
       observer.disconnect();
@@ -182,6 +198,7 @@ const SectionTracker = () => {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pagehide", flush);
       document.removeEventListener("click", onClick, true);
+      stopLocaleWatch();
       if (rafId) cancelAnimationFrame(rafId);
       if (!isLocaleSwitching()) return;
       bank(performance.now());

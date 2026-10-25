@@ -20,6 +20,9 @@ const KEYCAPS = {
 
 type Phase = "hidden" | "enter" | "exit";
 
+const unavailable = (trigger: HTMLElement) =>
+  trigger.matches('[aria-disabled="true"]') || trigger.getAttribute("aria-expanded") === "true";
+
 let handOff: (() => void) | null = null;
 let visible: (() => void) | null = null;
 
@@ -70,12 +73,13 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
 
   const show = useCallback(() => {
     const trigger = triggerRef.current;
-    if (!trigger || suppressed.current) return;
-    if (trigger.matches('[aria-disabled="true"]') || trigger.getAttribute("aria-expanded") === "true") return;
+    if (!trigger || suppressed.current || unavailable(trigger)) return;
     window.clearTimeout(timer.current);
     release();
     if (phaseRef.current === "hidden" && !handOff) {
-      timer.current = window.setTimeout(() => go("enter"), SHOW_DELAY);
+      timer.current = window.setTimeout(() => {
+        if (!unavailable(trigger)) go("enter");
+      }, SHOW_DELAY);
       return;
     }
     if (phaseRef.current !== "enter") go("enter");
@@ -128,6 +132,16 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
     tip.style.fontFamily = getComputedStyle(trigger).fontFamily;
     place();
   }, [phase, place, label]);
+
+  useEffect(() => {
+    const trigger = triggerRef.current;
+    if (phase !== "enter" || !trigger) return;
+    const observer = new MutationObserver(() => {
+      if (trigger.matches('[aria-disabled="true"]')) hide(true);
+    });
+    observer.observe(trigger, { attributes: true, attributeFilter: ["aria-disabled"] });
+    return () => observer.disconnect();
+  }, [phase, hide]);
 
   useEffect(() => {
     if (phase === "hidden") return;

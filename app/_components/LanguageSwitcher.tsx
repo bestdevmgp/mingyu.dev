@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Check } from "react-feather";
 
 import cn from "classnames";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
-import { LOCALE_COOKIE, locales, type Locale } from "@i18n/config";
+import { localePath, locales, type Locale } from "@i18n/config";
 
-import { beginLocaleSwitch, isLocaleSwitching, onLocaleSwitchEnd } from "@/utils/localeSwitch";
+import { unprefixedPath, writeLocaleCookie } from "@/utils/localePreference";
+import { beginLocaleSwitch, endLocaleSwitch, isLocaleSwitching, onLocaleSwitchEnd } from "@/utils/localeSwitch";
 import useDropdown from "@/utils/useDropdown";
 
 import DropdownPanel from "./DropdownPanel";
@@ -39,21 +40,9 @@ const LOCALE_LABELS: Record<Locale, string> = {
   "zh-Hant": "繁體中文",
 };
 
-const LOCALE_PREFIX = new RegExp(`^/(?:${locales.join("|")})(?=/|$)`);
-
-const setLocaleCookie = (locale: Locale) => {
-  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax; secure`;
-};
-
 let refocusTrigger = false;
-const refocusTriggerAfterSwitch = (value: boolean) => {
-  refocusTrigger = value;
-};
 
 let queuedSwitch: { locale: Locale; viaKeyboard: boolean; variant: "dropdown" | "inline" } | null = null;
-const queueSwitch = (value: typeof queuedSwitch) => {
-  queuedSwitch = value;
-};
 
 interface LanguageSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "dropdown" | "inline";
@@ -77,12 +66,21 @@ const LanguageSwitcher = ({
 
   const [pendingLocale, setPendingLocale] = useState<Locale | null>(null);
   const displayLocale = pendingLocale ?? activeLocale;
+  const [navigating, startNavigation] = useTransition();
+  const navigationTarget = useRef<Locale | null>(null);
+
+  useEffect(() => {
+    const target = navigationTarget.current;
+    if (navigating || !target) return;
+    navigationTarget.current = null;
+    if (target !== activeLocale) endLocaleSwitch();
+  }, [navigating, activeLocale]);
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const trigger = triggerRef.current;
     if (!refocusTrigger || !trigger?.getClientRects().length) return;
-    refocusTriggerAfterSwitch(false);
+    refocusTrigger = false;
     trigger.focus({ preventScroll: true, focusVisible: true });
   }, [activeLocale]);
 
@@ -90,24 +88,24 @@ const LanguageSwitcher = ({
     setIsOpen(false);
     if (nextLocale === displayLocale) return;
     if (isLocaleSwitching()) {
-      queueSwitch({ locale: nextLocale, viaKeyboard, variant });
+      queuedSwitch = { locale: nextLocale, viaKeyboard, variant };
       setPendingLocale(nextLocale);
       return;
     }
     onLocaleChange?.(viaKeyboard);
-    refocusTriggerAfterSwitch(variant === "dropdown" && viaKeyboard);
+    refocusTrigger = variant === "dropdown" && viaKeyboard;
     setPendingLocale(nextLocale);
-    setLocaleCookie(nextLocale);
+    const path = unprefixedPath(pathname);
+    const target = writeLocaleCookie(nextLocale) ? path || "/" : localePath(nextLocale, path);
     track("locale_changed", { from: displayLocale, to: nextLocale });
     setLocale(nextLocale);
-    const rootPath = pathname.replace(LOCALE_PREFIX, "") || "/";
     if (hardNavigation) {
-      window.location.replace(rootPath + window.location.hash);
+      window.location.replace(target + window.location.hash);
       return;
     }
     beginLocaleSwitch();
-    if (rootPath !== pathname) router.replace(rootPath);
-    else router.refresh();
+    navigationTarget.current = nextLocale;
+    startNavigation(() => (target !== pathname ? router.replace(target) : router.refresh()));
   };
 
   const changeLocaleRef = useRef(changeLocale);
@@ -117,9 +115,10 @@ const LanguageSwitcher = ({
   useEffect(
     () =>
       onLocaleSwitchEnd(() => {
+        setPendingLocale(null);
         if (queuedSwitch?.variant !== variant) return;
         const { locale, viaKeyboard } = queuedSwitch;
-        queueSwitch(null);
+        queuedSwitch = null;
         changeLocaleRef.current(locale, viaKeyboard);
       }),
     [variant],

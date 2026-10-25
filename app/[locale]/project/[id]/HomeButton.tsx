@@ -7,18 +7,30 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { localePath } from "@i18n/config";
 
+import { unprefixedPath } from "@/utils/localePreference";
+
+const rememberOrigin = (origin: "page" | "return") => {
+  try {
+    sessionStorage.setItem("from-project", origin);
+  } catch {}
+};
+
 const HomeButton = () => {
   const t = useTranslations("Common");
   const locale = useLocale();
   const router = useRouter();
 
   useEffect(() => {
-    try {
-      sessionStorage.setItem("from-project", "1");
-    } catch {}
+    rememberOrigin("page");
+    const markReturn = () => {
+      if (!unprefixedPath(window.location.pathname)) rememberOrigin("return");
+    };
+    window.addEventListener("popstate", markReturn);
+    return () => window.removeEventListener("popstate", markReturn);
   }, []);
 
   const moveHome = () => {
+    rememberOrigin("return");
     router.replace(localePath(locale));
   };
   return (

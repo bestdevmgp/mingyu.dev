@@ -11,7 +11,7 @@ import RootLayout from "./layout";
 import type { Metadata } from "next";
 
 const FONT_PRELOAD: Record<string, string> = {
-  ko: "/fonts/pretendard-core-v7.woff2",
+  ko: "/fonts/pretendard-core-v8.woff2",
   en: "/fonts/inter-v3.woff2",
 };
 

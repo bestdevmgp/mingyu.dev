@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 
+import { recaptureLocaleAnchor } from "@/utils/localeSwitch";
 import { landingOf, NAV_SECTIONS, sectionElements, TOC_QUERY } from "@/utils/sectionLanding";
 
 const WAIT_LIMIT = 8000;
@@ -10,9 +11,17 @@ const SETTLED_TOLERANCE = 2;
 
 const RestoreProjectScroll = () => {
   useEffect(() => {
+    let origin: string | null;
     try {
-      if (!sessionStorage.getItem("from-project")) return;
+      origin = sessionStorage.getItem("from-project");
     } catch {
+      return;
+    }
+    if (!origin) return;
+
+    const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    if (origin === "page" && navigation?.type !== "back_forward") {
+      sessionStorage.removeItem("from-project");
       return;
     }
 
@@ -45,6 +54,7 @@ const RestoreProjectScroll = () => {
       if (lenis) lenis.scrollTo(tall ? landing : target, { immediate: true });
       else if (tall) window.scrollTo(0, landing);
       else target.scrollIntoView();
+      recaptureLocaleAnchor();
 
       const reached = tall
         ? Math.abs(window.scrollY - landing) < SETTLED_TOLERANCE

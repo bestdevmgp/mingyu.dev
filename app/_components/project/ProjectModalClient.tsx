@@ -6,6 +6,7 @@ import cn from "classnames";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
+import { isLocaleSwitching } from "@/utils/localeSwitch";
 import type { getProjectData } from "@/utils/projectData";
 import richText from "@/utils/richText";
 
@@ -41,6 +42,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
   const { title, sub_title, member, period, skills, links, items, imageSizes } = projectData;
 
   const handleImageClick = (imageIndex: number, groupIndex: number) => {
+    if (isLocaleSwitching()) return;
     setSelectedImageIndex(imageIndex);
     setSelectedGroup(groupIndex);
     setIsImageModalOpen(true);
@@ -76,9 +78,9 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
           <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} fill alt="" />
         </div>
 
-        <p id="project-modal-title" className="text-xl md:text-2xl font-semibold leading-normal mb-4">
+        <h1 id="project-modal-title" className="text-start text-xl md:text-2xl font-semibold leading-normal mb-4">
           {richText(title)}
-        </p>
+        </h1>
 
         <div className="flex gap-6 flex-wrap">
           {[
@@ -103,11 +105,11 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
       <div className="w-full h-px min-h-px bg-foreground/10 my-10 md:my-12" />
 
       <div id="project-modal-content" className="text-sm md:text-base flex flex-col gap-2">
-        <p className="font-semibold text-base md:text-lg">{t("detail")}</p>
+        <h2 className="font-semibold text-base md:text-lg">{t("detail")}</h2>
         <ol>
           {items.map((item, index) => (
             <li key={`project-item-${index}`} className="mb-6 md:mb-8 last:mb-0">
-              <span>{item.title}</span>
+              <h3 className="inline">{item.title}</h3>
               <div className="h-2" />
               <ul className="text-foreground/80 marker:text-foreground/60">
                 {item.content.map((text, contentIndex) => (

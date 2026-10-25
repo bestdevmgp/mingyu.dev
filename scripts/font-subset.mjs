@@ -148,9 +148,28 @@ const renderedChars = locale => {
   return [...chars].sort((a, b) => a.codePointAt(0) - b.codePointAt(0)).join("");
 };
 
-const recipeOf = ({ source, instance, slice, options }) =>
+const extensionRange = name =>
+  readFileSync(globalsPath, "utf8")
+    .match(/@font-face\s*{[^}]*}/g)
+    ?.find(block => block.includes(`/fonts/${name}-v`))
+    ?.match(/unicode-range:([^;]*);/)?.[1]
+    .replace(/\s+/g, "") ?? "";
+
+const inRange = range => {
+  const spans = range.split(",").map(span =>
+    span
+      .replace("U+", "")
+      .split("-")
+      .map(hex => parseInt(hex, 16)),
+  );
+  return code => spans.some(([start, end = start]) => code >= start && code <= end);
+};
+
+const recipeOf = ({ source, instance, slice, options, extension }) =>
   createHash("sha256")
-    .update(JSON.stringify([FONTTOOLS, source, instance, slice, options]))
+    .update(
+      JSON.stringify([FONTTOOLS, source, instance, slice, options, ...(extension ? [extensionRange(extension)] : [])]),
+    )
     .digest("hex")
     .slice(0, 12);
 
@@ -265,7 +284,8 @@ for (const [locale, font] of Object.entries(LOCALES)) {
   const codes = { file: [...chars].map(c => c.codePointAt(0)).filter(code => available.has(code)) };
   if (font.extension) {
     const coverage = new Set([...cmap(join(fontsDir, previous.file)), ...cmap(join(fontsDir, previous.extension))]);
-    codes.extension = [...coverage].filter(code => !codes.file.includes(code)).sort((a, b) => a - b);
+    const reachable = inRange(extensionRange(font.extension));
+    codes.extension = [...coverage].filter(code => !codes.file.includes(code) && reachable(code)).sort((a, b) => a - b);
   }
   const built = Object.fromEntries(Object.entries(codes).map(([key, list]) => [key, subset(sourcePath, list, font)]));
   if (

@@ -107,10 +107,9 @@ interface ShownArea {
   bottom: number;
 }
 
-const shownArea = (thumbnail: HTMLElement | null, pane: HTMLElement): ShownArea | null => {
-  if (!thumbnail) return null;
+const shownArea = (pane: HTMLElement): ShownArea => {
   const paneTop = pane.getBoundingClientRect().top;
-  const popup = thumbnail.closest<HTMLElement>('[role="dialog"]');
+  const popup = pane.closest<HTMLElement>("#modal-content");
   if (popup) {
     const top = popup.getBoundingClientRect().top + popup.clientTop - paneTop;
     return { top, bottom: top + popup.clientHeight };
@@ -141,6 +140,9 @@ const fadeEdgeMask = (mask: EdgeMask, pane: HTMLElement, area: ShownArea, to: nu
   });
 };
 
+const loadedSrc = (image: HTMLImageElement | null) =>
+  image?.complete && image.naturalWidth > 0 ? image.currentSrc : null;
+
 const fitBox = (ratio: number, pane: { width: number; height: number }, fill: boolean) => {
   const widthRatio = fill ? 1 : pane.height > pane.width ? TALL_FIT_RATIO : FIT_RATIO;
   const heightRatio = fill ? 1 : FIT_RATIO;
@@ -159,6 +161,7 @@ interface RoundButtonProps {
   pressed: boolean;
   press: PressHandlers;
   onPress: () => void;
+  disabled?: boolean;
   buttonRef?: Ref<HTMLButtonElement>;
 }
 
@@ -171,12 +174,16 @@ const RoundButton = ({
   pressed,
   press,
   onPress,
+  disabled,
   buttonRef,
 }: RoundButtonProps) => (
   <Tooltip label={label} shortcut={shortcut}>
     <button
       ref={buttonRef}
-      onClick={onPress}
+      onClick={() => {
+        if (!disabled) onPress();
+      }}
+      aria-disabled={disabled || undefined}
       {...press}
       className={cn("group", className, "text-white rounded-full")}
       aria-label={label}
@@ -264,9 +271,10 @@ export default function ImageModal({
   const [isTouching, setIsTouching] = useState(false);
   const [aspect, setAspect] = useState<number | null>(null);
   const [loaded, setLoaded] = useState<ReadonlySet<number>>(() => new Set());
+  const [failed, setFailed] = useState<ReadonlySet<number>>(() => new Set());
+  const [standIns, setStandIns] = useState<ReadonlyMap<number, string>>(() => new Map());
   const [fitted, setFitted] = useState<{ width: number; height: number } | null>(null);
   const [paneSize, setPaneSize] = useState<{ width: number; height: number } | null>(null);
-  const [originSrc, setOriginSrc] = useState<string | null>(null);
   const [coarsePointer, setCoarsePointer] = useState(false);
   const [preloadReach, setPreloadReach] = useState(0);
   const [closeFlies, setCloseFlies] = useState(false);
@@ -287,7 +295,7 @@ export default function ImageModal({
   const trackRef = useRef<HTMLDivElement>(null);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
   const dragStartRef = useRef({ x: 0, y: 0 });
-  const pinchStartRef = useRef({ distance: 0, zoom: 1 });
+  const pinchStartRef = useRef({ distance: 0, zoom: 1, midpoint: { x: 0, y: 0 }, position: { x: 0, y: 0 } });
   const lastTouchTimeRef = useRef(0);
   const touchStartPosRef = useRef({ x: 0, y: 0 });
   const hasMovedRef = useRef(false);
@@ -307,6 +315,7 @@ export default function ImageModal({
   const chromeTimerRef = useRef(0);
   const hoveredRef = useRef<Element | null>(null);
   const edgeMaskRef = useRef<EdgeMask>({ alpha: 1 });
+  const sessionRef = useRef(0);
   const previousRef = useRef<HTMLButtonElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const focusAfterStepRef = useRef<RefObject<HTMLButtonElement | null> | null>(null);
@@ -326,6 +335,12 @@ export default function ImageModal({
     setChromeHidden(false);
     restartIdle();
   };
+
+  useEffect(() => {
+    const active = document.activeElement;
+    const hidesFocus = active instanceof HTMLButtonElement && overlayRef.current?.contains(active);
+    if (chromeHidden && hidesFocus && !active.matches(":focus-visible")) active.blur();
+  }, [chromeHidden]);
 
   const measureVisualBox = useCallback(() => {
     const wrapper = flipRef.current;
@@ -400,13 +415,12 @@ export default function ImageModal({
 
   const goTo = useCallback(
     (index: number) => {
-      stopSlide();
       if (index === images.length - 1 && document.activeElement === nextRef.current)
         focusAfterStepRef.current = previousRef;
       if (index === 0 && document.activeElement === previousRef.current) focusAfterStepRef.current = nextRef;
       showImage(index);
     },
-    [images.length, showImage, stopSlide],
+    [images.length, showImage],
   );
 
   useLayoutEffect(() => {
@@ -420,29 +434,51 @@ export default function ImageModal({
     pendingOffsetRef.current = 0;
   }, [currentIndex, setTrack]);
 
+  const paneWidth = useCallback(() => imageRef.current?.offsetWidth ?? 0, []);
+
+  const takeOverSlide = useCallback(() => {
+    const slide = stopSlide();
+    const index = indexRef.current;
+    if (!slide) return { swapped: false, velocity: 0 };
+    if (slide.target !== index) {
+      pendingOffsetRef.current = trackOffsetRef.current + (slide.target - index) * (paneWidth() + SLIDE_GAP);
+      flushSync(() => goTo(slide.target));
+    }
+    return { swapped: slide.target !== index, velocity: slide.velocity };
+  }, [goTo, paneWidth, stopSlide]);
+
   const requestClose = useCallback(() => {
     if (isClosingRef.current) return;
     isClosingRef.current = true;
-    stopSlide();
+    takeOverSlide();
     window.clearTimeout(wheelTimerRef.current);
     window.clearTimeout(tapTimerRef.current);
     window.clearTimeout(chromeTimerRef.current);
 
+    const pane = imageRef.current;
+    const offset = trackOffsetRef.current;
+    if (offset) setTrack(0);
     const wrapper = flipRef.current;
-    const thumbnail = getThumbnail(currentIndex);
+    const thumbnail = getThumbnail(indexRef.current);
     const origin = thumbnail ? getVisibleImageBox(thumbnail) : null;
     const target = measureVisualBox();
+    if (offset) setTrack(offset);
     const transform = origin && target ? getFlipTransform(origin, target.box, target.pivot) : null;
     const flies = wrapper !== null && transform !== null && !prefersReducedMotion();
 
-    const pane = imageRef.current;
-    const area = flies && pane ? shownArea(thumbnail, pane) : null;
-    if (flies) flipTo(wrapper, transform, timing.close, FLIP_EASING);
-    if (pane && area) fadeEdgeMask(edgeMaskRef.current, pane, area, 0);
+    if (flies) {
+      flipTo(wrapper, transform, timing.close, FLIP_EASING);
+      if (pane) fadeEdgeMask(edgeMaskRef.current, pane, shownArea(pane), 0);
+    }
+    if (offset) animate(offset, 0, { duration: timing.close / 1000, ease: FLIP_CURVE, onUpdate: setTrack });
 
+    setIsDragging(false);
+    setIsPinching(false);
+    setIsTouching(false);
+    setChromeHidden(false);
     setCloseFlies(flies);
     onClose();
-  }, [currentIndex, getThumbnail, measureVisualBox, stopSlide, timing.close, onClose]);
+  }, [getThumbnail, measureVisualBox, setTrack, takeOverSlide, timing.close, onClose]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -452,6 +488,7 @@ export default function ImageModal({
   useLayoutEffect(() => {
     if (!isOpen) return;
     isClosingRef.current = false;
+    sessionRef.current += 1;
     swipeRef.current = null;
     wheelGestureRef.current = null;
     lastTapRef.current = null;
@@ -462,6 +499,7 @@ export default function ImageModal({
     edgeMaskRef.current.alpha = 1;
     setTrack(0);
     setLoaded(new Set());
+    setFailed(new Set());
     setPreloadReach(0);
     setHeading(null);
     setChromeHidden(false);
@@ -472,7 +510,8 @@ export default function ImageModal({
     if (pane) setPaneSize({ width: pane.offsetWidth, height: pane.offsetHeight });
 
     const thumbnail = getThumbnail(initialIndex);
-    setOriginSrc(thumbnail?.currentSrc || null);
+    const standIn = loadedSrc(thumbnail);
+    setStandIns(standIn ? new Map([[initialIndex, standIn]]) : new Map());
 
     const ratio = knownRatio(initialIndex) ?? (thumbnail ? thumbnail.naturalWidth / thumbnail.naturalHeight : NaN);
     if (!Number.isFinite(ratio) || ratio <= 0) return;
@@ -493,10 +532,8 @@ export default function ImageModal({
     if (!transform) return;
     flipFrom(wrapper, transform, timing.open, FLIP_EASING);
 
-    const area = shownArea(thumbnail, pane);
-    if (!area) return;
     edgeMaskRef.current.alpha = 0;
-    fadeEdgeMask(edgeMaskRef.current, pane, area, 1, timing.open / 1000 - PHOTO_FADE);
+    fadeEdgeMask(edgeMaskRef.current, pane, shownArea(pane), 1, timing.open / 1000 - PHOTO_FADE);
   }, [isOpen, initialIndex, getThumbnail, knownRatio, fitToPane, resetZoom, restartIdle, setTrack, timing.open]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -557,6 +594,11 @@ export default function ImageModal({
   const minZoom = Math.min(MIN_ZOOM, naturalZoom);
   const maxZoom = Math.max(Math.min(MAX_ZOOM, MAX_PERCENT / 100 / fitScale), naturalZoom);
 
+  const paneOffset = (clientX: number, clientY: number) => {
+    const rect = imageRef.current?.getBoundingClientRect();
+    return rect ? { x: clientX - rect.left - rect.width / 2, y: clientY - rect.top - rect.height / 2 } : { x: 0, y: 0 };
+  };
+
   const zoomBy = (factor: number, anchor = { x: 0, y: 0 }, fromButton = false) => {
     const clamped = Math.max(minZoom, Math.min(maxZoom, zoom * factor));
     if (clamped === zoom) return;
@@ -579,7 +621,20 @@ export default function ImageModal({
   const markLoaded = (index: number) =>
     setLoaded(previous => (previous.has(index) ? previous : new Set(previous).add(index)));
 
-  const paneWidth = () => imageRef.current?.offsetWidth ?? 0;
+  const markFailed = (index: number) => {
+    markLoaded(index);
+    setFailed(previous => (previous.has(index) ? previous : new Set(previous).add(index)));
+    const thumbnail = getThumbnail(index);
+    if (!thumbnail) return;
+    const session = sessionRef.current;
+    const adoptThumbnail = () => {
+      const src = loadedSrc(thumbnail);
+      if (session !== sessionRef.current || !src) return;
+      setStandIns(previous => (previous.has(index) ? previous : new Map(previous).set(index, src)));
+    };
+    if (thumbnail.complete) adoptThumbnail();
+    else thumbnail.addEventListener("load", adoptThumbnail, { once: true });
+  };
 
   const resist = (offset: number) => {
     const blocked = offset > 0 ? currentIndex === 0 : currentIndex === images.length - 1;
@@ -635,17 +690,6 @@ export default function ImageModal({
           onComplete,
         })
       : animate(from, to, { type: "spring", ...SLIDE_SPRING, velocity: start, onUpdate, onComplete });
-  };
-
-  const takeOverSlide = () => {
-    const slide = stopSlide();
-    const index = indexRef.current;
-    if (!slide) return { swapped: false, velocity: 0 };
-    if (slide.target !== index) {
-      pendingOffsetRef.current = trackOffsetRef.current + (slide.target - index) * (paneWidth() + SLIDE_GAP);
-      flushSync(() => goTo(slide.target));
-    }
-    return { swapped: slide.target !== index, velocity: slide.velocity };
   };
 
   const slideBy = (direction: number) => {
@@ -711,13 +755,7 @@ export default function ImageModal({
       return;
     }
 
-    const rect = imageRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    zoomBy(
-      Math.min(DOUBLE_TAP_ZOOM, maxZoom),
-      { x: point.x - rect.left - rect.width / 2, y: point.y - rect.top - rect.height / 2 },
-      true,
-    );
+    zoomBy(Math.min(DOUBLE_TAP_ZOOM, maxZoom), paneOffset(point.x, point.y), true);
   };
 
   const handleTap = (point: { x: number; y: number }, time: number) => {
@@ -884,17 +922,35 @@ export default function ImageModal({
     };
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
+  const handleDragMove = (e: MouseEvent) => {
+    if (!(e.buttons & 1)) return setIsDragging(false);
     setPosition(constrainPosition(e.clientX - dragStartRef.current.x, e.clientY - dragStartRef.current.y, zoom));
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+  const dragMoveRef = useRef(handleDragMove);
+  useEffect(() => {
+    dragMoveRef.current = handleDragMove;
+  });
+
+  useEffect(() => {
+    if (!isDragging || isTouching) return;
+
+    const onMove = (e: MouseEvent) => dragMoveRef.current(e);
+    const onUp = () => setIsDragging(false);
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [isDragging, isTouching]);
 
   const getDistance = (touch1: React.Touch, touch2: React.Touch) =>
     Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+
+  const getMidpoint = (touch1: React.Touch, touch2: React.Touch) =>
+    paneOffset((touch1.clientX + touch2.clientX) / 2, (touch1.clientY + touch2.clientY) / 2);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
@@ -911,7 +967,7 @@ export default function ImageModal({
       pinchDistanceRef.current = distance;
       pinchDirectionRef.current = 0;
       setIsPinching(true);
-      pinchStartRef.current = { distance, zoom };
+      pinchStartRef.current = { distance, zoom, midpoint: getMidpoint(e.touches[0], e.touches[1]), position };
       hasMovedRef.current = false;
     } else if (e.touches.length === 1) {
       touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
@@ -943,10 +999,18 @@ export default function ImageModal({
       if (!delta || (Math.sign(delta) !== pinchDirectionRef.current && Math.abs(delta) < PINCH_DEADZONE)) return;
       pinchDirectionRef.current = Math.sign(delta);
       pinchDistanceRef.current = distance;
-      const scale = distance / pinchStartRef.current.distance;
-      const newZoom = Math.max(minZoom, Math.min(maxZoom, pinchStartRef.current.zoom * scale));
+      const start = pinchStartRef.current;
+      const newZoom = Math.max(minZoom, Math.min(maxZoom, start.zoom * (distance / start.distance)));
+      const ratio = newZoom / start.zoom;
+      const midpoint = getMidpoint(e.touches[0], e.touches[1]);
       setZoom(newZoom);
-      setPosition(constrainPosition(position.x, position.y, newZoom));
+      setPosition(
+        constrainPosition(
+          midpoint.x - (start.midpoint.x - start.position.x) * ratio,
+          midpoint.y - (start.midpoint.y - start.position.y) * ratio,
+          newZoom,
+        ),
+      );
       hasMovedRef.current = true;
     } else if (e.touches.length === 1) {
       const touch = e.touches[0];
@@ -1019,6 +1083,11 @@ export default function ImageModal({
     index => index >= 0 && index < images.length,
   );
   const zoomPercent = `${Math.round(zoom * fitScale * 100)}%`;
+  const shownIndex = heading ?? currentIndex;
+  const showsPrevious = Math.max(shownIndex, currentIndex) > 0;
+  const showsNext = Math.min(shownIndex, currentIndex) < images.length - 1;
+  const leavingPrevious = shownIndex === 0;
+  const leavingNext = shownIndex === images.length - 1;
 
   const overlayVariants: Variants = {
     exit: (flies: boolean) => ({
@@ -1037,6 +1106,7 @@ export default function ImageModal({
     animate: { opacity: 1 },
     transition: { duration: timing.open / 1000, ease: FLIP_CURVE },
   } as const;
+  const reachable = !chromeHidden && "pointer-events-auto";
 
   return (
     <AnimatePresence custom={closeFlies} onExitComplete={resetZoom}>
@@ -1060,19 +1130,22 @@ export default function ImageModal({
           <div className="relative w-full h-full flex items-center justify-center">
             <motion.div {...chromeFade} className="absolute top-4 left-4 right-4 z-20 pointer-events-none">
               <div
-                inert={chromeHidden}
                 className={cn(
                   "flex justify-between items-center transition-opacity duration-200",
                   chromeHidden && "opacity-0",
                 )}
               >
                 {images.length > 1 && (
-                  <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm pointer-events-auto">
-                    {(heading ?? currentIndex) + 1} / {images.length}
+                  <div
+                    aria-live="polite"
+                    aria-atomic="true"
+                    className={cn("bg-black/50 text-white px-3 py-1 rounded-full text-sm", reachable)}
+                  >
+                    {shownIndex + 1} / {images.length}
                   </div>
                 )}
 
-                <div className="ml-auto pointer-events-auto">
+                <div className={cn("ml-auto", reachable)}>
                   <RoundButton
                     label={t("close")}
                     shortcut="Escape"
@@ -1095,9 +1168,6 @@ export default function ImageModal({
               onClick={handleImageClick}
               onDoubleClick={handleDoubleClick}
               onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -1110,7 +1180,8 @@ export default function ImageModal({
                 {slides.map(index => {
                   const current = index === currentIndex;
                   const distance = Math.abs(index - currentIndex);
-                  const showsOrigin = Boolean(originSrc) && index === initialIndex && !loaded.has(index);
+                  const standIn = standIns.get(index);
+                  const showsStandIn = standIn !== undefined && (!loaded.has(index) || failed.has(index));
                   const ratio = current ? null : knownRatio(index);
                   const box = current ? fitted : ratio && paneSize ? fitBox(ratio, paneSize, coarsePointer) : null;
 
@@ -1136,6 +1207,7 @@ export default function ImageModal({
                             current && !isTouching && "transition-transform",
                             current && !isTouching && (buttonZoom ? "ease-[ease]" : "ease-out"),
                             current && !isDragging && !isPinching && "duration-300",
+                            current && "motion-reduce:transition-none",
                           )}
                           style={{
                             width: box ? `${box.width}px` : "100%",
@@ -1149,10 +1221,10 @@ export default function ImageModal({
                               : {}),
                           }}
                         >
-                          {showsOrigin && (
+                          {showsStandIn && (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
-                              src={originSrc!}
+                              src={standIn}
                               alt=""
                               aria-hidden
                               draggable={false}
@@ -1160,7 +1232,7 @@ export default function ImageModal({
                             />
                           )}
 
-                          {(distance <= preloadReach || loaded.has(index)) && (
+                          {!failed.has(index) && (distance <= preloadReach || loaded.has(index)) && (
                             <Image
                               src={images[index]}
                               alt={`${title} ${index + 1}`}
@@ -1170,7 +1242,7 @@ export default function ImageModal({
                               quality={85}
                               className={cn(
                                 "relative w-full h-full object-contain image-reveal",
-                                !loaded.has(index) && !showsOrigin && "image-reveal-pending",
+                                !loaded.has(index) && !showsStandIn && "image-reveal-pending",
                               )}
                               preload={current}
                               loading={current ? undefined : "eager"}
@@ -1180,14 +1252,14 @@ export default function ImageModal({
                                   setAspect(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight);
                                 markLoaded(index);
                               }}
-                              onError={() => markLoaded(index)}
+                              onError={() => markFailed(index)}
                             />
                           )}
                         </div>
                       </div>
 
-                      <AnimatePresence>
-                        {distance <= 1 && !loaded.has(index) && !showsOrigin && (
+                      <AnimatePresence propagate>
+                        {distance <= 1 && !loaded.has(index) && !showsStandIn && (
                           <motion.div
                             key="image-spinner"
                             className="absolute inset-0"
@@ -1205,43 +1277,55 @@ export default function ImageModal({
             </motion.div>
 
             <motion.div {...chromeFade} className="absolute inset-0 pointer-events-none">
-              <div
-                inert={chromeHidden}
-                className={cn("absolute inset-0 transition-opacity duration-200", chromeHidden && "opacity-0")}
-              >
+              <div className={cn("absolute inset-0 transition-opacity duration-200", chromeHidden && "opacity-0")}>
                 {images.length > 1 && (
                   <>
-                    {currentIndex > 0 && (
+                    {showsPrevious && (
                       <RoundButton
                         label={t("previous")}
                         shortcut="ArrowLeft"
                         icon="M15 19l-7-7 7-7"
-                        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-auto"
+                        className={cn(
+                          "absolute left-4 top-1/2 -translate-y-1/2 z-10",
+                          reachable,
+                          leavingPrevious && "opacity-0 cursor-(--cursor-default)",
+                        )}
                         padding="p-3"
                         pressed={prevPressed}
                         press={prevPress}
                         onPress={() => slideBy(-1)}
+                        disabled={leavingPrevious}
                         buttonRef={previousRef}
                       />
                     )}
 
-                    {currentIndex < images.length - 1 && (
+                    {showsNext && (
                       <RoundButton
                         label={t("next")}
                         shortcut="ArrowRight"
                         icon="M9 5l7 7-7 7"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 pointer-events-auto"
+                        className={cn(
+                          "absolute right-4 top-1/2 -translate-y-1/2 z-10",
+                          reachable,
+                          leavingNext && "opacity-0 cursor-(--cursor-default)",
+                        )}
                         padding="p-3"
                         pressed={nextPressed}
                         press={nextPress}
                         onPress={() => slideBy(1)}
+                        disabled={leavingNext}
                         buttonRef={nextRef}
                       />
                     )}
                   </>
                 )}
 
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px] pointer-events-auto">
+                <div
+                  className={cn(
+                    "absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px]",
+                    reachable,
+                  )}
+                >
                   <PillButton
                     label={t("zoomOut")}
                     disabled={zoom <= minZoom}
