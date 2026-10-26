@@ -86,9 +86,13 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
   }, [go, release]);
 
   const hide = useCallback(
-    (pressed: boolean) => {
+    (reason: "leave" | "press" | "disable") => {
       window.clearTimeout(timer.current);
       if (phaseRef.current !== "enter") return;
+      if (reason === "press") {
+        dismiss();
+        return;
+      }
       const leave = () => {
         window.clearTimeout(timer.current);
         if (phaseRef.current !== "enter") return;
@@ -99,7 +103,7 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
         go("exit");
         timer.current = window.setTimeout(dismiss, EXIT_FALLBACK);
       };
-      if (pressed) {
+      if (reason === "disable") {
         release();
         leave();
         return;
@@ -137,7 +141,7 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
     const trigger = triggerRef.current;
     if (phase !== "enter" || !trigger) return;
     const observer = new MutationObserver(() => {
-      if (trigger.matches('[aria-disabled="true"]')) hide(true);
+      if (trigger.matches('[aria-disabled="true"]')) hide("disable");
     });
     observer.observe(trigger, { attributes: true, attributeFilter: ["aria-disabled"] });
     return () => observer.disconnect();
@@ -173,11 +177,11 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
       };
       const onLeave = () => {
         suppressed.current = false;
-        hide(false);
+        hide("leave");
       };
       const onPress = () => {
         suppressed.current = true;
-        hide(true);
+        hide("press");
       };
       const onFocus = () => {
         if (trigger.matches(":focus-visible")) show();
