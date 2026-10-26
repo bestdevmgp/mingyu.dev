@@ -9,7 +9,7 @@ const posthogOrigin = new URL(posthogHost).origin;
 
 const posthogUiHost = "https://eu.posthog.com";
 
-const imageHost = "images.mingyu.dev";
+const imageHost = "files.mingyu.dev";
 
 const vercelToolbarSources = {
   "script-src": ["https://vercel.live"],
