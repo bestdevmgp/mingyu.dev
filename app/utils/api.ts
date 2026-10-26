@@ -7,9 +7,9 @@ export function getNavSections(): NavSection[] {
   return NAV_SECTIONS.filter(id => id !== "blog" || content.blog.length > 0);
 }
 
-export type SkillIcon = Pick<skill, "id" | "category" | "blobUrl" | "item">;
+export type SkillIcon = Pick<skill, "id" | "category" | "iconUrl" | "item">;
 
-const skillIcons = content.skill.map(({ id, category, blobUrl, item }): SkillIcon => ({ id, category, blobUrl, item }));
+const skillIcons = content.skill.map(({ id, category, iconUrl, item }): SkillIcon => ({ id, category, iconUrl, item }));
 const hiddenSkillIds = new Set(content.skill.filter(skill => skill.hidden).map(skill => skill.id));
 
 export function getShownSkills() {

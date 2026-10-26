@@ -55,9 +55,9 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
 
   const skillsElement = (
     <ul className="p-0 flex gap-2 list-none flex-wrap">
-      {skills.map(({ id, item, blobUrl }) => (
+      {skills.map(({ id, item, iconUrl }) => (
         <li key={`project-info-skill-${id}`} className="indent-0">
-          <SkillItem size="xs" label={item} imageUrl={blobUrl} tappable />
+          <SkillItem size="xs" label={item} imageUrl={iconUrl} tappable />
         </li>
       ))}
     </ul>
@@ -118,7 +118,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
                   </li>
                 ))}
               </ul>
-              {item.blobUrls.length > 0 && (
+              {item.imageUrls.length > 0 && (
                 <div
                   className={cn(
                     "flex gap-4 mt-4",
@@ -126,7 +126,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
                     item.image_ratio === "PORTRAIT" ? "flex-row items-start" : "flex-col",
                   )}
                 >
-                  {item.blobUrls.map((imageUrl, imgIndex) => (
+                  {item.imageUrls.map((imageUrl, imgIndex) => (
                     <ProjectImage
                       key={`project-image-${index}-${imgIndex}`}
                       ref={element => {
@@ -143,7 +143,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
                       src={imageUrl}
                       alt={`${item.title} ${imgIndex + 1}`}
                       size={imageSizes[imageUrl]}
-                      sizes={thumbnailSizes(item.image_ratio === "PORTRAIT" ? item.blobUrls.length : 1)}
+                      sizes={thumbnailSizes(item.image_ratio === "PORTRAIT" ? item.imageUrls.length : 1)}
                       reveal={revealImages}
                       onClick={() => handleImageClick(imgIndex, index)}
                     />
@@ -156,7 +156,7 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
       </div>
 
       <ImageModal
-        images={items[selectedGroup]?.blobUrls ?? []}
+        images={items[selectedGroup]?.imageUrls ?? []}
         title={items[selectedGroup]?.title ?? ""}
         initialIndex={selectedImageIndex}
         isOpen={isImageModalOpen}

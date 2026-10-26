@@ -9,7 +9,7 @@ const posthogOrigin = new URL(posthogHost).origin;
 
 const posthogUiHost = "https://eu.posthog.com";
 
-const imageHost = "files.mingyu.dev";
+const fileHost = "files.mingyu.dev";
 
 const vercelToolbarSources = {
   "script-src": ["https://vercel.live"],
@@ -31,7 +31,7 @@ const contentSecurityPolicy = () => {
     ],
     "script-src-attr": ["'none'"],
     "style-src": ["'self'", "'unsafe-inline'", posthogOrigin],
-    "img-src": ["'self'", "data:", "blob:", `https://${imageHost}`],
+    "img-src": ["'self'", "data:", "blob:", `https://${fileHost}`],
     "font-src": ["'self'", posthogOrigin],
     "connect-src": ["'self'", posthogOrigin, posthogUiHost],
     "object-src": ["'none'"],
@@ -89,7 +89,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: imageHost,
+        hostname: fileHost,
       },
       {
         protocol: "https",

@@ -104,7 +104,7 @@ const ExpCard = ({
           <ul className="p-0 flex gap-2 list-none flex-wrap max-w-80 md:max-w-none">
             {skills.map(skill => (
               <li key={`experience-${id}-skill-${skill.id}`} className="indent-0">
-                <SkillItem size="xs" label={skill.item} imageUrl={skill.blobUrl} tappable />
+                <SkillItem size="xs" label={skill.item} imageUrl={skill.iconUrl} tappable />
               </li>
             ))}
           </ul>

@@ -163,7 +163,7 @@ const SkillItems = ({ skills }: SkillItemsProps) => {
           <SkillItem
             key={`skill-item-${skill.id}`}
             label={skill.item}
-            imageUrl={skill.blobUrl}
+            imageUrl={skill.iconUrl}
             isActive={!activeCategory || activeCategory === skill.category}
             tappable
           />

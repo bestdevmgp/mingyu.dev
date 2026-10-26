@@ -13,7 +13,7 @@ model ProjectItem {
   projectId   Int?
   image_ratio ratio?
   row_number  Int?
-  blobUrls    String[] @db.VarChar(255)
+  imageUrls   String[] @db.VarChar(255)
   i18n        Json?
   project     project? @relation(fields: [projectId], references: [id])
 }
@@ -55,11 +55,11 @@ model experience {
 }
 
 model intro {
-  id      Int     @id @default(autoincrement())
-  title   String  @db.VarChar(100)
-  detail  String
-  blobUrl String? @db.VarChar(255)
-  i18n    Json?
+  id       Int     @id @default(autoincrement())
+  title    String  @db.VarChar(100)
+  detail   String
+  imageUrl String? @db.VarChar(255)
+  i18n     Json?
 }
 
 model project {
@@ -78,7 +78,7 @@ model project {
 model skill {
   id       Int      @id @default(autoincrement())
   category Category
-  blobUrl  String   @default("") @db.VarChar(255)
+  iconUrl  String   @default("") @db.VarChar(255)
   item     String   @default("") @db.VarChar(255)
   order    Int      @default(0)
   hidden   Boolean  @default(false)

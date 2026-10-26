@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: ProjectParams, parent: Resolv
   const name = stripTags(project.title);
   const summary = stripTags(project.sub_title);
   const path = `/project/${id}`;
-  const photo = project.items.find(item => item.blobUrls.length)?.blobUrls[0];
+  const photo = project.items.find(item => item.imageUrls.length)?.imageUrls[0];
   const size = photo ? project.imageSizes[photo] : undefined;
   const { openGraph: site } = await parent;
   const t = await getTranslations({ locale, namespace: "Meta" });

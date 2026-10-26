@@ -32,16 +32,20 @@ const imageUrls = [
   ...new Set(
     project.flatMap(({ ProjectItem }) =>
       ProjectItem.flatMap(item =>
-        [item, ...Object.values(item.i18n ?? {})].flatMap(version => version?.blobUrls ?? []),
+        [item, ...Object.values(item.i18n ?? {})].flatMap(version => version?.imageUrls ?? []),
       ),
     ),
   ),
 ];
 
-const measureImage = async url => {
+const fetchFile = async url => {
   const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const { autoOrient } = await sharp(Buffer.from(await response.arrayBuffer())).metadata();
+  return Buffer.from(await response.arrayBuffer());
+};
+
+const measureImage = async url => {
+  const { autoOrient } = await sharp(await fetchFile(url)).metadata();
   return [autoOrient.width, autoOrient.height];
 };
 
