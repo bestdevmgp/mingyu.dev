@@ -179,6 +179,10 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
         suppressed.current = false;
         hide("leave");
       };
+      const onPressStart = () => {
+        suppressed.current = true;
+        window.clearTimeout(timer.current);
+      };
       const onPress = () => {
         suppressed.current = true;
         hide("press");
@@ -189,14 +193,14 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
 
       wrapper.addEventListener("pointerenter", onEnter);
       wrapper.addEventListener("pointerleave", onLeave);
-      wrapper.addEventListener("pointerdown", onPress);
+      wrapper.addEventListener("pointerdown", onPressStart);
       wrapper.addEventListener("click", onPress);
       wrapper.addEventListener("focusin", onFocus);
       wrapper.addEventListener("focusout", onLeave);
       return () => {
         wrapper.removeEventListener("pointerenter", onEnter);
         wrapper.removeEventListener("pointerleave", onLeave);
-        wrapper.removeEventListener("pointerdown", onPress);
+        wrapper.removeEventListener("pointerdown", onPressStart);
         wrapper.removeEventListener("click", onPress);
         wrapper.removeEventListener("focusin", onFocus);
         wrapper.removeEventListener("focusout", onLeave);
