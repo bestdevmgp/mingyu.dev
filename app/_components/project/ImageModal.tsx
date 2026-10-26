@@ -1214,7 +1214,7 @@ export default function ImageModal({
                             height: box ? `${box.height}px` : "100%",
                             ...(current
                               ? {
-                                  transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+                                  transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
                                   willChange: isDragging || isPinching ? "transform" : "auto",
                                   cursor: isDragging ? "grabbing" : "grab",
                                 }
