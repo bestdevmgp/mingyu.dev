@@ -69,6 +69,12 @@ const WHEEL_MIN_INTERVAL = 8;
 const WHEEL_SETTLED_RATIO = 0.15;
 const WHEEL_SETTLED_SPEED = 0.12;
 const WHEEL_RENEW_RISES = 3;
+const WHEEL_MOMENTUM_RATIO = 0.8;
+const WHEEL_MOMENTUM_FADE = 300;
+const WHEEL_MOMENTUM_LOCK = 200;
+const WHEEL_MOMENTUM_PUSH = 2;
+const WHEEL_STREAM_GAP = 25;
+const WHEEL_SPRING = 0.035;
 const FLIP_CURVE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 const FLIP_EASING = `cubic-bezier(${FLIP_CURVE.join(", ")})`;
 const PHOTO_FADE = 0.09;
@@ -93,7 +99,25 @@ interface WheelGesture {
   peak: number;
   settled: boolean;
   rises: number;
+  delta: number;
+  floor: number;
+  decaySince: number | null;
 }
+
+type MotionSource = "button" | "wheel" | null;
+
+interface ZoomView {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
+const zoomTransform = ({ x, y, zoom }: ZoomView) => `translate(${x}px, ${y}px) scale(${zoom})`;
+
+const momentumWeight = (elapsed: number) => {
+  const progress = Math.min(1, elapsed / WHEEL_MOMENTUM_FADE);
+  return (1 - progress) * (1 - progress) * (1 + progress);
+};
 
 const rubberBand = (offset: number, size: number) =>
   Math.sign(offset) * size * (1 - 1 / ((Math.abs(offset) * 0.55) / size + 1));
@@ -265,7 +289,7 @@ export default function ImageModal({
     setCurrentIndex(initialIndex);
   } else if (!isOpen && openedIndex !== null) setOpenedIndex(null);
   const [zoom, setZoom] = useState(1);
-  const [buttonZoom, setButtonZoom] = useState(false);
+  const [motionSource, setMotionSource] = useState<MotionSource>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isPinching, setIsPinching] = useState(false);
@@ -311,6 +335,8 @@ export default function ImageModal({
   const swipeRef = useRef<Swipe | null>(null);
   const wheelGestureRef = useRef<WheelGesture | null>(null);
   const wheelTimerRef = useRef(0);
+  const targetViewRef = useRef<ZoomView>({ x: 0, y: 0, zoom: 1 });
+  const followRef = useRef<{ shown: ZoomView; velocity: ZoomView; time: number; frame: number } | null>(null);
   const lastTapRef = useRef<{ time: number; x: number; y: number } | null>(null);
   const tapTimerRef = useRef(0);
   const chromeTimerRef = useRef(0);
@@ -384,8 +410,62 @@ export default function ImageModal({
   const resetZoom = useCallback(() => {
     setZoom(1);
     setPosition({ x: 0, y: 0 });
-    setButtonZoom(false);
+    setMotionSource(null);
   }, []);
+
+  const stopFollow = useCallback(() => {
+    const follow = followRef.current;
+    if (!follow) return;
+    cancelAnimationFrame(follow.frame);
+    followRef.current = null;
+    const content = imageContentRef.current;
+    if (content) content.style.transform = zoomTransform(targetViewRef.current);
+  }, []);
+
+  const followWheel = useCallback((target: ZoomView) => {
+    targetViewRef.current = target;
+    const content = imageContentRef.current;
+    if (followRef.current || !content || prefersReducedMotion()) return;
+
+    const step = (now: number) => {
+      const follow = followRef.current;
+      const element = imageContentRef.current;
+      if (!follow || !element) return;
+      const goal = targetViewRef.current;
+      const elapsed = Math.max(0, now - follow.time);
+      const decay = Math.exp(-WHEEL_SPRING * elapsed);
+      const shown = { ...follow.shown };
+      const velocity = { ...follow.velocity };
+      for (const key of ["x", "y", "zoom"] as const) {
+        const offset = follow.shown[key] - goal[key];
+        const pull = follow.velocity[key] + WHEEL_SPRING * offset;
+        shown[key] = goal[key] + (offset + pull * elapsed) * decay;
+        velocity[key] = (follow.velocity[key] - WHEEL_SPRING * pull * elapsed) * decay;
+      }
+      const settled =
+        Math.abs(goal.zoom - shown.zoom) < 1e-4 &&
+        Math.abs(velocity.zoom) < 1e-5 &&
+        Math.abs(goal.x - shown.x) < 0.1 &&
+        Math.abs(velocity.x) < 0.01 &&
+        Math.abs(goal.y - shown.y) < 0.1 &&
+        Math.abs(velocity.y) < 0.01;
+      element.style.transform = zoomTransform(settled ? goal : shown);
+      followRef.current = settled ? null : { shown, velocity, time: now, frame: requestAnimationFrame(step) };
+    };
+
+    const { a, e, f } = new DOMMatrixReadOnly(getComputedStyle(content).transform);
+    followRef.current = {
+      shown: { x: e, y: f, zoom: a },
+      velocity: { x: 0, y: 0, zoom: 0 },
+      time: performance.now(),
+      frame: requestAnimationFrame(step),
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    targetViewRef.current = { x: position.x, y: position.y, zoom };
+    if (motionSource !== "wheel") stopFollow();
+  }, [position, zoom, motionSource, stopFollow]);
 
   const showImage = useCallback(
     (index: number) => {
@@ -599,24 +679,24 @@ export default function ImageModal({
     return rect ? { x: clientX - rect.left - rect.width / 2, y: clientY - rect.top - rect.height / 2 } : { x: 0, y: 0 };
   };
 
-  const zoomBy = (factor: number, anchor = { x: 0, y: 0 }, fromButton = false) => {
+  const zoomBy = (factor: number, anchor = { x: 0, y: 0 }, source: MotionSource = null) => {
     const clamped = Math.max(minZoom, Math.min(maxZoom, zoom * factor));
     if (clamped === zoom) return;
 
     const ratio = clamped / zoom;
-    setButtonZoom(fromButton);
-    setZoom(clamped);
-    setPosition(
-      constrainPosition(
-        position.x * ratio - anchor.x * (ratio - 1),
-        position.y * ratio - anchor.y * (ratio - 1),
-        clamped,
-      ),
+    const next = constrainPosition(
+      position.x * ratio - anchor.x * (ratio - 1),
+      position.y * ratio - anchor.y * (ratio - 1),
+      clamped,
     );
+    setMotionSource(source);
+    setZoom(clamped);
+    setPosition(next);
+    if (source === "wheel") followWheel({ ...next, zoom: clamped });
   };
 
-  const handleZoomIn = () => zoomBy(ZOOM_STEP, undefined, true);
-  const handleZoomOut = () => zoomBy(1 / ZOOM_STEP, undefined, true);
+  const handleZoomIn = () => zoomBy(ZOOM_STEP, undefined, "button");
+  const handleZoomOut = () => zoomBy(1 / ZOOM_STEP, undefined, "button");
 
   const markLoaded = (index: number) =>
     setLoaded(previous => (previous.has(index) ? previous : new Set(previous).add(index)));
@@ -751,11 +831,11 @@ export default function ImageModal({
   const toggleZoomAt = (point: { x: number; y: number }) => {
     if (zoom !== 1) {
       resetZoom();
-      setButtonZoom(true);
+      setMotionSource("button");
       return;
     }
 
-    zoomBy(Math.min(DOUBLE_TAP_ZOOM, maxZoom), paneOffset(point.x, point.y), true);
+    zoomBy(Math.min(DOUBLE_TAP_ZOOM, maxZoom), paneOffset(point.x, point.y), "button");
   };
 
   const handleTap = (point: { x: number; y: number }, time: number) => {
@@ -775,15 +855,19 @@ export default function ImageModal({
     const pane = imageRef.current;
     if (!pane) return;
 
-    const zoomWithWheel = () => {
+    const zoomWithWheel = (weight = 1) => {
       const step = e.ctrlKey
         ? Math.max(-PINCH_WHEEL_MAX_STEP, Math.min(PINCH_WHEEL_MAX_STEP, e.deltaY * PINCH_WHEEL_SENSITIVITY))
-        : e.deltaY * WHEEL_SENSITIVITY;
+        : e.deltaY * WHEEL_SENSITIVITY * weight;
       const rect = pane.getBoundingClientRect();
-      zoomBy(Math.exp(-step), {
-        x: e.clientX - rect.left - rect.width / 2,
-        y: e.clientY - rect.top - rect.height / 2,
-      });
+      zoomBy(
+        Math.exp(-step),
+        {
+          x: e.clientX - rect.left - rect.width / 2,
+          y: e.clientY - rect.top - rect.height / 2,
+        },
+        e.ctrlKey ? null : "wheel",
+      );
     };
     if (e.ctrlKey) return zoomWithWheel();
 
@@ -815,19 +899,34 @@ export default function ImageModal({
         peak: speed,
         settled: false,
         rises: 0,
+        delta: 0,
+        floor: 0,
+        decaySince: null,
       };
     }
 
     const elapsed = Math.max(e.timeStamp - gesture.time, WHEEL_MIN_INTERVAL);
     if (gesture.axis === "y") {
-      wheelGestureRef.current = { ...gesture, time: e.timeStamp };
-      return zoomWithWheel();
+      const delta = Math.abs(e.deltaY);
+      const locked =
+        gesture.decaySince !== null &&
+        e.timeStamp - gesture.decaySince >= WHEEL_MOMENTUM_LOCK &&
+        e.timeStamp - gesture.time <= WHEEL_STREAM_GAP;
+      const decaying =
+        delta < gesture.delta && (delta >= gesture.delta * WHEEL_MOMENTUM_RATIO || gesture.delta - delta <= 1);
+      const keeps = locked ? delta <= (gesture.floor + 1) * WHEEL_MOMENTUM_PUSH : decaying || delta === gesture.delta;
+      const decaySince = !keeps ? null : decaying ? (gesture.decaySince ?? e.timeStamp) : gesture.decaySince;
+      const floor = decaySince === null ? delta : Math.min(gesture.floor, delta);
+      wheelGestureRef.current = { ...gesture, time: e.timeStamp, delta, floor, decaySince };
+      return zoomWithWheel(decaySince === null ? 1 : momentumWeight(e.timeStamp - decaySince));
     }
 
     let { mode, offset } = gesture;
     if (mode === "pan") {
-      setButtonZoom(false);
-      setPosition(constrainPosition(position.x - e.deltaX, position.y, zoom));
+      const next = constrainPosition(position.x - e.deltaX, position.y, zoom);
+      setMotionSource("wheel");
+      setPosition(next);
+      followWheel({ ...next, zoom });
     } else if (mode === "swipe" && !swapped) {
       offset -= e.deltaX;
       setTrack(holdEdge(offset, gesture.origin));
@@ -914,7 +1013,7 @@ export default function ImageModal({
     mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
     if (isOutsideImage(e.clientX, e.clientY)) return;
 
-    setButtonZoom(false);
+    setMotionSource(null);
     setIsDragging(true);
     dragStartRef.current = {
       x: e.clientX - position.x,
@@ -956,7 +1055,7 @@ export default function ImageModal({
     const touch = e.touches[0];
     multiTouchRef.current = e.touches.length > 1;
     setIsTouching(true);
-    setButtonZoom(false);
+    setMotionSource(null);
 
     if (e.touches.length === 2) {
       if (swipeRef.current) {
@@ -1209,9 +1308,12 @@ export default function ImageModal({
                           ref={current ? imageContentRef : undefined}
                           className={cn(
                             "relative",
-                            current && !isTouching && "transition-transform",
-                            current && !isTouching && (buttonZoom ? "ease-[ease]" : "ease-out"),
-                            current && !isDragging && !isPinching && "duration-300",
+                            current && !isTouching && motionSource !== "wheel" && "transition-transform",
+                            current &&
+                              !isTouching &&
+                              motionSource !== "wheel" &&
+                              (motionSource === "button" ? "ease-[ease]" : "ease-out"),
+                            current && !isDragging && !isPinching && motionSource !== "wheel" && "duration-300",
                             current && "motion-reduce:transition-none",
                           )}
                           style={{
@@ -1219,7 +1321,7 @@ export default function ImageModal({
                             height: box ? `${box.height}px` : "100%",
                             ...(current
                               ? {
-                                  transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+                                  transform: zoomTransform({ x: position.x, y: position.y, zoom }),
                                   willChange: isDragging || isPinching ? "transform" : "auto",
                                   cursor: isDragging ? "grabbing" : "grab",
                                 }
@@ -1347,7 +1449,7 @@ export default function ImageModal({
                     className="text-sm"
                     pressed={resetPressed}
                     press={resetPress}
-                    onPress={() => zoomBy(naturalZoom / zoom, undefined, true)}
+                    onPress={() => zoomBy(naturalZoom / zoom, undefined, "button")}
                   >
                     <span className="grid justify-items-center">
                       <span className="invisible col-start-1 row-start-1">444%</span>
