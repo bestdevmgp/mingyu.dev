@@ -18,22 +18,12 @@ const OutroSection = async () => {
 
         <div className="w-72 md:w-80 mx-auto grid grid-cols-3 text-sm md:text-base gap-2 md:gap-3 p-6 md:p-8 rounded-2xl bg-dark/5 dark:bg-light/10">
           <p className="font-semibold">Phone</p>
-          <ContactLink
-            channel="phone"
-            href={phoneHref(locale)}
-            target="_blank"
-            className="col-span-2 w-fit focus-visible:rounded-sm"
-          >
+          <ContactLink channel="phone" href={phoneHref(locale)} className="col-span-2 w-fit focus-visible:rounded-sm">
             <p>{phoneDisplay(locale)}</p>
           </ContactLink>
 
           <p className="font-semibold">Email</p>
-          <ContactLink
-            channel="email"
-            href={`mailto:${EMAIL}`}
-            target="_blank"
-            className="col-span-2 w-fit focus-visible:rounded-sm"
-          >
+          <ContactLink channel="email" href={`mailto:${EMAIL}`} className="col-span-2 w-fit focus-visible:rounded-sm">
             <p>{EMAIL}</p>
           </ContactLink>
 
