@@ -576,15 +576,11 @@ export default function ImageModal({
   }, [isOpen, currentIndex, images.length, loaded, preloadReach]);
 
   const constrainPosition = (newX: number, newY: number, currentZoom: number) => {
-    const container = imageRef.current;
     const content = imageContentRef.current;
-    if (!container || !content) return { x: newX, y: newY };
+    if (!content) return { x: newX, y: newY };
 
-    const scaledWidth = content.offsetWidth * currentZoom;
-    const scaledHeight = content.offsetHeight * currentZoom;
-
-    const maxX = Math.max(0, (scaledWidth - container.offsetWidth) / 2);
-    const maxY = Math.max(0, (scaledHeight - container.offsetHeight) / 2);
+    const maxX = Math.max(0, ((currentZoom - 1) * content.offsetWidth) / 2);
+    const maxY = Math.max(0, ((currentZoom - 1) * content.offsetHeight) / 2);
 
     return {
       x: Math.max(-maxX, Math.min(maxX, newX)),
