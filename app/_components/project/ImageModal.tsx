@@ -898,15 +898,15 @@ export default function ImageModal({
       return;
     }
 
+    if (!isOutsideImage(e.clientX, e.clientY)) {
+      if (e.detail > 0 && e.detail % 2 === 0) toggleZoomAt({ x: e.clientX, y: e.clientY });
+      return;
+    }
+
     const movedFromDown = Math.hypot(e.clientX - mouseDownPosRef.current.x, e.clientY - mouseDownPosRef.current.y);
-    if (movedFromDown < TAP_SLOP && isOutsideImage(e.clientX, e.clientY)) {
+    if (movedFromDown < TAP_SLOP) {
       requestClose();
     }
-  };
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    if (Date.now() - lastTouchTimeRef.current < 300 || isOutsideImage(e.clientX, e.clientY)) return;
-    toggleZoomAt({ x: e.clientX, y: e.clientY });
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -1172,7 +1172,6 @@ export default function ImageModal({
               animate={{ opacity: 1 }}
               transition={{ duration: PHOTO_FADE, ease: "easeOut" }}
               onClick={handleImageClick}
-              onDoubleClick={handleDoubleClick}
               onMouseDown={handleMouseDown}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
