@@ -25,6 +25,7 @@ import useFocusScope from "@/utils/useFocusScope";
 import useTouchPress, { TAP_SLOP } from "@/utils/useTouchPress";
 
 import ImageSpinner from "./ImageSpinner";
+import { markViewerShown, settleViewerClose } from "./viewerPresence";
 import Tooltip from "../Tooltip";
 
 interface ImageModalProps {
@@ -485,8 +486,11 @@ export default function ImageModal({
     if (isCoarsePointer()) setCoarsePointer(true);
   }, []);
 
+  useEffect(() => settleViewerClose, []);
+
   useLayoutEffect(() => {
     if (!isOpen) return;
+    markViewerShown();
     isClosingRef.current = false;
     sessionRef.current += 1;
     swipeRef.current = null;
@@ -1109,7 +1113,13 @@ export default function ImageModal({
   const reachable = !chromeHidden && "pointer-events-auto";
 
   return (
-    <AnimatePresence custom={closeFlies} onExitComplete={resetZoom}>
+    <AnimatePresence
+      custom={closeFlies}
+      onExitComplete={() => {
+        resetZoom();
+        settleViewerClose();
+      }}
+    >
       {isOpen && (
         <motion.div
           key="image-modal"

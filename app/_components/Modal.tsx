@@ -14,6 +14,7 @@ import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 
 import Tooltip from "./Tooltip";
+import { afterViewerClose } from "./project/viewerPresence";
 
 interface ModalProps extends React.PropsWithChildren {
   onClose: () => void;
@@ -90,7 +91,7 @@ const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
+      if (event.key === "Escape") afterViewerClose(close);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
