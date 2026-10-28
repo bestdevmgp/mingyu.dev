@@ -38,10 +38,16 @@ const imageUrls = [
   ),
 ];
 
-const fetchFile = async url => {
-  const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return Buffer.from(await response.arrayBuffer());
+const fetchFile = async (url, tries = 3) => {
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return Buffer.from(await response.arrayBuffer());
+  } catch (error) {
+    if (error.name !== "TimeoutError" || tries === 1) throw error;
+    console.warn(`image size retried: ${url} (${error.message})`);
+    return fetchFile(url, tries - 1);
+  }
 };
 
 const measureImage = async url => {
