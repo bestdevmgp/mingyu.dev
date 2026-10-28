@@ -66,6 +66,7 @@
     "next": "Next image",
     "zoomOut": "Zoom out",
     "resetZoom": "Actual size",
+    "fitZoom": "Fit to screen",
     "zoomIn": "Zoom in",
     "loading": "Loading image"
   },

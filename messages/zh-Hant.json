@@ -65,7 +65,8 @@
     "previous": "上一張圖片",
     "next": "下一張圖片",
     "zoomOut": "縮小",
-    "resetZoom": "原始大小",
+    "resetZoom": "實際大小",
+    "fitZoom": "縮放至螢幕大小",
     "zoomIn": "放大",
     "loading": "正在載入圖片"
   },

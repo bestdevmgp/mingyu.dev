@@ -697,6 +697,15 @@ export default function ImageModal({
 
   const handleZoomIn = () => zoomBy(ZOOM_STEP, undefined, "button");
   const handleZoomOut = () => zoomBy(1 / ZOOM_STEP, undefined, "button");
+  const toggleNaturalZoom = () => {
+    if (zoom !== 1) {
+      resetZoom();
+      setMotionSource("button");
+      return;
+    }
+
+    zoomBy(naturalZoom, undefined, "button");
+  };
 
   const markLoaded = (index: number) =>
     setLoaded(previous => (previous.has(index) ? previous : new Set(previous).add(index)));
@@ -1182,6 +1191,7 @@ export default function ImageModal({
     index => index >= 0 && index < images.length,
   );
   const zoomPercent = `${Math.round(zoom * fitScale * 100)}%`;
+  const atFit = zoom === 1;
   const shownIndex = heading ?? currentIndex;
   const showsPrevious = Math.max(shownIndex, currentIndex) > 0;
   const showsNext = Math.min(shownIndex, currentIndex) < images.length - 1;
@@ -1444,12 +1454,12 @@ export default function ImageModal({
                   </PillButton>
 
                   <PillButton
-                    label={t("resetZoom")}
-                    ariaLabel={`${zoomPercent}, ${t("resetZoom")}`}
+                    label={t(atFit ? "resetZoom" : "fitZoom")}
+                    ariaLabel={`${zoomPercent}, ${t(atFit ? "resetZoom" : "fitZoom")}`}
                     className="text-sm"
                     pressed={resetPressed}
                     press={resetPress}
-                    onPress={() => zoomBy(naturalZoom / zoom, undefined, "button")}
+                    onPress={toggleNaturalZoom}
                   >
                     <span className="grid justify-items-center">
                       <span className="invisible col-start-1 row-start-1">444%</span>
