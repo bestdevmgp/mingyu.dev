@@ -30,18 +30,19 @@ const nameNudge: Record<string, string> = {
   "zh-Hant": "-translate-y-[0.4px] md:-translate-y-[1.3px]",
 };
 
-const staggerMenuItems = stagger(0.06, { startDelay: 0.0875 });
+const MENU_EASE = [0.25, 1, 0.5, 1] as const;
+const staggerMenuItems = stagger(0.07, { startDelay: 0.15 });
 
 const menuSequence = (open: boolean): AnimationSequence => [
   [
     ".mobile-menu",
-    { clipPath: open ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)" },
-    { type: "spring", bounce: 0, duration: 0.35 },
+    { transform: open ? "translateY(0%)" : "translateY(-100%)" },
+    { duration: open ? 0.5 : 0.4, ease: MENU_EASE },
   ],
   [
     ".mobile-menu-item",
-    { opacity: open ? 1 : 0 },
-    { duration: 0.175, delay: open ? staggerMenuItems : 0, at: "-0.175" },
+    { opacity: open ? 1 : 0, transform: open ? "translateY(0px)" : "translateY(-8px)" },
+    { duration: open ? 0.21 : 0.17, ease: MENU_EASE, delay: open ? staggerMenuItems : 0, at: 0 },
   ],
 ];
 
@@ -76,8 +77,8 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
   const [closeQueuedAt, setCloseQueuedAt] = useState(() => (isLocaleSwitching() ? menuCloseAt : 0));
   const [scope, animate] = useAnimate();
   const startsOpen = carriedOpen || closingFrom !== null;
-  const initialClip = startsOpen ? "inset(0% 0% 0% 0%)" : "inset(0% 0% 100% 0%)";
-  const initialItemStyle = startsOpen ? { opacity: 1 } : undefined;
+  const initialPanelShift = startsOpen ? "translateY(0%)" : "translateY(-100%)";
+  const initialItemStyle = startsOpen ? { opacity: 1, transform: "translateY(0px)" } : undefined;
 
   useLayoutEffect(() => {
     const header = scope.current;
@@ -298,64 +299,66 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
         </button>
       </div>
 
-      <div
-        className={cn(
-          "mobile-menu",
-          "absolute top-full left-0 right-0 max-h-[calc(100dvh-3.5rem)]",
-
-          "flex flex-col xl:hidden px-5 pt-3",
-
-          "bg-background border-b-[2px] border-foreground/10 shadow-sm",
-          isExpanded ? "pointer-events-auto" : "pointer-events-none",
-        )}
-        style={{ clipPath: initialClip }}
-        inert={!isExpanded}
-      >
-        <ul
-          ref={listRef}
-          className={cn(
-            "flex flex-col list-none indent-0 min-h-0",
-            listScrolls ? "-m-1 p-1 overflow-y-auto overscroll-contain" : "p-0",
-          )}
-        >
-          {sections.map(id => (
-            <li key={`header-item-m-${id}`} className="mobile-menu-item" style={initialItemStyle}>
-              <a
-                href={`${homeHref ?? ""}#${id}`}
-                className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80 focus-visible:rounded-sm"
-                onClick={() => {
-                  pickedSection.current = document.getElementById(id);
-                  setIsExpanded(false);
-                }}
-              >
-                {tNav(id)}
-              </a>
-            </li>
-          ))}
-        </ul>
-
+      <div className="absolute top-full left-0 right-0 overflow-clip pointer-events-none xl:hidden">
         <div
-          className="mobile-menu-item flex flex-wrap shrink-0 items-center justify-between gap-x-3 gap-y-1 min-h-11 mt-2 border-t border-foreground/10"
-          style={initialItemStyle}
-        >
-          <ContactMenu variant="inline" />
-          <div className="flex items-center gap-3 ml-auto">
-            <span aria-hidden className="w-px h-[22px] bg-foreground/15 shrink-0" />
-            <ThemeToggle label={themeLabel} title={themeLabel} />
-          </div>
-        </div>
+          className={cn(
+            "mobile-menu",
+            "max-h-[calc(100dvh-3.5rem)]",
 
-        <LanguageSwitcher
-          variant="inline"
-          hardNavigation={hardNavigation}
-          onLocaleChange={viaKeyboard => {
-            refocusMenuAfterSwitch = viaKeyboard;
-            menuCloseAt = performance.now() + LANGUAGE_CLOSE_DELAY;
-            setCloseQueuedAt(menuCloseAt);
-          }}
-          className="mobile-menu-item shrink-0 py-2.5 border-t border-foreground/10"
-          style={initialItemStyle}
-        />
+            "flex flex-col px-5 pt-3",
+
+            "bg-background border-b-[2px] border-foreground/10",
+            isExpanded ? "pointer-events-auto" : "pointer-events-none",
+          )}
+          style={{ transform: initialPanelShift }}
+          inert={!isExpanded}
+        >
+          <ul
+            ref={listRef}
+            className={cn(
+              "flex flex-col list-none indent-0 min-h-0",
+              listScrolls ? "-m-1 p-1 overflow-y-auto overscroll-contain" : "p-0",
+            )}
+          >
+            {sections.map(id => (
+              <li key={`header-item-m-${id}`} className="mobile-menu-item" style={initialItemStyle}>
+                <a
+                  href={`${homeHref ?? ""}#${id}`}
+                  className="block no-underline py-2.5 text-base font-semibold whitespace-nowrap text-foreground/80 focus-visible:rounded-sm"
+                  onClick={() => {
+                    pickedSection.current = document.getElementById(id);
+                    setIsExpanded(false);
+                  }}
+                >
+                  {tNav(id)}
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <div
+            className="mobile-menu-item flex flex-wrap shrink-0 items-center justify-between gap-x-3 gap-y-1 min-h-11 mt-2 border-t border-foreground/10"
+            style={initialItemStyle}
+          >
+            <ContactMenu variant="inline" />
+            <div className="flex items-center gap-3 ml-auto">
+              <span aria-hidden className="w-px h-[22px] bg-foreground/15 shrink-0" />
+              <ThemeToggle label={themeLabel} title={themeLabel} />
+            </div>
+          </div>
+
+          <LanguageSwitcher
+            variant="inline"
+            hardNavigation={hardNavigation}
+            onLocaleChange={viaKeyboard => {
+              refocusMenuAfterSwitch = viaKeyboard;
+              menuCloseAt = performance.now() + LANGUAGE_CLOSE_DELAY;
+              setCloseQueuedAt(menuCloseAt);
+            }}
+            className="mobile-menu-item shrink-0 py-2.5 border-t border-foreground/10"
+            style={initialItemStyle}
+          />
+        </div>
       </div>
     </header>
   );

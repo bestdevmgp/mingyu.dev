@@ -649,6 +649,7 @@ main {
 
 .mobile-menu-item {
   opacity: 0;
+  transform: translateY(-8px);
 }
 
 [data-skill].skill-open > .skill-label {
