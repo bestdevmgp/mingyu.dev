@@ -135,7 +135,6 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
   }, [closeQueuedAt, setIsExpanded]);
 
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const [isMenuButtonPressed, menuButtonPress] = useTouchPress();
   useEffect(() => {
     if (!refocusMenuAfterSwitch) return;
     const frame = requestAnimationFrame(() => {
@@ -299,11 +298,9 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
         <button
           ref={menuButtonRef}
           type="button"
-          {...menuButtonPress}
           className={cn(
-            "relative block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1",
-            "before:-inset-0.5 before:rounded-md before:transition-colors",
-            subtleBoxClasses(isMenuButtonPressed),
+            "relative isolate block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1 focus-visible:outline-none",
+            "before:absolute before:-z-10 before:-inset-0.5 before:rounded-md focus-visible:before:outline-solid focus-visible:before:-outline-offset-1",
           )}
           onClick={() => setIsExpanded(prev => !prev)}
           aria-label={t(isExpanded ? "closeMenu" : "openMenu")}
