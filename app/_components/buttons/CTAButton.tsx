@@ -1,5 +1,10 @@
+"use client";
+
 import cn from "classnames";
 import Link from "next/link";
+
+import { neutralFillClasses } from "@/utils/pressClasses";
+import useTouchPress from "@/utils/useTouchPress";
 
 interface CTAContentProps {
   label: string;
@@ -19,9 +24,10 @@ type CTAButtonOnlyProps = CTAContentProps &
 
 type CTAButtonProps = CTALinkProps | CTAButtonOnlyProps;
 
-const ctaClassName = (prefix: React.ReactNode, className?: string) =>
+const ctaClassName = (prefix: React.ReactNode, pressed: boolean, className?: string) =>
   cn(
-    "py-2 min-w-36 bg-foreground/5 rounded-lg flex justify-center items-center gap-2 hover:bg-foreground/10 transition-colors duration-200 -outline-offset-1",
+    "py-2 min-w-36 rounded-lg flex justify-center items-center gap-2 transition-colors duration-200 ease-button -outline-offset-1",
+    neutralFillClasses(pressed),
     prefix ? "pl-[19px]" : "pl-5",
     "pr-5",
     className,
@@ -35,17 +41,19 @@ const CTAContent = ({ label, prefix }: CTAContentProps) => (
 );
 
 const CTAButton = (props: CTAButtonProps) => {
+  const [isPressed, pressHandlers] = useTouchPress();
+
   if (props.link !== undefined) {
     const { label, prefix, link, newTab = true, className, ...anchorProps } = props;
-    const anchorClassName = cn(ctaClassName(prefix, className), "w-fit no-underline");
+    const anchorClassName = cn(ctaClassName(prefix, isPressed, className), "w-fit no-underline");
     const content = <CTAContent label={label} prefix={prefix} />;
 
     return newTab ? (
-      <Link href={link} target="_blank" className={anchorClassName} {...anchorProps}>
+      <Link href={link} target="_blank" className={anchorClassName} {...anchorProps} {...pressHandlers}>
         {content}
       </Link>
     ) : (
-      <a href={link} className={anchorClassName} {...anchorProps}>
+      <a href={link} className={anchorClassName} {...anchorProps} {...pressHandlers}>
         {content}
       </a>
     );
@@ -54,7 +62,7 @@ const CTAButton = (props: CTAButtonProps) => {
   const { label, prefix, className, ...buttonProps } = props;
 
   return (
-    <button className={ctaClassName(prefix, className)} {...buttonProps}>
+    <button className={ctaClassName(prefix, isPressed, className)} {...buttonProps} {...pressHandlers}>
       <CTAContent label={label} prefix={prefix} />
     </button>
   );

@@ -18,6 +18,31 @@
   inherits: true;
   initial-value: rgb(0, 122, 255);
 }
+@property --neutral {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(34, 34, 34, 0.05);
+}
+@property --neutral-hovered {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(34, 34, 34, 0.112);
+}
+@property --neutral-pressed {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(34, 34, 34, 0.202);
+}
+@property --neutral-subtle-hovered {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(34, 34, 34, 0.063);
+}
+@property --neutral-subtle-pressed {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(34, 34, 34, 0.153);
+}
 
 @theme inline {
   --background-color-dark: rgb(15, 24, 42);
@@ -30,6 +55,13 @@
   --color-primary: var(--primary);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --color-neutral: var(--neutral);
+  --color-neutral-hovered: var(--neutral-hovered);
+  --color-neutral-pressed: var(--neutral-pressed);
+  --color-neutral-subtle-hovered: var(--neutral-subtle-hovered);
+  --color-neutral-subtle-pressed: var(--neutral-subtle-pressed);
+
+  --ease-button: cubic-bezier(0.4, 1, 0.6, 1);
 
   --z-index-modal-overlay: 899;
   --z-index-modal-content: 900;
@@ -64,6 +96,12 @@
   --primary: rgb(0, 122, 255);
   --focus-ring: var(--foreground);
 
+  --neutral: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --neutral-hovered: color-mix(in oklab, var(--foreground) 11.2%, transparent);
+  --neutral-pressed: color-mix(in oklab, var(--foreground) 20.2%, transparent);
+  --neutral-subtle-hovered: color-mix(in oklab, var(--foreground) 6.3%, transparent);
+  --neutral-subtle-pressed: color-mix(in oklab, var(--foreground) 15.3%, transparent);
+
   --cursor-default:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3Cfilter id='s' x='0' y='0' width='32' height='32' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'%3E%3CfeDropShadow dx='0' dy='1' stdDeviation='0.85' flood-color='%23000' flood-opacity='0.49'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23s)'%3E%3Cpath d='M4.527 2.596L15.527 6.721A1.5 1.5 0 0 1 15.36 9.581L10.726 10.726L9.581 15.36A1.5 1.5 0 0 1 6.721 15.527L2.596 4.527A1.5 1.5 0 0 1 4.527 2.596Z' fill='%23fff'/%3E%3Cpath d='M4.176 3.532L15.176 7.657A0.5 0.5 0 0 1 15.12 8.61L9.9 9.9L8.61 15.12A0.5 0.5 0 0 1 7.657 15.176L3.532 4.176A0.5 0.5 0 0 1 4.176 3.532Z' fill='%23000'/%3E%3C/g%3E%3C/svg%3E")
       4 4,
@@ -79,6 +117,11 @@
   --background: rgb(15, 24, 42);
 
   --primary: rgb(0, 209, 125);
+
+  --neutral-hovered: color-mix(in oklab, var(--foreground) 10.5%, transparent);
+  --neutral-pressed: color-mix(in oklab, var(--foreground) 15.7%, transparent);
+  --neutral-subtle-hovered: color-mix(in oklab, var(--foreground) 5.3%, transparent);
+  --neutral-subtle-pressed: color-mix(in oklab, var(--foreground) 10.3%, transparent);
 }
 
 html {
@@ -968,7 +1011,12 @@ html.theme-transition {
   transition:
     --foreground 300ms ease,
     --background 300ms ease,
-    --primary 300ms ease;
+    --primary 300ms ease,
+    --neutral 300ms ease,
+    --neutral-hovered 300ms ease,
+    --neutral-pressed 300ms ease,
+    --neutral-subtle-hovered 300ms ease,
+    --neutral-subtle-pressed 300ms ease;
 }
 
 html.theme-transition *,

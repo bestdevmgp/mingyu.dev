@@ -12,6 +12,7 @@ import { SCROLL_KEYS } from "@/utils/scrollKeys";
 import { anchorsOf, landingOf, sectionElements, TOC_QUERY, type NavSection } from "@/utils/sectionLanding";
 import smoothScrollTo from "@/utils/smoothScrollTo";
 import useCarriedState from "@/utils/useCarriedState";
+import useTouchPress from "@/utils/useTouchPress";
 
 const SECTION_COLORS: Record<NavSection, string> = {
   competencies: "#007aff",
@@ -45,6 +46,51 @@ const anchorsHeldAt = (anchors: number[], index: number, landing: number) => {
 };
 
 let hashChecked = false;
+
+interface SectionNavLinkProps {
+  id: NavSection;
+  label: string;
+  isActive: boolean;
+  compact: boolean;
+  onClick: React.MouseEventHandler<HTMLAnchorElement>;
+  dotRef: (dot: HTMLSpanElement | null) => void;
+  labelRef: (label: HTMLSpanElement | null) => void;
+}
+
+const SectionNavLink = ({ id, label, isActive, compact, onClick, dotRef, labelRef }: SectionNavLinkProps) => {
+  const [isPressed, pressHandlers] = useTouchPress();
+  return (
+    <a
+      href={`#${id}`}
+      aria-current={isActive ? "true" : undefined}
+      onClick={onClick}
+      {...pressHandlers}
+      className={cn("group flex items-center no-underline focus-visible:rounded-sm", !compact && "gap-2.5")}
+    >
+      <span
+        ref={dotRef}
+        className={cn(
+          "w-2.5 h-2.5 rounded-full transition-colors duration-200",
+          isPressed
+            ? "bg-foreground/45"
+            : "bg-foreground/15 group-hover:bg-foreground/30 mouse:group-active:bg-foreground/45",
+        )}
+      />
+      <span
+        ref={labelRef}
+        className={cn(
+          "text-xs font-semibold whitespace-nowrap transition-colors duration-200",
+          compact && "w-0 overflow-hidden",
+          isActive || isPressed
+            ? "text-foreground"
+            : "text-foreground/40 group-hover:text-foreground/70 mouse:group-active:text-foreground",
+        )}
+      >
+        {label}
+      </span>
+    </a>
+  );
+};
 
 interface SectionNavProps {
   sections: NavSection[];
@@ -277,37 +323,22 @@ const SectionNav = ({ sections }: SectionNavProps) => {
         aria-hidden="true"
         className="absolute left-0 top-0 w-2.5 h-2.5 rounded-full pointer-events-none bg-blue will-change-[top,height]"
       />
-      {sections.map((id, index) => {
-        const isActive = activeId === id;
-        return (
-          <a
-            key={`section-nav-${id}`}
-            href={`#${id}`}
-            aria-current={isActive ? "true" : undefined}
-            onClick={event => handleNavClick(event, id)}
-            className={cn("group flex items-center no-underline focus-visible:rounded-sm", !compact && "gap-2.5")}
-          >
-            <span
-              ref={dot => {
-                dotRefs.current[index] = dot;
-              }}
-              className="w-2.5 h-2.5 rounded-full bg-foreground/15 transition-colors duration-200 group-hover:bg-foreground/30"
-            />
-            <span
-              ref={label => {
-                labelRefs.current[index] = label;
-              }}
-              className={cn(
-                "text-xs font-semibold whitespace-nowrap transition-colors duration-200",
-                compact && "w-0 overflow-hidden",
-                isActive ? "text-foreground" : "text-foreground/40 group-hover:text-foreground/70",
-              )}
-            >
-              {t(id)}
-            </span>
-          </a>
-        );
-      })}
+      {sections.map((id, index) => (
+        <SectionNavLink
+          key={`section-nav-${id}`}
+          id={id}
+          label={t(id)}
+          isActive={activeId === id}
+          compact={compact}
+          onClick={event => handleNavClick(event, id)}
+          dotRef={dot => {
+            dotRefs.current[index] = dot;
+          }}
+          labelRef={label => {
+            labelRefs.current[index] = label;
+          }}
+        />
+      ))}
     </nav>
   );
 };

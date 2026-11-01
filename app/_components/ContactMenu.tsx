@@ -5,7 +5,9 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { EMAIL, GITHUB_URL, LINKEDIN_URL } from "@/lib/site";
 import { phoneDisplay, phoneHref } from "@/utils/phone";
+import { subtleBoxClasses, subtleFillClasses } from "@/utils/pressClasses";
 import useDropdown from "@/utils/useDropdown";
+import useTouchPress from "@/utils/useTouchPress";
 
 import DropdownPanel from "./DropdownPanel";
 import Tooltip from "./Tooltip";
@@ -120,6 +122,7 @@ const ContactTriggerIcon = ({ className }: { className?: string }) => (
 
 const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick: () => void }) => {
   const { id, label, value, href, external, iconClass, Icon } = contact;
+  const [isPressed, pressHandlers] = useTouchPress();
   return (
     <a
       href={href}
@@ -130,13 +133,37 @@ const ContactRow = ({ contact, onClick }: { contact: ContactItem; onClick: () =>
         track("contact_click", { channel: id, variant: "dropdown" });
         onClick();
       }}
-      className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors duration-200 hover:bg-foreground/5 -outline-offset-1"
+      {...pressHandlers}
+      className={cn(
+        "flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg no-underline transition-colors duration-200 ease-button -outline-offset-1",
+        subtleFillClasses(isPressed),
+      )}
     >
       <Icon className={cn(iconClass, "shrink-0 text-foreground opacity-60")} />
       <span className="flex flex-col min-w-0">
         <span className="text-[13px] font-medium leading-tight text-foreground">{label}</span>
         <span className="text-[11px] leading-tight text-foreground/50 truncate">{value}</span>
       </span>
+    </a>
+  );
+};
+
+const InlineContactLink = ({ contact }: { contact: ContactItem }) => {
+  const { id, label, href, external } = contact;
+  const [isPressed, pressHandlers] = useTouchPress();
+  return (
+    <a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      onClick={() => track("contact_click", { channel: id, variant: "inline" })}
+      {...pressHandlers}
+      className={cn(
+        "px-1.5 py-0.75 rounded-md text-sm font-normal whitespace-nowrap no-underline text-foreground/55 transition-colors duration-200 ease-button -outline-offset-1",
+        subtleFillClasses(isPressed),
+      )}
+    >
+      {label}
     </a>
   );
 };
@@ -149,6 +176,7 @@ const ContactMenu = ({ variant = "dropdown" }: ContactMenuProps) => {
   const t = useTranslations("Header");
   const locale = useLocale();
   const { isOpen, setIsOpen, ref } = useDropdown('[role="menu"] a');
+  const [isPressed, pressHandlers] = useTouchPress();
 
   const contacts = contactsFor(locale);
 
@@ -157,18 +185,8 @@ const ContactMenu = ({ variant = "dropdown" }: ContactMenuProps) => {
       <div className="flex items-center gap-2">
         <ContactTriggerIcon className="w-[19px] h-[19px] text-foreground/55 shrink-0" />
         <div className="flex flex-wrap items-center gap-0.5" role="group" aria-label={t("contact")}>
-          {contacts.map(({ id, label, href, external }) => (
-            <a
-              key={id}
-              href={href}
-              target={external ? "_blank" : undefined}
-              rel={external ? "noopener noreferrer" : undefined}
-              onClick={() => track("contact_click", { channel: id, variant: "inline" })}
-              className="px-1.5 py-1 rounded-md text-sm font-normal whitespace-nowrap no-underline
-                text-foreground/55 hover:text-foreground transition-colors duration-200"
-            >
-              {label}
-            </a>
+          {contacts.map(contact => (
+            <InlineContactLink key={contact.id} contact={contact} />
           ))}
         </div>
       </div>
@@ -184,9 +202,12 @@ const ContactMenu = ({ variant = "dropdown" }: ContactMenuProps) => {
           aria-label={t("contact")}
           aria-haspopup="menu"
           aria-expanded={isOpen}
+          {...pressHandlers}
           className={cn(
-            "flex items-center transition-colors duration-200 focus-visible:rounded-md",
-            isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
+            "relative flex items-center transition-colors duration-200",
+            "before:-inset-1.5 before:rounded-md before:transition-colors",
+            subtleBoxClasses(isPressed),
+            isOpen ? "text-foreground" : "text-foreground/55",
           )}
         >
           <ContactTriggerIcon className="w-5 h-5 [stroke-width:2.266]" />

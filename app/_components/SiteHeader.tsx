@@ -10,12 +10,14 @@ import { useLocale, useTranslations } from "next-intl";
 import Sparkle from "@/assets/shape-sparkle-round.svg";
 import isModifiedClick from "@/utils/isModifiedClick";
 import { isLocaleSwitching } from "@/utils/localeSwitch";
+import { subtleBoxClasses } from "@/utils/pressClasses";
 import type { NavSection } from "@/utils/sectionLanding";
 import smoothScrollTo from "@/utils/smoothScrollTo";
 import useCarriedState from "@/utils/useCarriedState";
 import useFocusScope from "@/utils/useFocusScope";
 import useIsDark from "@/utils/useIsDark";
 import useOnEscape from "@/utils/useOnEscape";
+import useTouchPress from "@/utils/useTouchPress";
 
 import ContactMenu from "./ContactMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -133,6 +135,7 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
   }, [closeQueuedAt, setIsExpanded]);
 
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const [isMenuButtonPressed, menuButtonPress] = useTouchPress();
   useEffect(() => {
     if (!refocusMenuAfterSwitch) return;
     const frame = requestAnimationFrame(() => {
@@ -229,6 +232,7 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
   useOnEscape(isExpanded, () => setIsExpanded(false));
   useFocusScope(scope, isExpanded, ".mobile-menu a", resumeBelow);
 
+  const [isLogoPressed, logoPress] = useTouchPress();
   const scrollToTop = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (isModifiedClick(event)) return;
     event.preventDefault();
@@ -258,7 +262,12 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
       )}
     >
       <a
-        className="no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0 focus-visible:rounded-md"
+        {...logoPress}
+        className={cn(
+          "relative no-underline flex items-center gap-[6px] lg:gap-[8px] min-w-0",
+          "before:-inset-x-1.5 before:-inset-y-[5px] md:before:-inset-y-1 before:rounded-lg before:transition-colors",
+          subtleBoxClasses(isLogoPressed),
+        )}
         href={homeHref ?? "#top"}
         onClick={homeHref ? undefined : scrollToTop}
       >
@@ -290,7 +299,12 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
         <button
           ref={menuButtonRef}
           type="button"
-          className="block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1 focus-visible:rounded-md"
+          {...menuButtonPress}
+          className={cn(
+            "relative block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1",
+            "before:-inset-0.5 before:rounded-md before:transition-colors",
+            subtleBoxClasses(isMenuButtonPressed),
+          )}
           onClick={() => setIsExpanded(prev => !prev)}
           aria-label={t(isExpanded ? "closeMenu" : "openMenu")}
           aria-expanded={isExpanded}

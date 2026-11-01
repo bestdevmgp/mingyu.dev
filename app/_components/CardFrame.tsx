@@ -20,7 +20,7 @@ const CardFrame = ({ boxId, boxClassName, children, ...linkProps }: CardFramePro
         className={cn(
           "w-full h-fit md:h-full md:min-h-72 p-5 md:p-6 border border-foreground/15 rounded-md md:rounded-lg group",
           boxClassName,
-          isPressed && "scale-[0.97]",
+          isPressed ? "scale-[0.97]" : "mouse:active:scale-[0.97]",
         )}
       >
         {children}

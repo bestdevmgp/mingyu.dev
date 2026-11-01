@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import Shape from "@/assets/shape-sparkle-round.svg";
 import type { Link } from "@/lib/content";
 import type { SkillIcon } from "@/utils/api";
+import { subtleBoxClasses } from "@/utils/pressClasses";
 import richText from "@/utils/richText";
 import useTouchPress from "@/utils/useTouchPress";
 
@@ -40,6 +41,7 @@ const ExpCard = ({
   const t = useTranslations("Experience");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPressed, pressHandlers] = useTouchPress();
+  const [isTogglePressed, togglePress] = useTouchPress();
   const detailId = useId();
   const shownPeriod = period.replace(" ~ ", " ~\n");
 
@@ -94,6 +96,7 @@ const ExpCard = ({
                   href={href}
                   label={label}
                   labelClassName="text-xs md:text-sm"
+                  className="max-md:before:-top-[5.25px] max-md:before:-bottom-1.75"
                 />
               ))}
             </div>
@@ -113,15 +116,21 @@ const ExpCard = ({
         {items.length > 0 && (
           <>
             <button
-              className="group/toggle self-start text-primary/75 flex items-center gap-1 mt-2 focus-visible:outline-none"
+              className={cn(
+                "relative self-start text-primary flex items-center gap-1 mt-2",
+                "before:-right-1.5 before:-top-[5.25px] before:-bottom-1.25 md:before:-top-1 md:before:-bottom-1 before:rounded-md before:transition-[left,background-color]",
+                isExpanded ? "before:-left-[3.75px]" : "before:-left-[1.75px]",
+                subtleBoxClasses(isTogglePressed),
+              )}
+              {...togglePress}
               onClick={toggleDetail}
               aria-expanded={isExpanded}
               aria-controls={detailId}
             >
-              <span className="flex items-center gap-1 rounded-sm group-focus-visible/toggle:outline-solid">
-                <ChevronRight className={cn("w-4 h-4 transition-transform", isExpanded && "rotate-90")} />
-                <span className="text-left text-xs md:text-sm">{isExpanded ? t("hideDetails") : t("showDetails")}</span>
-              </span>
+              <ChevronRight
+                className={cn("w-4 h-4 [stroke-width:1.95] transition-transform", isExpanded && "rotate-90")}
+              />
+              <span className="text-left text-xs md:text-sm">{isExpanded ? t("hideDetails") : t("showDetails")}</span>
             </button>
             <div
               id={detailId}

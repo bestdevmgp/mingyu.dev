@@ -210,17 +210,17 @@ const RoundButton = ({
       }}
       aria-disabled={disabled || undefined}
       {...press}
-      className={cn("group", className, "text-white rounded-full")}
+      className={cn("group", className, "text-white rounded-full -outline-offset-1")}
       aria-label={label}
     >
       <span
         className={cn(
           "block rounded-full",
           padding,
-          "transition-[opacity,background-color] duration-200",
+          "transition-[opacity,background-color] duration-200 ease-button",
           pressed
-            ? "bg-[#0f0f0f]/70 opacity-100"
-            : "bg-black/50 opacity-55 group-hover:bg-[#0f0f0f]/70 group-hover:opacity-100",
+            ? "bg-[rgba(105,105,105,0.358)] opacity-100"
+            : "bg-black/50 opacity-55 group-hover:bg-[rgba(76,76,76,0.319)] group-hover:opacity-100 mouse:group-active:bg-[rgba(105,105,105,0.358)] mouse:group-active:opacity-100",
         )}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,13 +251,13 @@ const PillButton = ({ label, ariaLabel, pressed, press, onPress, disabled, class
       aria-disabled={disabled || undefined}
       {...press}
       className={cn(
-        "p-[11px] rounded-full transition-colors duration-200",
+        "p-[11px] rounded-full transition-colors duration-200 -outline-offset-1",
         className,
         disabled
           ? "text-white/25 cursor-not-allowed"
           : pressed
-            ? "text-white bg-[#000]/40"
-            : "text-white/55 hover:text-white hover:bg-[#000]/40",
+            ? "text-white bg-white/11.5 ease-button"
+            : "text-white/55 ease-button hover:text-white hover:bg-white/6 mouse:active:text-white mouse:active:bg-white/11.5",
       )}
       aria-label={ariaLabel ?? label}
     >
@@ -1438,6 +1438,7 @@ export default function ImageModal({
                 )}
 
                 <div
+                  data-tooltip-edge
                   className={cn(
                     "absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 rounded-full p-[5px]",
                     reachable,

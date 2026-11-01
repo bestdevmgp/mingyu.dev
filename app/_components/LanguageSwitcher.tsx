@@ -11,7 +11,9 @@ import { localePath, locales, type Locale } from "@i18n/config";
 
 import { unprefixedPath, writeLocaleCookie } from "@/utils/localePreference";
 import { beginLocaleSwitch, endLocaleSwitch, isLocaleSwitching, onLocaleSwitchEnd } from "@/utils/localeSwitch";
+import { subtleBoxClasses, subtleFillClasses } from "@/utils/pressClasses";
 import useDropdown from "@/utils/useDropdown";
+import useTouchPress from "@/utils/useTouchPress";
 
 import DropdownPanel from "./DropdownPanel";
 import Tooltip from "./Tooltip";
@@ -38,6 +40,61 @@ const LOCALE_LABELS: Record<Locale, string> = {
   ja: "日本語",
   "zh-Hans": "简体中文",
   "zh-Hant": "繁體中文",
+};
+
+interface LanguageOptionProps {
+  locale: Locale;
+  selected: boolean;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+}
+
+const LanguageOption = ({ locale, selected, onClick }: LanguageOptionProps) => {
+  const [isPressed, pressHandlers] = useTouchPress();
+  return (
+    <li role="none">
+      <button
+        type="button"
+        role="option"
+        aria-selected={selected}
+        onClick={onClick}
+        {...pressHandlers}
+        className={cn(
+          "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors duration-200 ease-button -outline-offset-1",
+          subtleFillClasses(isPressed),
+          selected ? "font-semibold text-foreground" : "font-normal text-foreground/70",
+        )}
+      >
+        {LOCALE_LABELS[locale]}
+        {selected && <Check className="w-4 h-4 text-primary" strokeWidth={2} />}
+      </button>
+    </li>
+  );
+};
+
+interface InlineLanguageButtonProps {
+  locale: Locale;
+  active: boolean;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+}
+
+const InlineLanguageButton = ({ locale, active, onClick }: InlineLanguageButtonProps) => {
+  const [isPressed, pressHandlers] = useTouchPress();
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      {...pressHandlers}
+      className={cn(
+        "px-2 py-1 rounded-md text-sm whitespace-nowrap transition-colors duration-200 ease-button -outline-offset-1",
+        active
+          ? "font-semibold text-foreground bg-foreground/10"
+          : ["font-normal text-foreground/55", subtleFillClasses(isPressed)],
+      )}
+    >
+      {LOCALE_LABELS[locale]}
+    </button>
+  );
 };
 
 let refocusTrigger = false;
@@ -77,6 +134,7 @@ const LanguageSwitcher = ({
   }, [navigating, activeLocale]);
 
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const [isPressed, pressHandlers] = useTouchPress();
   useEffect(() => {
     const trigger = triggerRef.current;
     if (!refocusTrigger || !trigger?.getClientRects().length) return;
@@ -132,25 +190,14 @@ const LanguageSwitcher = ({
           aria-hidden="true"
         />
         <div className="flex flex-wrap items-center gap-1" role="group" aria-label={t("changeLanguage")}>
-          {locales.map(locale => {
-            const isActive = locale === displayLocale;
-            return (
-              <button
-                key={locale}
-                type="button"
-                aria-pressed={isActive}
-                onClick={event => changeLocale(locale, event.detail === 0)}
-                className={cn(
-                  "px-2 py-1 rounded-md text-sm whitespace-nowrap transition-colors duration-200 -outline-offset-1",
-                  isActive
-                    ? "font-semibold text-foreground bg-foreground/10"
-                    : "font-normal text-foreground/55 hover:text-foreground",
-                )}
-              >
-                {LOCALE_LABELS[locale]}
-              </button>
-            );
-          })}
+          {locales.map(locale => (
+            <InlineLanguageButton
+              key={locale}
+              locale={locale}
+              active={locale === displayLocale}
+              onClick={event => changeLocale(locale, event.detail === 0)}
+            />
+          ))}
         </div>
       </div>
     );
@@ -166,9 +213,12 @@ const LanguageSwitcher = ({
           aria-label={`${LOCALE_LABELS[activeLocale]}, ${t("changeLanguage")}`}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
+          {...pressHandlers}
           className={cn(
-            "flex items-center gap-[3px] transition-colors duration-200 focus-visible:rounded-md",
-            isOpen ? "text-foreground" : "text-foreground/55 hover:text-foreground",
+            "relative flex items-center gap-[3px] transition-colors duration-200",
+            "before:-left-[6.7px] before:-right-[5.5px] before:-inset-y-[5px] before:rounded-md before:transition-colors",
+            subtleBoxClasses(isPressed),
+            isOpen ? "text-foreground" : "text-foreground/55",
           )}
         >
           <GlobeSimpleIcon
@@ -199,22 +249,12 @@ const LanguageSwitcher = ({
         className="min-w-32 list-none indent-0"
       >
         {locales.map(locale => (
-          <li key={locale} role="none">
-            <button
-              type="button"
-              role="option"
-              aria-selected={locale === activeLocale}
-              onClick={event => changeLocale(locale, event.detail === 0)}
-              className={cn(
-                "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors duration-200 -outline-offset-1",
-                "hover:bg-foreground/5",
-                locale === activeLocale ? "font-semibold text-foreground" : "font-normal text-foreground/70",
-              )}
-            >
-              {LOCALE_LABELS[locale]}
-              {locale === activeLocale && <Check className="w-4 h-4 text-primary" strokeWidth={2} />}
-            </button>
-          </li>
+          <LanguageOption
+            key={locale}
+            locale={locale}
+            selected={locale === activeLocale}
+            onClick={event => changeLocale(locale, event.detail === 0)}
+          />
         ))}
       </DropdownPanel>
     </div>

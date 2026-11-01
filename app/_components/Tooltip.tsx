@@ -9,7 +9,7 @@ import { prefersReducedMotion } from "@/utils/motionPreference";
 const SHOW_DELAY = 300;
 const HIDE_DELAY = 200;
 const EXIT_FALLBACK = 175;
-const GAP = 8;
+const GAP = 4;
 const EDGE = 8;
 
 const KEYCAPS = {
@@ -22,6 +22,18 @@ type Phase = "hidden" | "enter" | "exit";
 
 const unavailable = (trigger: HTMLElement) =>
   trigger.matches('[aria-disabled="true"]') || trigger.getAttribute("aria-expanded") === "true";
+
+const hoverBox = (trigger: HTMLElement) => {
+  const box = trigger.getBoundingClientRect();
+  const before = getComputedStyle(trigger, "::before");
+  if (before.position !== "absolute") return box;
+  return new DOMRect(
+    box.left + parseFloat(before.left),
+    box.top + parseFloat(before.top),
+    parseFloat(before.width),
+    parseFloat(before.height),
+  );
+};
 
 let handOff: (() => void) | null = null;
 let visible: (() => void) | null = null;
@@ -119,11 +131,12 @@ export default function Tooltip({ label, shortcut, side = "bottom", children }: 
     const trigger = triggerRef.current;
     const tip = tipRef.current;
     if (!trigger || !tip) return;
-    const box = (trigger.querySelector("[data-tooltip-anchor]") ?? trigger).getBoundingClientRect();
+    const box = hoverBox(trigger);
+    const edge = trigger.closest("[data-tooltip-edge]")?.getBoundingClientRect() ?? box;
     const { width, height } = tip.getBoundingClientRect();
     const start = box.left + (box.width - width) / 2;
     const left = Math.min(Math.max(EDGE, start), document.documentElement.clientWidth - EDGE - width);
-    const top = side === "bottom" ? box.bottom + GAP : box.top - GAP - height;
+    const top = side === "bottom" ? edge.bottom + GAP : edge.top - GAP - height;
     const snap = (value: number) => Math.round(value * window.devicePixelRatio) / window.devicePixelRatio;
     tip.style.left = `${snap(left)}px`;
     tip.style.top = `${snap(top)}px`;

@@ -5,13 +5,16 @@ import { createPortal } from "react-dom";
 import { X } from "react-feather";
 import { RemoveScroll } from "react-remove-scroll";
 
+import cn from "classnames";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import localeFontClass from "@/lib/localeFontClass";
+import { subtleBoxClasses } from "@/utils/pressClasses";
 import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
+import useTouchPress from "@/utils/useTouchPress";
 
 import Tooltip from "./Tooltip";
 import { afterViewerClose } from "./project/viewerPresence";
@@ -54,6 +57,7 @@ const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
   );
 
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const [isClosePressed, closePress] = useTouchPress();
   useOnClickOutside(contentRef, true, dismiss);
   useFocusScope(contentRef, isOpen, "#modal-focus");
 
@@ -168,19 +172,17 @@ const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
                         type="button"
                         onClick={close}
                         aria-label={t("close")}
-                        className="group absolute top-5 right-5 md:top-7 md:right-7 focus-visible:outline-none"
+                        {...closePress}
+                        className={cn(
+                          "absolute top-5 right-5 md:top-7 md:right-7",
+                          "before:-inset-[0.75px] md:before:inset-px before:rounded-md before:transition-colors",
+                          subtleBoxClasses(isClosePressed),
+                        )}
                       >
                         <X
                           aria-hidden
-                          className="block w-6 h-6 md:w-8 md:h-8
-                        text-foreground opacity-45 group-hover:opacity-100 group-active:opacity-100
-                        transition-opacity duration-200
-                      "
+                          className="block w-6 h-6 md:w-8 md:h-8 text-foreground opacity-45"
                           strokeWidth={1.5}
-                        />
-                        <span
-                          data-tooltip-anchor
-                          className="absolute inset-0.5 md:inset-1 rounded-md group-focus-visible:outline-solid"
                         />
                       </button>
                     </Tooltip>
