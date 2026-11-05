@@ -9,7 +9,7 @@ import { prefersReducedMotion } from "@/utils/motionPreference";
 const SHOW_DELAY = 300;
 const HIDE_DELAY = 200;
 const EXIT_FALLBACK = 175;
-const GAP = 4;
+const GAP = 5;
 const EDGE = 8;
 
 const KEYCAPS = {
