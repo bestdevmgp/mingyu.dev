@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { localePath } from "@i18n/config";
 
 import ProjectModalLoader from "./ProjectModalLoader";
-import { markProjectClose, projectTitle, settleProjectClose } from "./projectHistory";
+import { leaveProject, projectTitle, settleProjectClose } from "./projectHistory";
 import Modal from "../Modal";
 
 interface ProjectModalOverlayProps {
@@ -18,7 +18,8 @@ export default function ProjectModalOverlay({ id, locale }: ProjectModalOverlayP
 
   return (
     <Modal
-      onClose={markProjectClose}
+      onRelease={leaveProject}
+      onExited={settleProjectClose}
       labelledBy="project-modal-title"
       label={projectTitle(localePath(locale, `/project/${id}`))}
     >

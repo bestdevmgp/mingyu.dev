@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 
 import cn from "classnames";
 import Image from "next/image";
@@ -32,7 +32,7 @@ interface ProjectModalClientProps {
   revealImages?: boolean;
 }
 
-export default function ProjectModalClient({ id, projectData, revealImages = false }: ProjectModalClientProps) {
+function ProjectModalClient({ id, projectData, revealImages = false }: ProjectModalClientProps) {
   const t = useTranslations("Project");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -167,3 +167,5 @@ export default function ProjectModalClient({ id, projectData, revealImages = fal
     </>
   );
 }
+
+export default memo(ProjectModalClient);

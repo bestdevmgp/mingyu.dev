@@ -9,7 +9,14 @@ import { localePath, locales } from "@i18n/config";
 
 import afterPageLoad from "@/utils/afterPageLoad";
 
-import { pushedProjectPath, settleProjectPush, subscribeProjectPush } from "./projectHistory";
+import { loadProjectModalClient } from "./projectCache";
+import {
+  leavingProjectPath,
+  projectOpens,
+  pushedProjectPath,
+  settleProjectPush,
+  subscribeProjectHistory,
+} from "./projectHistory";
 
 type ProjectModalOverlayType = typeof import("./ProjectModalOverlay").default;
 
@@ -29,15 +36,19 @@ const loadOverlay = () =>
 
 const preloadModalCode = () => {
   loadOverlay().catch(() => {});
-  import("./ProjectModalClient").catch(() => {});
+  loadProjectModalClient().catch(() => {});
 };
 
 const PROJECT_PATH = new RegExp(`^(?:/(?:${locales.join("|")}))?/project/(\\d+)$`);
 
+const projectId = (path: string | null) => (path ? PROJECT_PATH.exec(path)?.[1] : undefined);
+
 const ProjectModalHost = () => {
   const pathname = usePathname();
-  const pushedPath = useSyncExternalStore(subscribeProjectPush, pushedProjectPath, () => null);
-  const id = PROJECT_PATH.exec(pushedPath ?? pathname)?.[1];
+  const pushedPath = useSyncExternalStore(subscribeProjectHistory, pushedProjectPath, () => null);
+  const leavingPath = useSyncExternalStore(subscribeProjectHistory, leavingProjectPath, () => null);
+  const opens = useSyncExternalStore(subscribeProjectHistory, projectOpens, () => 0);
+  const id = projectId(pushedPath ?? pathname) ?? projectId(leavingPath);
   const locale = useLocale();
   const [, setOverlayLoaded] = useState(false);
 
@@ -64,7 +75,7 @@ const ProjectModalHost = () => {
   }, [id, locale]);
 
   if (!id || !ProjectModalOverlay) return null;
-  return <ProjectModalOverlay key={id} id={Number(id)} locale={locale} />;
+  return <ProjectModalOverlay key={opens} id={Number(id)} locale={locale} />;
 };
 
 export default ProjectModalHost;

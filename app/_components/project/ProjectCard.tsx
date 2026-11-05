@@ -1,17 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
+
 import cn from "classnames";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 
 import { localePath } from "@i18n/config";
 
+import afterPageLoad from "@/utils/afterPageLoad";
 import type { SkillIcon } from "@/utils/api";
 import isModifiedClick from "@/utils/isModifiedClick";
 import { isLocaleSwitching } from "@/utils/localeSwitch";
 import richText, { stripTags } from "@/utils/richText";
 
-import { markProjectPush, projectClosing } from "./projectHistory";
+import { fetchProject } from "./projectCache";
+import { markProjectPush, projectBackPending } from "./projectHistory";
 import CardFrame from "../CardFrame";
 import { track } from "../analytics/posthog";
 import SkillItem from "../skill/SkillItem";
@@ -24,7 +28,10 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
-  const path = localePath(useLocale(), `/project/${id}`);
+  const locale = useLocale();
+  const path = localePath(locale, `/project/${id}`);
+
+  useEffect(() => afterPageLoad(() => fetchProject(locale, id).catch(() => {}), 200), [locale, id]);
 
   const dropSectionHash = () => {
     if (!window.location.hash) return;
@@ -35,7 +42,7 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
     const modified = isModifiedClick(event);
     if (!modified) {
       event.preventDefault();
-      if (projectClosing() || isLocaleSwitching() || window.location.pathname === path) return;
+      if (projectBackPending() || isLocaleSwitching() || window.location.pathname === path) return;
     }
     dropSectionHash();
     const plainTitle = stripTags(title);

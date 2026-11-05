@@ -1,42 +1,53 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "react-feather";
 import { RemoveScroll } from "react-remove-scroll";
 
 import cn from "classnames";
 import { AnimatePresence, motion } from "motion/react";
-import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
 import localeFontClass from "@/lib/localeFontClass";
+import { prefersReducedMotion } from "@/utils/motionPreference";
 import { subtleBoxClasses } from "@/utils/pressClasses";
 import useFocusScope from "@/utils/useFocusScope";
 import useOnClickOutside from "@/utils/useOnClickOutside";
 import useTouchPress from "@/utils/useTouchPress";
 
 import Tooltip from "./Tooltip";
-import { afterViewerClose } from "./project/viewerPresence";
+import { afterViewerClose, subscribeViewerShown } from "./project/viewerPresence";
+
+const MOTION_CURVE: [number, number, number, number] = [0.15, 1, 0.3, 1];
+const MOTION_EASING = `cubic-bezier(${MOTION_CURVE.join(", ")})`;
+const FADE_MS = 350;
+const SLIDE_MS = 700;
+const RELEASE_MS = FADE_MS / 3;
 
 interface ModalProps extends React.PropsWithChildren {
-  onClose: () => void;
+  onRelease: () => void;
+  onExited: () => void;
   labelledBy: string;
   label?: string;
 }
 
-const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
-  const router = useRouter();
+const Modal = ({ children, onRelease, onExited, labelledBy, label }: ModalProps) => {
   const t = useTranslations("Common");
   const locale = useLocale();
   const [isOpen, setIsOpen] = useState(true);
+  const [isReleased, setIsReleased] = useState(false);
+  const [still] = useState(prefersReducedMotion);
 
-  const close = useCallback(() => {
-    setIsOpen(false);
-  }, [setIsOpen]);
-  const exit = useCallback(() => {
-    router.back();
-  }, [router]);
+  const close = useCallback(() => setIsOpen(false), []);
+
+  const releasedRef = useRef(false);
+  const release = useCallback(() => {
+    if (releasedRef.current) return;
+    releasedRef.current = true;
+    setIsReleased(true);
+    onRelease();
+  }, [onRelease]);
 
   const dismiss = useCallback(
     (event: MouseEvent | TouchEvent) => {
@@ -56,9 +67,11 @@ const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
     [close],
   );
 
+  const transitionRef = useRef<HTMLDivElement | null>(null);
+  const slideRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [isClosePressed, closePress] = useTouchPress();
-  useOnClickOutside(contentRef, true, dismiss);
+  useOnClickOutside(contentRef, isOpen, dismiss);
   useFocusScope(contentRef, isOpen, "#modal-focus");
 
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -101,6 +114,35 @@ const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [close]);
 
+  useLayoutEffect(() => {
+    if (still) return;
+    let entrance: Animation | undefined;
+    const frame = requestAnimationFrame(() => {
+      entrance = slideRef.current?.animate(
+        [
+          { opacity: 0, transform: "translate3d(0, calc(5% + 4px), 0)", easing: MOTION_EASING },
+          { opacity: 1, offset: FADE_MS / SLIDE_MS, easing: MOTION_EASING },
+          { opacity: 1, transform: "none" },
+        ],
+        SLIDE_MS,
+      );
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      entrance?.cancel();
+    };
+  }, [still]);
+
+  useEffect(
+    () =>
+      subscribeViewerShown(() => {
+        for (const element of [transitionRef.current, slideRef.current]) {
+          element?.getAnimations().forEach(animation => animation.finish());
+        }
+      }),
+    [],
+  );
+
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add("scroll-locked");
@@ -111,25 +153,44 @@ const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
     };
   }, []);
 
+  useLayoutEffect(() => {
+    const slide = slideRef.current;
+    if (isOpen || still || !slide) return;
+    const lift = slide.animate([{ transform: "translate3d(0, calc(-5% - 4px), 0)" }], {
+      duration: SLIDE_MS,
+      easing: MOTION_EASING,
+      fill: "forwards",
+    });
+    return () => lift.cancel();
+  }, [isOpen, still]);
+
   useEffect(() => {
     if (isOpen) return;
-    onClose();
-    const timer = setTimeout(exit, 200);
+    const timer = setTimeout(release, still ? 0 : RELEASE_MS);
     return () => clearTimeout(timer);
-  }, [isOpen, exit, onClose]);
+  }, [isOpen, still, release]);
+
+  const fade = {
+    initial: still ? false : { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: still ? { duration: 0 } : { duration: FADE_MS / 1000, ease: MOTION_CURVE },
+  };
 
   return createPortal(
-    <div className={`contents ${localeFontClass(locale)}`} lang={locale}>
-      <AnimatePresence>
+    <div className={cn("contents", localeFontClass(locale), isReleased && "pointer-events-none")} lang={locale}>
+      <AnimatePresence
+        onExitComplete={() => {
+          release();
+          onExited();
+        }}
+      >
         {isOpen && (
           <>
             <motion.div
               id="modal-overlay"
-              className="w-screen h-screen bg-black/30 fixed top-0 left-0 z-modal-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.1 }}
+              className="w-screen h-screen bg-[#000]/[31.9%] dark:bg-[#000]/[27.7%] fixed top-0 left-0 z-modal-overlay"
+              {...fade}
             />
 
             <div
@@ -139,54 +200,50 @@ const Modal = ({ children, onClose, labelledBy, label }: ModalProps) => {
               flex justify-center items-start"
             >
               <RemoveScroll removeScrollBar={false}>
-                <motion.div
-                  id="modal-transition"
-                  initial={{ opacity: 0, translateY: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, translateY: 0, scale: 1 }}
-                  exit={{ opacity: 0, translateY: 20, scale: 0.9 }}
-                  transition={{ duration: 0.1, damping: 0, ease: "easeOut" }}
-                >
-                  <motion.div
-                    id="modal-content"
-                    ref={contentRef}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby={labelledBy}
-                    aria-label={label}
-                    data-lenis-prevent
-                    className="
-                    w-[calc(100vw-1.75rem)] md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-1.75rem)] md:max-h-[calc(100vh-4rem)] my-3.5 md:my-8 p-6 md:p-8
-                    overscroll-contain
-                    bg-background border border-foreground/15 rounded-md md:rounded-lg
-                    relative
-                    "
-                    style={{ overflowY: scrolls ? "auto" : "hidden" }}
-                    animate={box ? { height: box.h } : undefined}
-                    transition={box?.animate ? { duration: 0.25, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
-                    onAnimationComplete={() => setScrolls(true)}
-                  >
-                    <div id="modal-focus" tabIndex={-1} className="absolute outline-none pointer-events-none" />
-                    <div ref={innerRef}>{children}</div>
-                    <Tooltip label={t("close")} shortcut="Escape">
-                      <button
-                        type="button"
-                        onClick={close}
-                        aria-label={t("close")}
-                        {...closePress}
-                        className={cn(
-                          "absolute top-5 right-5 md:top-7 md:right-7",
-                          "before:-inset-[0.75px] md:before:inset-px before:rounded-md before:transition-colors",
-                          subtleBoxClasses(isClosePressed),
-                        )}
-                      >
-                        <X
-                          aria-hidden
-                          className="block w-6 h-6 md:w-8 md:h-8 text-foreground opacity-45"
-                          strokeWidth={1.5}
-                        />
-                      </button>
-                    </Tooltip>
-                  </motion.div>
+                <motion.div id="modal-transition" ref={transitionRef} {...fade}>
+                  <div ref={slideRef}>
+                    <motion.div
+                      id="modal-content"
+                      ref={contentRef}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby={labelledBy}
+                      aria-label={label}
+                      data-lenis-prevent
+                      className="
+                      w-[calc(100vw-1.75rem)] md:w-[calc(100vw-4rem)] md:max-w-4xl max-h-[calc(100vh-1.75rem)] md:max-h-[calc(100vh-4rem)] my-3.5 md:my-8 p-6 md:p-8
+                      overscroll-contain
+                      bg-background border border-foreground/15 rounded-md md:rounded-lg
+                      relative
+                      "
+                      style={{ overflowY: scrolls ? "auto" : "hidden" }}
+                      animate={box ? { height: box.h } : undefined}
+                      transition={box?.animate ? { duration: 0.25, ease: [0.22, 1, 0.36, 1] } : { duration: 0 }}
+                      onAnimationComplete={() => setScrolls(true)}
+                    >
+                      <div id="modal-focus" tabIndex={-1} className="absolute outline-none pointer-events-none" />
+                      <div ref={innerRef}>{children}</div>
+                      <Tooltip label={t("close")} shortcut="Escape">
+                        <button
+                          type="button"
+                          onClick={close}
+                          aria-label={t("close")}
+                          {...closePress}
+                          className={cn(
+                            "absolute top-5 right-5 md:top-7 md:right-7",
+                            "before:-inset-[0.75px] md:before:inset-px before:rounded-md before:transition-colors",
+                            subtleBoxClasses(isClosePressed),
+                          )}
+                        >
+                          <X
+                            aria-hidden
+                            className="block w-6 h-6 md:w-8 md:h-8 text-foreground opacity-45"
+                            strokeWidth={1.5}
+                          />
+                        </button>
+                      </Tooltip>
+                    </motion.div>
+                  </div>
                 </motion.div>
               </RemoveScroll>
             </div>
