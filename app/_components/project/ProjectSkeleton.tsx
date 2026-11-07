@@ -40,9 +40,16 @@ const ProjectSkeleton = () => (
 
         <div className="flex flex-col gap-1 w-full">
           <Line box="h-5" width="w-20" />
-          <div className="flex gap-2 flex-wrap">
+          <div
+            className="skeleton-chips flex gap-2 flex-wrap"
+            style={{ "--chip-count": CHIP_COUNT } as React.CSSProperties}
+          >
             {Array.from({ length: CHIP_COUNT }, (_, index) => (
-              <div key={`skeleton-chip-${index}`} className="skeleton-bar bg-foreground/10 rounded-md w-7 h-7" />
+              <div
+                key={`skeleton-chip-${index}`}
+                className="skeleton-bar skeleton-chip bg-foreground/10 rounded-md w-7 h-7"
+                style={{ "--chip-index": index } as React.CSSProperties}
+              />
             ))}
           </div>
         </div>

@@ -908,12 +908,25 @@ main {
   content: "";
   position: absolute;
   top: 0;
-  right: -320px;
+  right: calc(-200% / 3);
   bottom: 0;
   left: 0;
   opacity: 0.11;
   background: linear-gradient(to right in oklab, transparent 60%, currentColor 70%, transparent 80%);
-  animation: skeleton-sweep 1.5s ease-in-out infinite;
+  animation: skeleton-sweep 1.3s ease-in-out infinite;
+}
+.skeleton-chips {
+  --chip-gap: 0.5rem;
+  --chip-pitch: 2.25rem;
+  container-type: inline-size;
+}
+.skeleton-chip::after {
+  --row-span: round(down, 100cqw + var(--chip-gap), var(--chip-pitch));
+  --chip-x: mod(var(--chip-index) * var(--chip-pitch), var(--row-span));
+  --row-rest: calc((var(--chip-count) - var(--chip-index)) * var(--chip-pitch) + var(--chip-x));
+  right: auto;
+  left: calc(-1 * var(--chip-x));
+  width: calc((min(var(--row-span), var(--row-rest)) - var(--chip-gap)) * 5 / 3);
 }
 @keyframes skeleton-sweep {
   from {
