@@ -26,8 +26,8 @@ const SpeedInsights = dynamic<SpeedInsightsProps>(() =>
   ),
 );
 
-const PROJECT_PATH = /^\/project\/\d+$/;
-const LOCALE_PROJECT_PATH = /^\/[\w-]+\/project\/\d+$/;
+const PROJECT_PATH = /^\/projects\/\d+$/;
+const LOCALE_PROJECT_PATH = /^\/[\w-]+\/projects\/\d+$/;
 
 const DeferredAnalytics = () => {
   const [ready, setReady] = useState(false);
@@ -50,7 +50,7 @@ const DeferredAnalytics = () => {
   return (
     <>
       <Analytics />
-      <SpeedInsights {...(projectRoute ? { route: "/project/[id]" } : {})} />
+      <SpeedInsights {...(projectRoute ? { route: "/projects/[id]" } : {})} />
     </>
   );
 };

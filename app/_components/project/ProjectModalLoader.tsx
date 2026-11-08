@@ -34,7 +34,7 @@ export default function ProjectModalLoader({ id, locale }: ProjectModalLoaderPro
         if (active) setProjectData(result);
       })
       .catch(() => {
-        if (active) window.location.replace(localePath(locale, `/project/${id}`));
+        if (active) window.location.replace(localePath(locale, `/projects/${id}`));
       });
     return () => {
       active = false;

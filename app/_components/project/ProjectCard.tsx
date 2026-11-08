@@ -29,7 +29,7 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
   const locale = useLocale();
-  const path = localePath(locale, `/project/${id}`);
+  const path = localePath(locale, `/projects/${id}`);
 
   useEffect(() => afterPageLoad(() => fetchProject(locale, id).catch(() => {}), 200), [locale, id]);
 

@@ -39,7 +39,7 @@ const preloadModalCode = () => {
   loadProjectModalClient().catch(() => {});
 };
 
-const PROJECT_PATH = new RegExp(`^(?:/(?:${locales.join("|")}))?/project/(\\d+)$`);
+const PROJECT_PATH = new RegExp(`^(?:/(?:${locales.join("|")}))?/projects/(\\d+)$`);
 
 const projectId = (path: string | null) => (path ? PROJECT_PATH.exec(path)?.[1] : undefined);
 
@@ -66,7 +66,7 @@ const ProjectModalHost = () => {
         if (active) setOverlayLoaded(true);
       },
       () => {
-        if (active) window.location.replace(localePath(locale, `/project/${id}`));
+        if (active) window.location.replace(localePath(locale, `/projects/${id}`));
       },
     );
     return () => {

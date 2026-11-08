@@ -29,14 +29,14 @@ export function GET() {
     "## Pages",
     "",
     `- [Home](${SITE_URL}/): introduction, skills, work experience, awards and activities, projects, ${content.blog.length ? "blog posts, " : ""}education and certifications`,
-    `- Each project has a detail page at ${SITE_URL}/project/{id}, with the same language prefixes (for example ${SITE_URL}/en/project/{id})`,
+    `- Each project has a detail page at ${SITE_URL}/projects/{id}, with the same language prefixes (for example ${SITE_URL}/en/projects/{id})`,
     "",
     "## Projects",
     "",
     ...rows.map((row, i) => {
       const e = en[i];
       const title = row.title === e.title ? row.title : `${row.title} / ${e.title}`;
-      return `- [${title}](${SITE_URL}/project/${row.id}): ${e.sub_title || row.sub_title}`;
+      return `- [${title}](${SITE_URL}/projects/${row.id}): ${e.sub_title || row.sub_title}`;
     }),
     "",
     ...(content.blog.length

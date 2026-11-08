@@ -7,7 +7,7 @@ import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const ids = getProjectIds();
-  const paths = ["", ...ids.map(id => `/project/${id}`)];
+  const paths = ["", ...ids.map(id => `/projects/${id}`)];
   return locales.flatMap(locale =>
     paths.map(path => ({
       url: `${SITE_URL}${localePath(locale, path).replace(/\/$/, "")}`,

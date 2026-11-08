@@ -136,7 +136,7 @@ const renderedChars = locale => {
   if (!prerendered.some(({ route }) => route === locale))
     throw new Error(`font subset: run next build first (${locale}.html missing)`);
   const pages = prerendered
-    .filter(({ route }) => route === locale || route.startsWith(`${locale}/project/`))
+    .filter(({ route }) => route === locale || route.startsWith(`${locale}/projects/`))
     .map(({ path }) => path);
   const text =
     pages.map(page => pageText(readFileSync(page, "utf8"))).join("") +

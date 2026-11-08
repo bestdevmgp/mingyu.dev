@@ -21,7 +21,7 @@ export default function ProjectModalOverlay({ id, locale }: ProjectModalOverlayP
       onRelease={leaveProject}
       onExited={settleProjectClose}
       labelledBy="project-modal-title"
-      label={projectTitle(localePath(locale, `/project/${id}`))}
+      label={projectTitle(localePath(locale, `/projects/${id}`))}
     >
       <ProjectModalLoader id={id} locale={locale} />
     </Modal>
