@@ -485,6 +485,14 @@ main {
   container-type: size;
   z-index: 0;
 }
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--background);
+  opacity: 0;
+  animation: hero-bloom 2.6s linear both;
+}
 .hero-bg-canvas {
   --ratio: 2.2;
   --cw: max(100cqw, calc(100cqh * var(--ratio)));
@@ -615,16 +623,21 @@ main {
 .hero-rise[data-risen] {
   will-change: auto;
 }
-:root.loader-js .hero-rise {
+:root.loader-js .hero-rise,
+:root.loader-js .hero-bg::after {
   animation-play-state: paused;
 }
-:root.loader-done .hero-rise {
+:root.loader-done .hero-rise,
+:root.loader-done .hero-bg::after {
   animation-play-state: running;
 }
 :root.locale-switched .hero-rise {
   animation: none;
   opacity: 1;
   will-change: auto;
+}
+:root.locale-switched .hero-bg::after {
+  animation: none;
 }
 .hero-rise-1 {
   animation-name: hero-rise-1;
@@ -689,6 +702,17 @@ main {
     transform: translateY(0);
   }
 }
+@keyframes hero-bloom {
+  0%,
+  11.5385% {
+    opacity: 1;
+    animation-timing-function: ease-out;
+  }
+  42.3077%,
+  100% {
+    opacity: 0;
+  }
+}
 
 .mobile-menu-item {
   opacity: 0;
@@ -717,7 +741,8 @@ main {
     transition-duration: 0.21s;
     transition-delay: 0.15s;
   }
-  .hero-rise[data-risen] {
+  .hero-rise[data-risen],
+  .hero-bg[data-risen]::after {
     animation: none;
   }
 }
@@ -1039,6 +1064,9 @@ main {
     animation: none !important;
     opacity: 1 !important;
     will-change: auto;
+  }
+  .hero-bg::after {
+    animation: none !important;
   }
   .scroll-cue {
     animation: none !important;
