@@ -82,12 +82,6 @@ const nextConfig = {
       },
     ];
   },
-  async redirects() {
-    return [
-      { source: "/project/:path*", destination: "/projects/:path*", permanent: true },
-      { source: "/:locale/project/:path*", destination: "/:locale/projects/:path*", permanent: true },
-    ];
-  },
   images: {
     qualities: [75, 85],
     formats: ["image/avif", "image/webp"],
