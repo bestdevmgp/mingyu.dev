@@ -1,4 +1,8 @@
-const createNextIntlPlugin = require("next-intl/plugin");
+import createNextIntlPlugin from "next-intl/plugin";
+
+import { ENTRY_HEADERS, ENTRY_REWRITES } from "./i18n/entryRoutes";
+
+import type { NextConfig } from "next";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
@@ -21,7 +25,7 @@ const vercelToolbarSources = {
 };
 
 const contentSecurityPolicy = () => {
-  const directives = {
+  const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
     "script-src": [
       "'self'",
@@ -49,7 +53,7 @@ const contentSecurityPolicy = () => {
     .join("; ");
 };
 
-const nextConfig = {
+const nextConfig: NextConfig = {
   poweredByHeader: false,
   experimental: {
     globalNotFound: true,
@@ -63,8 +67,12 @@ const nextConfig = {
       },
     },
   },
+  async rewrites() {
+    return { beforeFiles: ENTRY_REWRITES };
+  },
   async headers() {
     return [
+      ...ENTRY_HEADERS,
       {
         source: "/:path*",
         headers: [
@@ -100,4 +108,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withNextIntl(nextConfig);
+export default withNextIntl(nextConfig);

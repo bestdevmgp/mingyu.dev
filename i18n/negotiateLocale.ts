@@ -1,8 +1,10 @@
-import { defaultLocale, type Locale } from "./config";
+import { defaultLocale, locales, type Locale } from "./config";
 
-const UNSUPPORTED_LOCALE: Locale = "en";
+export const UNSUPPORTED_LOCALE: Locale = "en";
 
-const TRADITIONAL_REGIONS = ["tw", "hk", "mo"];
+export const BARE_LOCALES = locales.filter(locale => !locale.includes("-"));
+
+export const TRADITIONAL_REGIONS = ["tw", "hk", "mo"];
 const SIMPLIFIED_REGIONS = ["cn", "sg", "my"];
 
 const parseAcceptLanguage = (header: string): string[] =>
@@ -35,13 +37,9 @@ const matchChinese = (subtags: string[]): Locale => {
 };
 
 const matchTag = (tag: string): Locale | null => {
-  const subtags = tag.split("-");
-  const primary = subtags[0];
-  if (primary === "ko") return "ko";
-  if (primary === "en") return "en";
-  if (primary === "ja") return "ja";
-  if (primary === "zh") return matchChinese(subtags.slice(1));
-  return null;
+  const [primary, ...subtags] = tag.split("-");
+  if (primary === "zh") return matchChinese(subtags);
+  return BARE_LOCALES.find(locale => locale === primary) ?? null;
 };
 
 export const negotiateLocale = (acceptLanguage: string | null | undefined): Locale => {

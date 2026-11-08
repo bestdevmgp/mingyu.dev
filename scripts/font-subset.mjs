@@ -9,7 +9,7 @@ const fontsDir = join(root, "public/fonts");
 const manifestPath = join(root, "scripts/font-subset.json");
 const notoFacesPath = join(root, "app/lib/notoFontFaces.ts");
 const globalsPath = join(root, "app/globals.css");
-const references = [globalsPath, join(root, "app/global-not-found.tsx"), join(root, "proxy.ts")];
+const references = [globalsPath, join(root, "i18n/fontPreload.ts")];
 const cacheDir = join(root, "node_modules/.cache/font-subset");
 
 const FONTTOOLS = "fonttools[woff]==4.67.0";

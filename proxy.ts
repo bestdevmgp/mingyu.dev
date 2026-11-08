@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { defaultLocale, isSupportedLocale, locales, LOCALE_COOKIE } from "@i18n/config";
+import { FONT_PRELOAD_LINK } from "@i18n/fontPreload";
 import { negotiateLocale } from "@i18n/negotiateLocale";
 
 import { notifyLinkPreview } from "@/utils/linkPreviewBots";
@@ -12,14 +13,6 @@ const LOCALE_PATH = new RegExp(`^/(${locales.join("|")})(/.*)?$`);
 const FIRST_SEGMENT = /^\/([^/]+)(\/.*)?$/;
 
 const MAIL_PATH = "/me@mingyu.dev";
-
-const fontPreload = (file: string) =>
-  `</fonts/${file}>; rel=preload; as="font"; crossorigin="anonymous"; type="font/woff2"`;
-
-const FONT_PRELOAD: Record<string, string> = {
-  ko: fontPreload("pretendard-core-v9.woff2"),
-  en: fontPreload("inter-v3.woff2"),
-};
 
 const CANONICAL_PREFIX = new Map<string, string>([
   ...locales.map((locale): [string, string] => [locale.toLowerCase(), locale]),
@@ -63,7 +56,7 @@ export function proxy(request: NextRequest) {
     notifyLinkPreview(request);
     const response = NextResponse.next(forwardLocale(request, prefix));
     response.headers.set("Content-Language", prefix);
-    if (FONT_PRELOAD[prefix] && !isBackgroundRequest) response.headers.set("Link", FONT_PRELOAD[prefix]);
+    if (FONT_PRELOAD_LINK[prefix] && !isBackgroundRequest) response.headers.set("Link", FONT_PRELOAD_LINK[prefix]);
     if (!isBackgroundRequest) response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
     return response;
   }
@@ -77,11 +70,19 @@ export function proxy(request: NextRequest) {
   url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
   const response = NextResponse.rewrite(url, forwardLocale(request, locale));
   response.headers.set("Content-Language", locale);
-  if (FONT_PRELOAD[locale] && !isBackgroundRequest) response.headers.set("Link", FONT_PRELOAD[locale]);
+  if (FONT_PRELOAD_LINK[locale] && !isBackgroundRequest) response.headers.set("Link", FONT_PRELOAD_LINK[locale]);
   if (!remembered) response.cookies.set(LOCALE_COOKIE, locale, COOKIE_OPTIONS);
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next|fonts/|assets/|favicon|opengraph|[^/]+\\.(?:txt|xml)).*)"],
+  matcher: [
+    "/((?!_next|fonts/|assets/|favicon|opengraph|[^/]+\\.(?:txt|xml)|projects/\\d+$|$).*)",
+    { source: "/:project(projects/\\d+)?", missing: [{ type: "header", key: "accept-language" }] },
+    { source: "/:project(projects/\\d+)?", missing: [{ type: "header", key: "sec-fetch-dest" }] },
+    {
+      source: "/:project(projects/\\d+)?",
+      has: [{ type: "header", key: "user-agent", value: ".*Facebot Twitterbot.*" }],
+    },
+  ],
 };
