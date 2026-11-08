@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { defaultLocale, isSupportedLocale, locales, LOCALE_COOKIE } from "@i18n/config";
 import { negotiateLocale } from "@i18n/negotiateLocale";
 
+import { notifyLinkPreview } from "@/utils/linkPreviewBots";
+
 const COOKIE_OPTIONS = { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax", secure: true } as const;
 
 const LOCALE_PATH = new RegExp(`^/(${locales.join("|")})(/.*)?$`);
@@ -58,6 +60,7 @@ export function proxy(request: NextRequest) {
       if (!isBackgroundRequest) response.cookies.set(LOCALE_COOKIE, prefix, COOKIE_OPTIONS);
       return response;
     }
+    notifyLinkPreview(request);
     const response = NextResponse.next(forwardLocale(request, prefix));
     response.headers.set("Content-Language", prefix);
     if (FONT_PRELOAD[prefix] && !isBackgroundRequest) response.headers.set("Link", FONT_PRELOAD[prefix]);
@@ -65,6 +68,7 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
+  notifyLinkPreview(request);
   const existing = request.cookies.get(LOCALE_COOKIE)?.value;
   const remembered = isSupportedLocale(existing);
   const locale = remembered ? existing : negotiateLocale(request.headers.get("accept-language"));
