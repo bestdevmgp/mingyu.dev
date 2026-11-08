@@ -189,7 +189,7 @@ const Modal = ({ children, onRelease, onExited, labelledBy, label }: ModalProps)
           <>
             <motion.div
               id="modal-overlay"
-              className="w-screen h-screen bg-[#000]/[31.9%] dark:bg-[#000]/[27.7%] fixed top-0 left-0 z-modal-overlay"
+              className="w-screen h-screen bg-[#000]/[25.5%] dark:bg-[#000]/[27.7%] backdrop-blur-[3px] fixed top-0 left-0 z-modal-overlay"
               {...fade}
             />
 
