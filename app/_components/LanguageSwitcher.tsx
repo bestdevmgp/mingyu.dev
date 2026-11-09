@@ -144,7 +144,10 @@ const LanguageSwitcher = ({
 
   const changeLocale = (nextLocale: Locale, viaKeyboard: boolean) => {
     setIsOpen(false);
-    if (nextLocale === displayLocale) return;
+    if (nextLocale === displayLocale) {
+      writeLocaleCookie(nextLocale);
+      return;
+    }
     if (isLocaleSwitching()) {
       queuedSwitch = { locale: nextLocale, viaKeyboard, variant };
       setPendingLocale(nextLocale);
