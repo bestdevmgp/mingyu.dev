@@ -38,7 +38,7 @@ const sendToDiscord = async (path: string, userAgent: string) => {
           title: `🔗 ${platform}에서 링크가 공유됐어요`,
           color: 14876416,
           fields: [
-            { name: "링크", value: `\`${path}\`` },
+            { name: "링크", value: `\`${path}\`\n\u200b` },
             { name: "User-Agent", value: `\`${userAgent}\`` },
           ],
           footer: { text: `${time} KST` },
