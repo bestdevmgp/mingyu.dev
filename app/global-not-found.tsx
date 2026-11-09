@@ -1,7 +1,9 @@
 import { preload } from "react-dom";
 
+import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { LOCALE_HEADER } from "@i18n/config";
 import { FONT_PRELOAD_PATH } from "@i18n/fontPreload";
 
 import LazyNotFoundView from "@/_components/LazyNotFoundView";
@@ -20,7 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function GlobalNotFound() {
   const locale = await getLocale();
   const font = FONT_PRELOAD_PATH[locale];
-  if (font) preload(font, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  const viaProxy = (await headers()).has(LOCALE_HEADER);
+  if (font && !viaProxy) preload(font, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
 
   return (
     <RootLayout>

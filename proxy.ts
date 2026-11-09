@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { defaultLocale, isSupportedLocale, locales, LOCALE_COOKIE } from "@i18n/config";
+import { defaultLocale, isSupportedLocale, locales, LOCALE_COOKIE, LOCALE_HEADER } from "@i18n/config";
 import { FONT_PRELOAD_LINK } from "@i18n/fontPreload";
 import { negotiateLocale } from "@i18n/negotiateLocale";
 
@@ -21,7 +21,7 @@ const CANONICAL_PREFIX = new Map<string, string>([
 
 const forwardLocale = (request: NextRequest, locale: string) => {
   const headers = new Headers(request.headers);
-  headers.set("X-NEXT-INTL-LOCALE", locale);
+  headers.set(LOCALE_HEADER, locale);
   return { request: { headers } };
 };
 

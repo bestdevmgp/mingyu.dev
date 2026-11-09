@@ -5,6 +5,8 @@ export const defaultLocale: Locale = "ko";
 
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 
+export const LOCALE_HEADER = "X-NEXT-INTL-LOCALE";
+
 export const isSupportedLocale = (value: string | null | undefined): value is Locale =>
   !!value && (locales as readonly string[]).includes(value);
 
