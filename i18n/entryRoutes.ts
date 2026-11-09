@@ -14,6 +14,7 @@ const ACCEPT_LANGUAGE: Condition = { type: "header", key: "accept-language" };
 const FETCH_DEST: Condition = { type: "header", key: "sec-fetch-dest" };
 const DOCUMENT_REQUEST: Condition = { ...FETCH_DEST, value: "document" };
 const BROWSER_REQUEST = [ACCEPT_LANGUAGE, FETCH_DEST];
+const IMESSAGE_PREVIEW: Condition = { type: "header", key: "user-agent", value: ".*Facebot Twitterbot.*" };
 
 const localeCookie = (value: string): Condition => ({ type: "cookie", key: LOCALE_COOKIE, value });
 
@@ -54,10 +55,10 @@ export const ENTRY_HEADERS = ENTRY_PAGES.flatMap(({ source }) => [
     missing,
     headers: [{ key: "Content-Language", value: locale }],
   })),
-  ...RULES.filter(({ locale }) => FONT_PRELOAD_LINK[locale]).map(({ locale, has, missing }) => ({
+  ...RULES.filter(({ locale }) => FONT_PRELOAD_LINK[locale]).map(({ locale, has, missing = [] }) => ({
     source,
     has: [...has, DOCUMENT_REQUEST],
-    missing,
+    missing: [...missing, IMESSAGE_PREVIEW],
     headers: [{ key: "Link", value: FONT_PRELOAD_LINK[locale] }],
   })),
 ]);
