@@ -30,11 +30,19 @@ const BlogCard = ({ id, title, date, forwardLink, bgImageUrl }: BlogCardProps) =
       onClick={() => track("blog_post_opened", { post_id: id, post_title: title })}
       boxClassName="relative overflow-hidden transition-[scale] duration-200"
     >
-      <Image className="object-cover" src={bgImageUrl} alt="" fill sizes={CARD_SIZES} />
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] group-hover:backdrop-blur-sm transition-[backdrop-filter] duration-200" />
+      <Image
+        className="object-cover transition-[scale] duration-200 ease-[ease-out] motion-safe:group-hover:scale-[1.04]"
+        src={bgImageUrl}
+        alt=""
+        fill
+        sizes={CARD_SIZES}
+      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
 
       <div className="relative z-10 flex flex-col md:h-full">
-        <p className="text-white text-lg md:text-xl font-semibold mb-10 md:mb-4">{title}</p>
+        <p className="text-white text-lg md:text-xl font-semibold mb-10 md:mb-4 underline underline-offset-2 decoration-transparent group-hover:decoration-current transition-colors duration-200">
+          {title}
+        </p>
 
         <div className="text-white/60 text-xs md:text-sm font-normal flex justify-between md:flex-col md:grow">
           <p>{date}</p>
