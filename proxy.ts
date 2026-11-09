@@ -65,11 +65,17 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next|fonts/|assets/|favicon|opengraph|[^/]+\\.(?:txt|xml)|projects/\\d+$|$).*)",
-    { source: "/:project(projects/\\d+)?", missing: [{ type: "header", key: "accept-language" }] },
-    { source: "/:project(projects/\\d+)?", missing: [{ type: "header", key: "sec-fetch-dest" }] },
+    "/((?!_next|fonts/|assets/|favicon|opengraph|[^/]+\\.(?:txt|xml)|projects/\\d+$|(?-i:(?:ko|en|ja|zh-Hans|zh-Hant)(?:/projects/\\d+)?)$|$).*)",
     {
-      source: "/:project(projects/\\d+)?",
+      source: "/:page((?:ko|en|ja|zh-Hans|zh-Hant)(?:/projects/\\d+)?|projects/\\d+)?",
+      missing: [{ type: "header", key: "accept-language" }],
+    },
+    {
+      source: "/:page((?:ko|en|ja|zh-Hans|zh-Hant)(?:/projects/\\d+)?|projects/\\d+)?",
+      missing: [{ type: "header", key: "sec-fetch-dest" }],
+    },
+    {
+      source: "/:page((?:ko|en|ja|zh-Hans|zh-Hant)(?:/projects/\\d+)?|projects/\\d+)?",
       has: [{ type: "header", key: "user-agent", value: ".*Facebot Twitterbot.*" }],
     },
   ],

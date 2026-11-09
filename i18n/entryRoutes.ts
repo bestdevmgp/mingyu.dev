@@ -10,6 +10,8 @@ const ENTRY_PAGES = [
   { source: "/projects/:id(\\d+)", rest: "/projects/:id" },
 ];
 
+const LOCALE_PAGES = locales.map(locale => ({ locale, source: `/:page((?-i:${locale}(?:/projects/\\d+)?))` }));
+
 const ACCEPT_LANGUAGE: Condition = { type: "header", key: "accept-language" };
 const FETCH_DEST: Condition = { type: "header", key: "sec-fetch-dest" };
 const DOCUMENT_REQUEST: Condition = { ...FETCH_DEST, value: "document" };
@@ -48,17 +50,24 @@ export const ENTRY_REWRITES = ENTRY_PAGES.flatMap(({ source, rest }) =>
   RULES.map(({ locale, has, missing }) => ({ source, destination: `/${locale}${rest}`, has, missing })),
 );
 
-export const ENTRY_HEADERS = ENTRY_PAGES.flatMap(({ source }) => [
-  ...RULES.map(({ locale, has, missing }) => ({
+const headerRules = (source: string, rules: Rule[]) => [
+  ...rules.map(({ locale, has, missing }) => ({
     source,
     has,
     missing,
     headers: [{ key: "Content-Language", value: locale }],
   })),
-  ...RULES.filter(({ locale }) => FONT_PRELOAD_LINK[locale]).map(({ locale, has, missing = [] }) => ({
-    source,
-    has: [...has, DOCUMENT_REQUEST],
-    missing: [...missing, IMESSAGE_PREVIEW],
-    headers: [{ key: "Link", value: FONT_PRELOAD_LINK[locale] }],
-  })),
-]);
+  ...rules
+    .filter(({ locale }) => FONT_PRELOAD_LINK[locale])
+    .map(({ locale, has, missing = [] }) => ({
+      source,
+      has: [...has, DOCUMENT_REQUEST],
+      missing: [...missing, IMESSAGE_PREVIEW],
+      headers: [{ key: "Link", value: FONT_PRELOAD_LINK[locale] }],
+    })),
+];
+
+export const ENTRY_HEADERS = [
+  ...ENTRY_PAGES.flatMap(({ source }) => headerRules(source, RULES)),
+  ...LOCALE_PAGES.flatMap(({ locale, source }) => headerRules(source, [{ locale, has: BROWSER_REQUEST }])),
+];
