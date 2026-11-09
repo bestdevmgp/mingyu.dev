@@ -13,8 +13,6 @@ const posthogOrigin = new URL(posthogHost).origin;
 
 const posthogUiHost = "https://eu.posthog.com";
 
-const fileHost = "cdn.mingyu.dev";
-
 const vercelToolbarSources = {
   "script-src": ["https://vercel.live"],
   "style-src": ["https://vercel.live"],
@@ -35,7 +33,7 @@ const contentSecurityPolicy = () => {
     ],
     "script-src-attr": ["'none'"],
     "style-src": ["'self'", "'unsafe-inline'", posthogOrigin],
-    "img-src": ["'self'", "data:", "blob:", `https://${fileHost}`],
+    "img-src": ["'self'", "data:", "blob:"],
     "font-src": ["'self'", posthogOrigin],
     "connect-src": ["'self'", posthogOrigin, posthogUiHost],
     "object-src": ["'none'"],
@@ -94,10 +92,11 @@ const nextConfig: NextConfig = {
     qualities: [75, 85],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 2592000,
+    dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: "https",
-        hostname: fileHost,
+        hostname: "cdn.mingyu.dev",
       },
       {
         protocol: "https",

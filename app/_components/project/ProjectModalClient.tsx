@@ -75,7 +75,7 @@ function ProjectModalClient({ id, projectData, revealImages = false }: ProjectMo
     <>
       <div id="project-modal-header" className="flex flex-col gap-3 md:gap-6">
         <div className="relative w-8 md:w-12 h-8 md:h-12">
-          <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} fill alt="" />
+          <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} fill alt="" unoptimized />
         </div>
 
         <h1 id="project-modal-title" className="text-start text-xl md:text-2xl font-semibold leading-normal mb-4">

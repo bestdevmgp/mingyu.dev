@@ -67,12 +67,13 @@ const ProjectCard = ({ id, title, sub_title, skills }: ProjectCardProps) => {
     >
       <div className="text-left">
         <div className="relative mb-2.5 md:mb-4 w-5 md:w-6 h-5 md:h-6">
-          <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} alt="" fill />
+          <Image className="object-contain" src={`/assets/shape-variant-${id % 9}.svg`} alt="" fill unoptimized />
           <Image
             className="object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-200"
             src={`/assets/shape-variant-${id % 9}-invert.svg`}
             alt=""
             fill
+            unoptimized
           />
         </div>
         <p className="text-lg md:text-xl font-semibold md:mb-4">{richText(title)}</p>
