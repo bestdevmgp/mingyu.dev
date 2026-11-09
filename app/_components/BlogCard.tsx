@@ -37,7 +37,7 @@ const BlogCard = ({ id, title, date, forwardLink, bgImageUrl }: BlogCardProps) =
         fill
         sizes={CARD_SIZES}
       />
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
 
       <div className="relative z-10 flex flex-col md:h-full">
         <p className="text-white text-lg md:text-xl font-semibold mb-10 md:mb-4 underline underline-offset-2 decoration-transparent group-hover:decoration-current transition-colors duration-200">
