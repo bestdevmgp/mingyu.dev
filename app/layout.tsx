@@ -42,11 +42,13 @@ const BOOT_SCRIPT =
   "p=':root [data-carry=\"'+k.slice(12)+'\"] ';c+=p+'[data-show-more=\"'+n+'\"]{display:none}';for(s=1;s<=n;s++)c+=p+'[data-batch=\"'+s+'\"]{display:block}'}" +
   "if(c){var t=document.createElement('style');t.textContent=c;document.head.appendChild(t)}}catch(e){}})();" +
   "addEventListener('animationend',function(e){var t=e.target;if(t.classList&&(t.classList.contains('hero-rise')||t.classList.contains('hero-bg')))t.setAttribute('data-risen','')});" +
-  "(function(){if(!matchMedia('(hover: none)').matches)return;var o=null;" +
-  "function c(){if(o){o.classList.remove('skill-open');o=null}}" +
-  "document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +
-  "if(!t||t===o){c();return}c();t.classList.add('skill-open');o=t},true);" +
-  "addEventListener('scroll',c,{capture:true,passive:true});addEventListener('touchmove',c,{passive:true})})();";
+  "(function(){var r=document.documentElement,n=matchMedia('(hover: none)').matches,o=null;" +
+  "function c(){if(o){o.classList.remove('skill-open');o=null;removeEventListener('scroll',c,true);removeEventListener('touchmove',c)}}" +
+  "function m(e){if(e.pointerType==='mouse'&&r.hasAttribute('data-touch')){c();r.removeAttribute('data-touch');removeEventListener('pointermove',m,true)}}" +
+  "if(!n)addEventListener('pointerdown',function(e){if(e.pointerType!=='touch')m(e);else if(!r.hasAttribute('data-touch')){r.setAttribute('data-touch','');addEventListener('pointermove',m,true)}},true);" +
+  "document.addEventListener('click',function(e){var t=(n||r.hasAttribute('data-touch'))&&e.target&&e.target.closest?e.target.closest('[data-skill]'):null;" +
+  "if(!t||t===o){c();return}c();t.classList.add('skill-open');o=t;" +
+  "addEventListener('scroll',c,{capture:true,passive:true});addEventListener('touchmove',c,{passive:true})},true)})();";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

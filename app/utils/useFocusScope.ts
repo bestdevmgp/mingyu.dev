@@ -30,6 +30,17 @@ const resumeTab = (event: KeyboardEvent) => {
   target.focus({ focusVisible: true });
 };
 
+export const readingLine = (section: HTMLElement | null) => () =>
+  Math.max(
+    document.querySelector("header")?.getBoundingClientRect().bottom ?? 0,
+    section?.getBoundingClientRect().top ?? 0,
+  );
+
+export const resumeTabBelow = (line: () => number) => {
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+  resumeLine = line;
+};
+
 if (typeof window !== "undefined") {
   window.addEventListener(
     "keydown",
@@ -104,8 +115,7 @@ function useFocusScope(
         if (focused && focused !== document.body && !root.contains(focused)) return;
         const line = closedInside ? resumeBelow?.(openedByKeyboard) : null;
         if (line) {
-          if (focused instanceof HTMLElement) focused.blur();
-          resumeLine = line;
+          resumeTabBelow(line);
           return;
         }
         if (!opener?.isConnected) return;

@@ -12,6 +12,7 @@ import { SCROLL_KEYS } from "@/utils/scrollKeys";
 import { anchorsOf, landingOf, sectionElements, TOC_QUERY, type NavSection } from "@/utils/sectionLanding";
 import smoothScrollTo from "@/utils/smoothScrollTo";
 import useCarriedState from "@/utils/useCarriedState";
+import { readingLine, resumeTabBelow } from "@/utils/useFocusScope";
 import useTouchPress from "@/utils/useTouchPress";
 
 const SECTION_COLORS: Record<NavSection, string> = {
@@ -305,6 +306,7 @@ const SectionNav = ({ sections }: SectionNavProps) => {
       window.history.replaceState(null, "", `#${id}`);
     }
     hold(id, landing);
+    resumeTabBelow(readingLine(document.getElementById(id)));
   };
 
   return (

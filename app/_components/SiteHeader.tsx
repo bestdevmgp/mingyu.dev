@@ -14,7 +14,7 @@ import { subtleBoxClasses } from "@/utils/pressClasses";
 import type { NavSection } from "@/utils/sectionLanding";
 import smoothScrollTo from "@/utils/smoothScrollTo";
 import useCarriedState from "@/utils/useCarriedState";
-import useFocusScope from "@/utils/useFocusScope";
+import useFocusScope, { readingLine } from "@/utils/useFocusScope";
 import useIsDark from "@/utils/useIsDark";
 import useOnEscape from "@/utils/useOnEscape";
 import useTouchPress from "@/utils/useTouchPress";
@@ -145,16 +145,11 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
   }, [locale]);
 
   const pickedSection = useRef<HTMLElement | null>(null);
-  const resumeBelow = useCallback(
-    (openedByKeyboard: boolean) => {
-      const section = pickedSection.current;
-      pickedSection.current = null;
-      if (openedByKeyboard && !section) return null;
-      return () =>
-        Math.max(scope.current?.getBoundingClientRect().bottom ?? 0, section?.getBoundingClientRect().top ?? 0);
-    },
-    [scope],
-  );
+  const resumeBelow = useCallback((openedByKeyboard: boolean) => {
+    const section = pickedSection.current;
+    pickedSection.current = null;
+    return openedByKeyboard && !section ? null : readingLine(section);
+  }, []);
 
   const expandedRef = useRef(isExpanded);
   useEffect(() => {

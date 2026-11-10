@@ -2,6 +2,13 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant mouse (@media (hover: hover) and (pointer: fine));
+@custom-variant hover {
+  &:hover:where(html:not([data-touch]) *) {
+    @media (hover: hover) {
+      @slot;
+    }
+  }
+}
 
 @property --foreground {
   syntax: "<color>";

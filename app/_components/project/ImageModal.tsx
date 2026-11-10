@@ -62,6 +62,7 @@ const EDGE_LEAN_OUT = 0.15;
 const EDGE_LEAN_BACK = 0.375;
 const FLICK_SPEED = 0.35;
 const FLICK_WINDOW = 100;
+const FINE_POINTER_SWIPE_COMMIT = 200;
 const WHEEL_GESTURE_GAP = 120;
 const WHEEL_SWIPE_COMMIT = 100;
 const WHEEL_EDGE_PUSH = 20;
@@ -829,10 +830,12 @@ export default function ImageModal({
     const speed = last && last.time > first.time ? (last.x - first.x) / (last.time - first.time) : 0;
     const width = paneWidth();
     const moved = offset - swipe.base;
+    const commit =
+      coarsePointer || swipe.zoomed || swipe.base ? width / 2 : Math.min(width / 2, FINE_POINTER_SWIPE_COMMIT);
     let target = currentIndex;
     if (Math.abs(speed) > FLICK_SPEED && Math.abs(moved) > (swipe.zoomed ? width * 0.2 : TAP_SLOP)) {
       if (Math.sign(speed) === Math.sign(moved)) target += speed < 0 ? 1 : -1;
-    } else if (Math.abs(offset) > width / 2) target += offset < 0 ? 1 : -1;
+    } else if (Math.abs(offset) > commit) target += offset < 0 ? 1 : -1;
 
     settleSlide(target >= 0 && target < images.length ? target : currentIndex, speed * 1000);
   };

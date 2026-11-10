@@ -53,6 +53,7 @@ const ProjectImage = ({ ref, className, src, alt, size, sizes, reveal, onClick }
           className="w-full h-auto object-contain hover:opacity-80 transition-opacity duration-200"
           src={src}
           alt={alt}
+          aria-hidden
           width={800}
           height={600}
           sizes={sizes}
@@ -61,6 +62,12 @@ const ProjectImage = ({ ref, className, src, alt, size, sizes, reveal, onClick }
           onClick={onClick}
         />
       </div>
+      <button
+        type="button"
+        aria-label={alt}
+        className="absolute inset-0 pointer-events-none -outline-offset-1"
+        onClick={onClick}
+      />
     </div>
   );
 };
