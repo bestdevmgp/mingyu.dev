@@ -16,6 +16,7 @@ const CardFrame = ({ boxId, boxClassName, children, ...linkProps }: CardFramePro
     <a className="no-underline focus-visible:rounded-md md:focus-visible:rounded-lg -outline-offset-1" {...linkProps}>
       <div
         id={boxId}
+        data-pressed={isPressed || undefined}
         {...pressHandlers}
         className={cn(
           "w-full h-fit md:h-full md:min-h-72 p-5 md:p-6 border border-foreground/15 rounded-md md:rounded-lg group",
