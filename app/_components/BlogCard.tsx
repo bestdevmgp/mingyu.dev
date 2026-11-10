@@ -31,7 +31,7 @@ const BlogCard = ({ id, title, date, forwardLink, bgImageUrl }: BlogCardProps) =
       boxClassName="relative overflow-hidden transition-[scale] duration-200"
     >
       <Image
-        className="object-cover transition-[scale] duration-200 ease-[ease-out] motion-safe:group-hover:scale-[1.04]"
+        className="object-cover select-none transition-[scale] duration-200 ease-[ease-out] motion-safe:group-hover:scale-[1.04]"
         src={bgImageUrl}
         alt=""
         fill
