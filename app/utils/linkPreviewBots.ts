@@ -2,6 +2,7 @@ import { after, type NextRequest } from "next/server";
 
 const LINK_PREVIEW_BOTS: [platform: string, pattern: RegExp][] = [
   ["네이버 블로그/카페", /Blueno\//],
+  ["네이버웍스", /WorksOgCrawler\//],
   ["카카오스토리", /kakaostory-og-reader/],
   ["카카오톡", /kakaotalk-scrap/],
   ["Canva", /docs\/about\) Canva/],
