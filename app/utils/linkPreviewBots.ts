@@ -1,5 +1,9 @@
 import { after, type NextRequest } from "next/server";
 
+import { locales } from "@i18n/config";
+
+declare const PROJECT_IDS: string;
+
 const LINK_PREVIEW_BOTS: [platform: string, pattern: RegExp][] = [
   ["네이버 블로그/카페", /Blueno\//],
   ["네이버웍스", /WorksOgCrawler\//],
@@ -27,6 +31,15 @@ const LINK_PREVIEW_BOTS: [platform: string, pattern: RegExp][] = [
 
 const ANY_LINK_PREVIEW_BOT = new RegExp(LINK_PREVIEW_BOTS.map(([, pattern]) => pattern.source).join("|"));
 
+const PROJECT_PAGES = PROJECT_IDS.split(",").map(id => `/projects/${id}`);
+
+const PAGE_PATHS = new Set(
+  ["", ...locales.map(locale => `/${locale}`)].flatMap(prefix => [
+    prefix || "/",
+    ...PROJECT_PAGES.map(page => prefix + page),
+  ]),
+);
+
 const sendToDiscord = async (path: string, userAgent: string) => {
   const [platform] = LINK_PREVIEW_BOTS.find(([, pattern]) => pattern.test(userAgent))!;
   const time = new Date().toLocaleString("sv-SE", { timeZone: "Asia/Seoul" });
@@ -53,5 +66,6 @@ export const notifyLinkPreview = (request: NextRequest) => {
   const userAgent = request.headers.get("user-agent") ?? "";
   if (request.method !== "GET" || !ANY_LINK_PREVIEW_BOT.test(userAgent)) return;
   const { pathname, search } = request.nextUrl;
+  if (!PAGE_PATHS.has(pathname)) return;
   after(() => sendToDiscord(pathname + search, userAgent));
 };

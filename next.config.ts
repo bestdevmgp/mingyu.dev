@@ -1,5 +1,6 @@
 import createNextIntlPlugin from "next-intl/plugin";
 
+import content from "./app/_generated/content.json";
 import { ENTRY_HEADERS, ENTRY_REWRITES } from "./i18n/entryRoutes";
 
 import type { NextConfig } from "next";
@@ -53,6 +54,9 @@ const contentSecurityPolicy = () => {
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  compiler: {
+    defineServer: { PROJECT_IDS: content.project.map(({ id }) => id).join(",") },
+  },
   experimental: {
     globalNotFound: true,
     prefetchInlining: false,
