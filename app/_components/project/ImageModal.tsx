@@ -63,7 +63,9 @@ const EDGE_LEAN_BACK = 0.375;
 const FLICK_SPEED = 0.35;
 const FLICK_WINDOW = 100;
 const PULL_SPRING = { stiffness: 300, damping: 22 };
-const PULL_DISMISS = 100;
+const PULL_DISMISS = 140;
+const PULL_FLICK_SPEED = 0.5;
+const PULL_FLICK_MIN = 40;
 const PULL_SHRINK = 0.25;
 const THUMBNAIL_FADE = 200;
 const THUMBNAIL_EASING = "cubic-bezier(0.4, 0, 0.2, 1)";
@@ -991,7 +993,7 @@ export default function ImageModal({
     const pull = pullRef.current;
     if (!pull) return;
     const speed = flickSpeed(swipe.samples, time, "y");
-    if ((speed > FLICK_SPEED && pull.y > TAP_SLOP) || (speed > -FLICK_SPEED && pull.y > PULL_DISMISS))
+    if ((speed > PULL_FLICK_SPEED && pull.y > PULL_FLICK_MIN) || (speed > -FLICK_SPEED && pull.y > PULL_DISMISS))
       return requestClose();
     settlePull(speed);
     releaseSwipe(swipe, time);
