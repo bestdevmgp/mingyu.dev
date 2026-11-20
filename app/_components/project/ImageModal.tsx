@@ -62,6 +62,11 @@ const EDGE_LEAN_OUT = 0.15;
 const EDGE_LEAN_BACK = 0.375;
 const FLICK_SPEED = 0.35;
 const FLICK_WINDOW = 100;
+const PULL_SPRING = { stiffness: 300, damping: 22 };
+const PULL_DISMISS = 100;
+const PULL_SHRINK = 0.25;
+const THUMBNAIL_FADE = 200;
+const THUMBNAIL_EASING = "cubic-bezier(0.4, 0, 0.2, 1)";
 const FINE_POINTER_SWIPE_COMMIT = 200;
 const WHEEL_GESTURE_GAP = 120;
 const WHEEL_SWIPE_COMMIT = 100;
@@ -83,10 +88,19 @@ const POINTER_TIMING = { open: 240, close: 240 };
 const TOUCH_TIMING = { open: 320, close: 320 };
 
 interface Swipe {
-  mode: "pending" | "swipe" | "pan" | "none";
+  mode: "pending" | "swipe" | "pan" | "pull" | "none";
   base: number;
   zoomed: boolean;
-  samples: { time: number; x: number }[];
+  samples: { time: number; x: number; y: number }[];
+}
+
+interface Pull {
+  x: number;
+  y: number;
+  base: { x: number; y: number };
+  chromeHidden: boolean;
+  restore: { transform: string; transition: string; willChange: string };
+  spring?: { stop: () => void };
 }
 
 interface WheelGesture {
@@ -118,6 +132,26 @@ const zoomTransform = ({ x, y, zoom }: ZoomView) => `translate(${x}px, ${y}px) s
 const momentumWeight = (elapsed: number) => {
   const progress = Math.min(1, elapsed / WHEEL_MOMENTUM_FADE);
   return (1 - progress) * (1 - progress) * (1 + progress);
+};
+
+const thumbnailFades = new WeakMap<HTMLImageElement, Animation>();
+
+const setThumbnailHidden = (thumbnail: HTMLImageElement, hidden: boolean, fade: boolean, delay = 0) => {
+  const from = getComputedStyle(thumbnail).opacity;
+  thumbnailFades.get(thumbnail)?.cancel();
+  const animation = thumbnail.animate(
+    { opacity: [from, hidden ? "0" : "1"] },
+    { delay, duration: fade ? THUMBNAIL_FADE : 0, easing: THUMBNAIL_EASING, fill: hidden ? "forwards" : "backwards" },
+  );
+  if (delay) animation.startTime = document.timeline.currentTime;
+  thumbnailFades.set(thumbnail, animation);
+};
+
+const flickSpeed = (samples: Swipe["samples"], time: number, axis: "x" | "y") => {
+  const recent = samples.filter(sample => time - sample.time <= FLICK_WINDOW);
+  const first = recent[0];
+  const last = recent[recent.length - 1];
+  return last && last.time > first.time ? (last[axis] - first[axis]) / (last.time - first.time) : 0;
 };
 
 const rubberBand = (offset: number, size: number) =>
@@ -315,6 +349,7 @@ export default function ImageModal({
   const timing = coarsePointer ? TOUCH_TIMING : POINTER_TIMING;
 
   const overlayRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const imageContentRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<HTMLDivElement>(null);
@@ -329,11 +364,14 @@ export default function ImageModal({
   const pinchDistanceRef = useRef(0);
   const pinchDirectionRef = useRef(0);
   const isClosingRef = useRef(false);
+  const openingRef = useRef(false);
   const trackOffsetRef = useRef(0);
   const pendingOffsetRef = useRef(0);
   const indexRef = useRef(initialIndex);
   const slideRef = useRef<{ target: number; velocity: number; stop: () => void } | null>(null);
   const swipeRef = useRef<Swipe | null>(null);
+  const pullRef = useRef<Pull | null>(null);
+  const hiddenThumbnailRef = useRef<HTMLImageElement | null>(null);
   const wheelGestureRef = useRef<WheelGesture | null>(null);
   const wheelTimerRef = useRef(0);
   const targetViewRef = useRef<ZoomView>({ x: 0, y: 0, zoom: 1 });
@@ -468,8 +506,30 @@ export default function ImageModal({
     if (motionSource !== "wheel") stopFollow();
   }, [position, zoom, motionSource, stopFollow]);
 
+  const showThumbnail = useCallback((delay = 0) => {
+    const thumbnail = hiddenThumbnailRef.current;
+    hiddenThumbnailRef.current = null;
+    if (thumbnail) setThumbnailHidden(thumbnail, false, false, delay);
+  }, []);
+
+  const hideThumbnail = useCallback(
+    (index: number, fade: boolean) => {
+      const thumbnail = getThumbnail(index);
+      const previous = hiddenThumbnailRef.current;
+      if (thumbnail === previous && fade) return;
+      if (previous && previous !== thumbnail) setThumbnailHidden(previous, false, fade);
+      if (thumbnail) setThumbnailHidden(thumbnail, true, fade);
+      hiddenThumbnailRef.current = thumbnail;
+    },
+    [getThumbnail],
+  );
+
+  const paneWidth = useCallback(() => imageRef.current?.offsetWidth ?? 0, []);
+  const paneHeight = useCallback(() => imageRef.current?.offsetHeight ?? 0, []);
+
   const showImage = useCallback(
     (index: number) => {
+      hideThumbnail(index, true);
       setCurrentIndex(index);
       setPreloadReach(0);
       setHeading(null);
@@ -479,14 +539,19 @@ export default function ImageModal({
       setAspect(ratio);
       setFitted(fitToPane(ratio));
     },
-    [knownRatio, fitToPane, resetZoom],
+    [hideThumbnail, knownRatio, fitToPane, resetZoom],
   );
 
-  const setTrack = useCallback((offset: number) => {
-    trackOffsetRef.current = offset;
-    const track = trackRef.current;
-    if (track) track.style.transform = offset ? `translate3d(${offset}px, 0, 0)` : "";
-  }, []);
+  const setTrack = useCallback(
+    (offset: number) => {
+      trackOffsetRef.current = offset;
+      const track = trackRef.current;
+      if (track) track.style.transform = offset ? `translate3d(${offset}px, 0, 0)` : "";
+      if (hiddenThumbnailRef.current && !isClosingRef.current)
+        hideThumbnail(indexRef.current - Math.round(offset / (paneWidth() + SLIDE_GAP)), true);
+    },
+    [hideThumbnail, paneWidth],
+  );
 
   const stopSlide = useCallback(() => {
     const slide = slideRef.current;
@@ -516,8 +581,6 @@ export default function ImageModal({
     pendingOffsetRef.current = 0;
   }, [currentIndex, setTrack]);
 
-  const paneWidth = useCallback(() => imageRef.current?.offsetWidth ?? 0, []);
-
   const takeOverSlide = useCallback(() => {
     const slide = stopSlide();
     const index = indexRef.current;
@@ -532,7 +595,11 @@ export default function ImageModal({
   const requestClose = useCallback(() => {
     if (isClosingRef.current) return;
     isClosingRef.current = true;
+    const pull = pullRef.current;
+    pullRef.current = null;
+    pull?.spring?.stop();
     takeOverSlide();
+    hideThumbnail(indexRef.current, false);
     window.clearTimeout(wheelTimerRef.current);
     window.clearTimeout(tapTimerRef.current);
     window.clearTimeout(chromeTimerRef.current);
@@ -552,15 +619,16 @@ export default function ImageModal({
       flipTo(wrapper, transform, timing.close, FLIP_EASING);
       if (pane) fadeEdgeMask(edgeMaskRef.current, pane, shownArea(pane), 0);
     }
+    showThumbnail(flies ? timing.close : 0);
     if (offset) animate(offset, 0, { duration: timing.close / 1000, ease: FLIP_CURVE, onUpdate: setTrack });
 
     setIsDragging(false);
     setIsPinching(false);
     setIsTouching(false);
-    setChromeHidden(false);
+    if (!pull) setChromeHidden(false);
     setCloseFlies(flies);
     onClose();
-  }, [getThumbnail, measureVisualBox, setTrack, takeOverSlide, timing.close, onClose]);
+  }, [getThumbnail, hideThumbnail, measureVisualBox, setTrack, showThumbnail, takeOverSlide, timing.close, onClose]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -573,6 +641,7 @@ export default function ImageModal({
     if (!isOpen) return;
     markViewerShown();
     isClosingRef.current = false;
+    openingRef.current = false;
     sessionRef.current += 1;
     swipeRef.current = null;
     wheelGestureRef.current = null;
@@ -582,6 +651,7 @@ export default function ImageModal({
     window.clearTimeout(chromeTimerRef.current);
     edgeMaskRef.current.fade?.stop();
     edgeMaskRef.current.alpha = 1;
+    hideThumbnail(initialIndex, false);
     setTrack(0);
     setLoaded(new Set());
     setFailed(new Set());
@@ -615,11 +685,25 @@ export default function ImageModal({
 
     const transform = getFlipTransform(origin, getCenteredBox(pane, size));
     if (!transform) return;
-    flipFrom(wrapper, transform, timing.open, FLIP_EASING);
+    openingRef.current = true;
+    flipFrom(wrapper, transform, timing.open, FLIP_EASING, () => {
+      openingRef.current = false;
+    });
 
     edgeMaskRef.current.alpha = 0;
     fadeEdgeMask(edgeMaskRef.current, pane, shownArea(pane), 1, timing.open / 1000 - PHOTO_FADE);
-  }, [isOpen, initialIndex, getThumbnail, knownRatio, fitToPane, resetZoom, restartIdle, setTrack, timing.open]);
+  }, [
+    isOpen,
+    initialIndex,
+    getThumbnail,
+    hideThumbnail,
+    knownRatio,
+    fitToPane,
+    resetZoom,
+    restartIdle,
+    setTrack,
+    timing.open,
+  ]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
@@ -824,10 +908,7 @@ export default function ImageModal({
     const offset = trackOffsetRef.current;
     if (!offset) return;
 
-    const recent = swipe.samples.filter(sample => time - sample.time <= FLICK_WINDOW);
-    const first = recent[0];
-    const last = recent[recent.length - 1];
-    const speed = last && last.time > first.time ? (last.x - first.x) / (last.time - first.time) : 0;
+    const speed = flickSpeed(swipe.samples, time, "x");
     const width = paneWidth();
     const moved = offset - swipe.base;
     const commit =
@@ -838,6 +919,88 @@ export default function ImageModal({
     } else if (Math.abs(offset) > commit) target += offset < 0 ? 1 : -1;
 
     settleSlide(target >= 0 && target < images.length ? target : currentIndex, speed * 1000);
+  };
+
+  const setPull = (pull: Pull, x: number, y: number) => {
+    pull.x = x;
+    pull.y = y;
+    const progress = Math.min(1, Math.max(0, y) / (paneHeight() / 2));
+    const wrapper = flipRef.current;
+    const backdrop = backdropRef.current;
+    if (wrapper) wrapper.style.transform = `translate(${x}px, ${y}px) scale(${1 - progress * PULL_SHRINK})`;
+    if (backdrop)
+      backdrop.style.backgroundColor = `color-mix(in oklab, var(--color-black) ${90 * (1 - progress)}%, transparent)`;
+  };
+
+  const startPull = () => {
+    const wrapper = flipRef.current;
+    pullRef.current = {
+      x: 0,
+      y: 0,
+      base: { x: 0, y: 0 },
+      chromeHidden,
+      restore: {
+        transform: wrapper?.style.transform ?? "",
+        transition: wrapper?.style.transition ?? "",
+        willChange: wrapper?.style.willChange ?? "",
+      },
+    };
+    if (wrapper) {
+      wrapper.style.transition = "none";
+      wrapper.style.willChange = "transform";
+    }
+    setChromeHidden(true);
+  };
+
+  const movePull = (dx: number, dy: number) => {
+    const pull = pullRef.current;
+    if (!pull) return;
+    const y = pull.base.y + dy;
+    setPull(pull, pull.base.x + dx, y < 0 ? rubberBand(y, EDGE_STRETCH) : y);
+  };
+
+  const endPull = (pull: Pull) => {
+    pullRef.current = null;
+    const wrapper = flipRef.current;
+    if (wrapper) {
+      wrapper.style.transform = pull.restore.transform;
+      wrapper.style.transition = pull.restore.transition;
+      wrapper.style.willChange = pull.restore.willChange;
+    }
+    if (backdropRef.current) backdropRef.current.style.backgroundColor = "";
+    setChromeHidden(pull.chromeHidden);
+  };
+
+  const settlePull = (speed: number) => {
+    const pull = pullRef.current;
+    if (!pull) return;
+    const { x, y } = pull;
+    if (prefersReducedMotion() || (!x && !y)) return endPull(pull);
+    pull.spring = animate(1, 0, {
+      type: "spring",
+      ...PULL_SPRING,
+      velocity: y > 1 ? (speed * 1000) / y : 0,
+      onUpdate: progress => setPull(pull, x * progress, y * progress),
+      onComplete: () => {
+        if (pullRef.current === pull) endPull(pull);
+      },
+    });
+  };
+
+  const releasePull = (swipe: Swipe, time: number) => {
+    const pull = pullRef.current;
+    if (!pull) return;
+    const speed = flickSpeed(swipe.samples, time, "y");
+    if ((speed > FLICK_SPEED && pull.y > TAP_SLOP) || (speed > -FLICK_SPEED && pull.y > PULL_DISMISS))
+      return requestClose();
+    settlePull(speed);
+    releaseSwipe(swipe, time);
+  };
+
+  const pullPastEdge = (over: number) => {
+    if (over > 0 && !pullRef.current) startPull();
+    const pull = pullRef.current;
+    if (pull) setPull(pull, 0, Math.max(0, over));
   };
 
   const toggleZoomAt = (point: { x: number; y: number }) => {
@@ -1074,6 +1237,7 @@ export default function ImageModal({
         swipeRef.current = null;
         settleSlide(indexRef.current);
       }
+      settlePull(0);
       const distance = getDistance(e.touches[0], e.touches[1]);
       pinchDistanceRef.current = distance;
       pinchDirectionRef.current = 0;
@@ -1083,6 +1247,15 @@ export default function ImageModal({
     } else if (e.touches.length === 1) {
       touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
       hasMovedRef.current = false;
+      const sample = { time: e.timeStamp, x: touch.clientX, y: touch.clientY };
+
+      const pull = pullRef.current;
+      if (pull) {
+        pull.spring?.stop();
+        pull.base = { x: pull.x, y: pull.y };
+        swipeRef.current = { mode: "pull", base: 0, zoomed: false, samples: [sample] };
+        return;
+      }
 
       const { swapped } = takeOverSlide();
       const base = trackOffsetRef.current;
@@ -1091,7 +1264,7 @@ export default function ImageModal({
         mode: pan ? "pan" : base ? "swipe" : "pending",
         base,
         zoomed: pan,
-        samples: [{ time: e.timeStamp, x: touch.clientX }],
+        samples: [sample],
       };
       if (!pan) return;
 
@@ -1138,18 +1311,25 @@ export default function ImageModal({
         return;
       }
 
-      swipe.samples.push({ time: e.timeStamp, x: touch.clientX });
+      swipe.samples.push({ time: e.timeStamp, x: touch.clientX, y: touch.clientY });
       while (swipe.samples.length > 2 && e.timeStamp - swipe.samples[0].time > FLICK_WINDOW) swipe.samples.shift();
 
-      if (swipe.mode === "pending" && hasMovedRef.current)
-        swipe.mode = Math.abs(touch.clientX - start.x) > Math.abs(touch.clientY - start.y) ? "swipe" : "none";
+      const dx = touch.clientX - start.x;
+      const dy = touch.clientY - start.y;
+      if (swipe.mode === "pending" && hasMovedRef.current) {
+        swipe.mode = Math.abs(dx) > Math.abs(dy) ? "swipe" : dy > 0 && !openingRef.current ? "pull" : "none";
+        if (swipe.mode === "pull") startPull();
+      }
 
-      if (swipe.mode === "swipe") setTrack(resist(swipe.base + touch.clientX - start.x));
+      if (swipe.mode === "swipe") setTrack(resist(swipe.base + dx));
+      else if (swipe.mode === "pull") movePull(dx, dy);
       else if (swipe.mode === "pan") {
         const x = touch.clientX - dragStartRef.current.x;
-        const next = constrainPosition(x, touch.clientY - dragStartRef.current.y, zoom);
+        const y = touch.clientY - dragStartRef.current.y;
+        const next = constrainPosition(x, y, zoom);
         setPosition(next);
         setTrack(resist(x - next.x));
+        pullPastEdge(y - next.y);
       }
     }
   };
@@ -1162,8 +1342,10 @@ export default function ImageModal({
       const swipe = swipeRef.current;
       swipeRef.current = null;
       const start = touchStartPosRef.current;
-      if (!hasMovedRef.current && !multiTouchRef.current && !swipe?.base) handleTap(start, e.timeStamp);
-      if (swipe) releaseSwipe(swipe, e.timeStamp);
+      if (!hasMovedRef.current && !multiTouchRef.current && !swipe?.base && swipe?.mode !== "pull")
+        handleTap(start, e.timeStamp);
+      if (swipe && pullRef.current) releasePull(swipe, e.timeStamp);
+      else if (swipe) releaseSwipe(swipe, e.timeStamp);
 
       setIsDragging(false);
       setIsPinching(false);
@@ -1188,6 +1370,7 @@ export default function ImageModal({
     hasMovedRef.current = false;
     swipeRef.current = null;
     if (trackOffsetRef.current) settleSlide(indexRef.current);
+    settlePull(0);
   };
 
   const slides = Array.from({ length: PRELOAD_REACH * 2 + 1 }, (_, i) => currentIndex - PRELOAD_REACH + i).filter(
@@ -1224,6 +1407,7 @@ export default function ImageModal({
     <AnimatePresence
       custom={closeFlies}
       onExitComplete={() => {
+        showThumbnail();
         resetZoom();
         settleViewerClose();
       }}
@@ -1243,7 +1427,7 @@ export default function ImageModal({
           onPointerMove={wakeChrome}
           onPointerDown={wakeChrome}
         >
-          <motion.div {...chromeFade} className="absolute inset-0 bg-black/90 backdrop-blur-xs" />
+          <motion.div ref={backdropRef} {...chromeFade} className="absolute inset-0 bg-black/90 backdrop-blur-xs" />
 
           <div className="relative w-full h-full flex items-center justify-center">
             <motion.div {...chromeFade} className="absolute top-4 left-4 right-4 z-20 pointer-events-none">
@@ -1277,12 +1461,9 @@ export default function ImageModal({
               </div>
             </motion.div>
 
-            <motion.div
+            <div
               ref={imageRef}
               className="relative w-full h-full overflow-hidden select-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: PHOTO_FADE, ease: "easeOut" }}
               onClick={handleImageClick}
               onMouseDown={handleMouseDown}
               onTouchStart={handleTouchStart}
@@ -1394,7 +1575,7 @@ export default function ImageModal({
                   );
                 })}
               </div>
-            </motion.div>
+            </div>
 
             <motion.div {...chromeFade} className="absolute inset-0 pointer-events-none">
               <div className={cn("absolute inset-0 transition-opacity duration-200", chromeHidden && "opacity-0")}>

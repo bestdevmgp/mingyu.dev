@@ -237,7 +237,7 @@ const Modal = ({ children, onRelease, onExited, labelledBy, label }: ModalProps)
                         >
                           <X
                             aria-hidden
-                            className="block w-6 h-6 md:w-8 md:h-8 text-foreground opacity-45"
+                            className="block w-6.25 h-6.25 md:w-8 md:h-8 text-foreground opacity-45"
                             strokeWidth={1.5}
                           />
                         </button>

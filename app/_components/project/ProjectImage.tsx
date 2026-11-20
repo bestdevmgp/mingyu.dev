@@ -7,6 +7,8 @@ import cn from "classnames";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 
+import useTouchPress from "@/utils/useTouchPress";
+
 interface ProjectImageProps {
   ref: Ref<HTMLImageElement>;
   className: string;
@@ -24,6 +26,7 @@ const settledSources = new Set<string>();
 
 const ProjectImage = ({ ref, className, src, alt, size, sizes, reveal, onClick }: ProjectImageProps) => {
   const [loaded, setLoaded] = useState(() => settledSources.has(src));
+  const [isPressed, pressHandlers] = useTouchPress();
   const settle = () => {
     settledSources.add(src);
     setLoaded(true);
@@ -50,7 +53,12 @@ const ProjectImage = ({ ref, className, src, alt, size, sizes, reveal, onClick }
       >
         <Image
           ref={ref}
-          className="w-full h-auto object-contain hover:opacity-80 transition-opacity duration-200"
+          className={cn(
+            "w-full h-auto object-contain transition-[filter] duration-200",
+            isPressed
+              ? "brightness-(--photo-pressed)"
+              : "hover:brightness-(--photo-hovered) mouse:active:brightness-(--photo-pressed)",
+          )}
           src={src}
           alt={alt}
           aria-hidden
@@ -60,6 +68,7 @@ const ProjectImage = ({ ref, className, src, alt, size, sizes, reveal, onClick }
           style={{ aspectRatio: size && `${size[0]} / ${size[1]}` }}
           onLoad={settle}
           onClick={onClick}
+          {...pressHandlers}
         />
       </div>
       <button

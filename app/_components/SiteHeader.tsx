@@ -294,14 +294,15 @@ const SiteHeader = ({ sections, homeHref, hardNavigation = false }: SiteHeaderPr
           ref={menuButtonRef}
           type="button"
           className={cn(
-            "relative isolate block xl:hidden shrink-0 text-foreground/70 -mr-1 p-1 focus-visible:outline-none",
+            "relative isolate block xl:hidden shrink-0 text-foreground/70 -mr-1 focus-visible:outline-none",
+            isExpanded ? "p-[3.5px]" : "p-1",
             "before:absolute before:-z-10 before:-inset-0.5 before:rounded-md focus-visible:before:outline-solid focus-visible:before:-outline-offset-1",
           )}
           onClick={() => setIsExpanded(prev => !prev)}
           aria-label={t(isExpanded ? "closeMenu" : "openMenu")}
           aria-expanded={isExpanded}
         >
-          {isExpanded ? <X className="block w-5 h-5" /> : <Menu className="block w-5 h-5" />}
+          {isExpanded ? <X className="block w-5.25 h-5.25" /> : <Menu className="block w-5 h-5" />}
         </button>
       </div>
 

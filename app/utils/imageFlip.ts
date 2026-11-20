@@ -58,23 +58,30 @@ export const getFlipTransform = (from: Box, to: Box, pivot = centerOf(to)): Flip
 
 const toCss = (transform: FlipTransform) => `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`;
 
-const releaseAfterFlight = (element: HTMLElement) => {
+const releaseAfterFlight = (element: HTMLElement, onLanded?: () => void) => {
   const done = (event: TransitionEvent) => {
     if (event.target !== element || event.propertyName !== "transform") return;
     element.style.willChange = "";
     element.removeEventListener("transitionend", done);
+    onLanded?.();
   };
   element.addEventListener("transitionend", done);
 };
 
-export const flipFrom = (element: HTMLElement, from: FlipTransform, duration: number, easing: string) => {
+export const flipFrom = (
+  element: HTMLElement,
+  from: FlipTransform,
+  duration: number,
+  easing: string,
+  onLanded?: () => void,
+) => {
   element.style.willChange = "transform";
   element.style.transition = "none";
   element.style.transform = toCss(from);
   void element.offsetWidth;
   element.style.transition = `transform ${duration}ms ${easing}`;
   element.style.transform = "translate(0px, 0px) scale(1)";
-  releaseAfterFlight(element);
+  releaseAfterFlight(element, onLanded);
 };
 
 export const flipTo = (element: HTMLElement, to: FlipTransform, duration: number, easing: string) => {

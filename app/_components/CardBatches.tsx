@@ -84,7 +84,7 @@ const CardBatches = ({ carryKey, showMoreAnalytics, action, children }: CardBatc
             className={openedBatches.includes(start) ? undefined : "overflow-hidden"}
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.4, ease: [0.3, 1, 0.6, 1] }}
             onAnimationComplete={() => setOpenedBatches(starts => [...starts, start])}
           >
             {grid}
